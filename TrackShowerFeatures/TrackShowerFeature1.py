@@ -2,10 +2,6 @@
 import statistics
 import math
 
-# Algorithm parameters
-minBins = 2
-binWidth = 0.45
-
 
 # This function counts how many numbers fall in a set of bins of a given width.
 # Empty bins are ignored.
@@ -75,7 +71,7 @@ def RotateClockwise(xCoords, yCoords, tanTheta):
     return xCoordsNew, yCoordsNew
 
 
-def GetRotatedBinStdev(driftCoord, wireCoord, binWidth):
+def GetRotatedBinStdev(driftCoord, wireCoord, binWidth, minBins):
     b = OLS(driftCoord, wireCoord)[0]
 
     # Rotate the coords so that any tracks are roughly parallel to the x axis.
@@ -92,5 +88,5 @@ def GetRotatedBinStdev(driftCoord, wireCoord, binWidth):
         return -1
 
 
-def GetFeature(pfo):
-    return GetRotatedBinStdev(pfo.driftCoordW, pfo.wireCoordW, binWidth)
+def GetFeature(pfo, binWidth=0.89, minBins=2):
+    return GetRotatedBinStdev(pfo.driftCoordW, pfo.wireCoordW, binWidth, minBins)

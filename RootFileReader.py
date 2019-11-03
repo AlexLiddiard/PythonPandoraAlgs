@@ -29,7 +29,9 @@ class PfoClass(object):
         self.energyU = ReadRootVector(pfo.EnergyU)
         self.energyV = ReadRootVector(pfo.EnergyV)
         self.energyW = ReadRootVector(pfo.EnergyW)
-        self.nHits = len(pfo.DriftCoordW)
+        self.nHitsU = len(pfo.DriftCoordU)
+        self.nHitsV = len(pfo.DriftCoordV)
+        self.nHitsW = len(pfo.DriftCoordW)
 
     # These change how the PFO is printed to the screen
     def __str__(self):

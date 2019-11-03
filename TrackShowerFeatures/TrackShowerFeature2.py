@@ -1,10 +1,6 @@
 # This module is for track/shower feature #2
 import math
 
-# Algorithm parameters
-rectWidth = 5
-rectHeight = 5
-
 
 # Finds the nearest neighbour of a 2D point (out of a list of points)
 # It's quite slow
@@ -119,5 +115,5 @@ def GetChainInfo(driftCoord, wireCoord, rectWidth, rectHeight):
     return chainCount, avgLengthRatio
 
 
-def GetFeature(pfo):
-    return GetChainInfo(pfo.driftCoordW, pfo.wireCoordW, rectWidth, rectHeight)
+def GetFeature(pfo, rectWidth=5, rectHeight=5):
+    return GetChainInfo(pfo.driftCoordW.copy(), pfo.wireCoordW.copy(), rectWidth, rectHeight)
