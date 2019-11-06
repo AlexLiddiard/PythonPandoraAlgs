@@ -1,5 +1,5 @@
 import os
-import RootFileReader
+import UpRootFileReader
 import TrackShowerFeatures.TrackShowerFeature0 as tsf0
 import TrackShowerFeatures.TrackShowerFeature1 as tsf1
 import TrackShowerFeatures.TrackShowerFeature2 as tsf2
@@ -7,13 +7,16 @@ import TrackShowerFeatures.TrackShowerFeature2 as tsf2
 minHits = 10
 
 if __name__ == "__main__":
-    directory = input("Enter a folder path containing ROOT files: ")
-    fileList = os.listdir(directory)
+    #directory = input("Enter a folder path containing ROOT files: ")
+    #fileList = os.listdir(directory)
+    fileList = os.listdir('/home/jack/Documents/Pandora/PythonPandoraAlgs/ROOT Files/')
 
     print("EventId\tPfoId\tType\t[Features]")
     for fileName in fileList:
-        events = RootFileReader.ReadRootFile(os.path.join(directory, fileName))
+        #events = UpRootFileReader.ReadRootFile(os.path.join(directory, fileName))
+        events = UpRootFileReader.ReadRootFile(os.path.join('/home/jack/Documents/Pandora/PythonPandoraAlgs/ROOT Files/', fileName))
 
+        
         for eventPfos in events:
             for pfo in eventPfos:
                 pfoTrueType = pfo.TrueTypeW()

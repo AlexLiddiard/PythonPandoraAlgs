@@ -116,4 +116,4 @@ def GetChainInfo(driftCoord, wireCoord, rectWidth, rectHeight):
 
 
 def GetFeature(pfo, rectWidth=5, rectHeight=5):
-    return GetChainInfo(pfo.driftCoordW.copy(), pfo.wireCoordW.copy(), rectWidth, rectHeight)
+    return GetChainInfo(pfo.driftCoordW.tolist(), pfo.wireCoordW.tolist(), rectWidth, rectHeight)

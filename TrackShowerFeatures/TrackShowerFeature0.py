@@ -1,6 +1,6 @@
 # This module is for track/shower algorithm #0
 import math
-
+import numpy as np
 
 # Square of the Pearson product-moment correlation
 # https://en.wikipedia.org/wiki/Residual_sum_of_squares
@@ -12,17 +12,15 @@ def RSquared(xCoords, yCoords):
     Syy = 0
     Sx = 0
     Sy = 0
-    n = len(xCoords)
+    n = xCoords.size
     if n == 0:
         return -1
 
-    for i in range(0, n):
-        Sxy += xCoords[i] * yCoords[i]
-        Sxx += xCoords[i] * xCoords[i]
-        Syy += yCoords[i] * yCoords[i]
-        Sx += xCoords[i]
-        Sy += yCoords[i]
-
+    Sxy = np.sum(xCoords * yCoords)
+    Sxx = np.sum(xCoords * xCoords)
+    Syy = np.sum(yCoords * yCoords)
+    Sx = np.sum(xCoords)
+    Sy = np.sum(yCoords)
     divisor = math.sqrt((n * Sxx - Sx * Sx) * (n * Syy - Sy * Sy))
     if divisor == 0:
         return -1
