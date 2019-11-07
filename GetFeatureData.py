@@ -4,6 +4,7 @@ import TrackShowerFeatures.TrackShowerFeature0 as tsf0
 import TrackShowerFeatures.TrackShowerFeature1 as tsf1
 import TrackShowerFeatures.TrackShowerFeature2 as tsf2
 import pandas as pd
+from tqdm import tqdm
 
 minHits = 2
 
@@ -11,17 +12,15 @@ if __name__ == "__main__":
     #directory = input("Enter a folder path containing ROOT files: ")
     directory = '/home/jack/Documents/Pandora/PythonPandoraAlgs/ROOT Files/'
     fileList = os.listdir(directory)
-
-    print("EventId\tPfoId\tType\t[Features]")
     
     pfoFeatureList = []
     
-    for fileName in fileList:
+    for fileName in tqdm(fileList):
         events = UpRootFileReader.ReadRootFile(os.path.join(directory, fileName))
 
         
-        for eventPfos in events:
-            for pfo in eventPfos:
+        for eventPfos in tqdm(events):
+            for pfo in tqdm(eventPfos):
                 pfoTrueType = pfo.TrueTypeW()
 
                 if pfoTrueType == -1 or pfo.nHitsW < minHits:
@@ -43,4 +42,6 @@ if __name__ == "__main__":
                 
     df = pd.DataFrame(pfoFeatureList)
     df.to_pickle('featureData.pickle')
+    
+    print('\n\n Finished!')
     
