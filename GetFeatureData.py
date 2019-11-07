@@ -3,8 +3,9 @@ import UpRootFileReader
 import TrackShowerFeatures.TrackShowerFeature0 as tsf0
 import TrackShowerFeatures.TrackShowerFeature1 as tsf1
 import TrackShowerFeatures.TrackShowerFeature2 as tsf2
+import pandas as pd
 
-minHits = 10
+minHits = 2
 
 if __name__ == "__main__":
     #directory = input("Enter a folder path containing ROOT files: ")
@@ -12,6 +13,9 @@ if __name__ == "__main__":
     fileList = os.listdir('/home/jack/Documents/Pandora/PythonPandoraAlgs/ROOT Files/')
 
     print("EventId\tPfoId\tType\t[Features]")
+    
+    pfoFeatureList = []
+    
     for fileName in fileList:
         #events = UpRootFileReader.ReadRootFile(os.path.join(directory, fileName))
         events = UpRootFileReader.ReadRootFile(os.path.join('/home/jack/Documents/Pandora/PythonPandoraAlgs/ROOT Files/', fileName))
@@ -23,9 +27,21 @@ if __name__ == "__main__":
 
                 if pfoTrueType == -1 or pfo.nHitsW < minHits:
                     continue
-
-                print("%d\t%d\t%d" % (pfo.eventId, pfo.pfoId, pfoTrueType), end="\t")
-                print("%.3f" % tsf0.GetFeature(pfo), end="\t")
-                print("%.3f" % tsf1.GetFeature(pfo), end="\t")
-                print("%.3f" % tsf2.GetFeature(pfo)[1], end="\t")
-                print()
+                
+                featureDictionary = {}
+                
+                featureDictionary['fileName'] = fileName
+                featureDictionary['eventId'] = pfo.eventId
+                featureDictionary['pfoId'] = pfo.pfoId
+                featureDictionary['pfoTrueType'] = pfoTrueType
+                featureDictionary['F0a'] = tsf0.GetFeature(pfo)
+                featureDictionary['F1a'] = tsf1.GetFeature(pfo)
+                F2a, F2b = tsf2.GetFeature(pfo)
+                featureDictionary['F2a'] = F2a
+                featureDictionary['F2b'] = F2b
+                
+                pfoFeatureList.append(featureDictionary)
+                
+    df = pd.DataFrame(pfoFeatureList)
+    df.to_pickle('featureData.pickle')
+    
