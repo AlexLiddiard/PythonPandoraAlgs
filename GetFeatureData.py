@@ -9,16 +9,15 @@ minHits = 2
 
 if __name__ == "__main__":
     #directory = input("Enter a folder path containing ROOT files: ")
-    #fileList = os.listdir(directory)
-    fileList = os.listdir('/home/jack/Documents/Pandora/PythonPandoraAlgs/ROOT Files/')
+    directory = '/home/jack/Documents/Pandora/PythonPandoraAlgs/ROOT Files/'
+    fileList = os.listdir(directory)
 
     print("EventId\tPfoId\tType\t[Features]")
     
     pfoFeatureList = []
     
     for fileName in fileList:
-        #events = UpRootFileReader.ReadRootFile(os.path.join(directory, fileName))
-        events = UpRootFileReader.ReadRootFile(os.path.join('/home/jack/Documents/Pandora/PythonPandoraAlgs/ROOT Files/', fileName))
+        events = UpRootFileReader.ReadRootFile(os.path.join(directory, fileName))
 
         
         for eventPfos in events:
