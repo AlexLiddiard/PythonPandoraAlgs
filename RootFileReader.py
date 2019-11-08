@@ -60,6 +60,43 @@ class PfoClass(object):
             return 1 if abs(self.monteCarloPDGW) in (11, 22) else 0
         else:
             return -1
+        
+    def TrueParticleW(self):
+        return self.TrueParticle(self.monteCarloPDGW)
+    def TrueParticleV(self):
+        return self.TrueParticle(self.monteCarloPDGV)
+    def TrueParticleU(self):
+        return self.TrueParticle(self.monteCarloPDGU)
+        
+    def TrueParticle(self, pdgCode):
+
+            switcher = {
+                    11: "Electron",
+                    12: "Electron Neutrino",
+                    13: "Muon",
+                    14: "Muon Neutrino",
+                    15: "Tauon",
+                    16: "Tauon Neutrino",
+                    22: "Photon",
+                    111: "Neutral Pion",
+                    211: "Pion",
+                    311: "Neutral Kaon",
+                    321: "Kaon",
+                    411: "D",
+                    421: "Neutral D",
+                    511: "Neutral B",
+                    521: "B",
+                    2212: "Proton",
+                    2112: "Neutron",
+                    2224: "Doubly Delta",
+                    2214: "Delta",
+                    2114: "Neutral Delta",
+                    1114: "Negative Delta",
+                    9221132: "Theta",
+                    9331122: "Phi"
+                    }
+            return  ("Anti-" if pdgCode < 0 else "") + switcher.get(abs(pdgCode), "Unknown")
+
 
     # Uses the PDG codes of all wire plane to check if the PFO truly is a track or shower
     def TrueTypeCombined(self):

@@ -15,7 +15,7 @@ if __name__ == "__main__":
         events = rdr.ReadRootFile(os.path.join(directory, fileName))
         for eventPfos in events:
             for pfo in eventPfos:
-                if pfo.nHitsW == 0:
+                if pfo.nHitsW == 0 or pfo.TrueTypeW() == -1:
                     continue
                 
                 
@@ -39,7 +39,7 @@ if __name__ == "__main__":
                 
                 ax.errorbar(x, y, yerr=yerr, xerr=xerr, fmt='o', mew=0, zorder=0, c='black')        
                 
-                plt.title('EventId = %d, PfoId = %d, Hierarchy = %d, %s' %(pfo.eventId, pfo.pfoId, pfo.heirarchyTier, 'Track' if pfo.TrueTypeW()==0 else 'Shower'), fontsize=20)
+                plt.title('EventId = %d, PfoId = %d, Hierarchy = %d, %s, %s' %(pfo.eventId, pfo.pfoId, pfo.heirarchyTier, pfo.TrueParticleW(), 'Track' if pfo.TrueTypeW()==0 else 'Shower'), fontsize=20)
                 plt.xlabel('DriftCoordW (cm)', fontsize = 15)
                 plt.ylabel('WireCoordW (cm)', fontsize = 15)
                 ax.plot(pfo.vertex[0], pfo.vertex[2], marker = 'X', color = 'green', markersize = 15)
