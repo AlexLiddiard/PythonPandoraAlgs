@@ -5,7 +5,7 @@ import ROOT
 # This class defines the data associated with each PFO.
 class PfoClass(object):
 
-    wireCoordErr = 0.3  # Sets wire coord error to 3 millimetres.
+    wireCoordErr = 0.15  # Sets wire coord total error to 3 millimetres.
 
     def __init__(self, pfo):
         self.eventId = pfo.EventId
@@ -60,14 +60,14 @@ class PfoClass(object):
             return 1 if abs(self.monteCarloPDGW) in (11, 22) else 0
         else:
             return -1
-        
+
     def TrueParticleW(self):
         return self.TrueParticle(self.monteCarloPDGW)
     def TrueParticleV(self):
         return self.TrueParticle(self.monteCarloPDGV)
     def TrueParticleU(self):
         return self.TrueParticle(self.monteCarloPDGU)
-        
+
     def TrueParticle(self, pdgCode):
 
             switcher = {

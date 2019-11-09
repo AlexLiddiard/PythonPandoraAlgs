@@ -80,14 +80,14 @@ class PfoClass(object):
         # No PDG info available
         else:
             return -1
-        
+
     def TrueParticleW(self):
         return self.TrueParticle(self.monteCarloPDGW)
     def TrueParticleV(self):
         return self.TrueParticle(self.monteCarloPDGV)
     def TrueParticleU(self):
         return self.TrueParticle(self.monteCarloPDGU)
-        
+
     def TrueParticle(self, pdgCode):
 
             switcher = {
