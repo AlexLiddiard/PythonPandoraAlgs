@@ -116,4 +116,5 @@ def GetChainInfo(driftCoord, wireCoord, rectWidth, rectHeight):
 
 
 def GetFeature(pfo, rectWidth=5, rectHeight=5):
-    return GetChainInfo(pfo.driftCoordW.tolist(), pfo.wireCoordW.tolist(), rectWidth, rectHeight)
+    chainCount, avgLengthRatio = GetChainInfo(pfo.driftCoordW.tolist(), pfo.wireCoordW.tolist(), rectWidth, rectHeight)
+    return { "F2a": chainCount, "F2b": avgLengthRatio }

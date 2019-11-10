@@ -30,4 +30,4 @@ def RSquared(xCoords, yCoords):
 
 
 def GetFeature(pfo):
-    return RSquared(pfo.driftCoordW, pfo.wireCoordW)
+    return { "F0a" : RSquared(pfo.driftCoordW, pfo.wireCoordW) }

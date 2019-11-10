@@ -9,39 +9,36 @@ from tqdm import tqdm
 minHits = 2
 
 if __name__ == "__main__":
-    #directory = input("Enter a folder path containing ROOT files: ")
-    directory = '/home/jack/Documents/Pandora/PythonPandoraAlgs/ROOT Files/'
+    directory = input("Enter a folder path containing ROOT files: ")
+    #directory = '/home/jack/Documents/Pandora/PythonPandoraAlgs/ROOT Files/'
     fileList = os.listdir(directory)
-    
+
     pfoFeatureList = []
-    
+
     for fileName in tqdm(fileList):
         events = UpRootFileReader.ReadRootFile(os.path.join(directory, fileName))
 
-        
+
         for eventPfos in tqdm(events):
             for pfo in tqdm(eventPfos):
                 pfoTrueType = pfo.TrueTypeW()
 
                 if pfoTrueType == -1 or pfo.nHitsW < minHits:
                     continue
-                
+
                 featureDictionary = {}
-                
+
                 featureDictionary['fileName'] = fileName
                 featureDictionary['eventId'] = pfo.eventId
                 featureDictionary['pfoId'] = pfo.pfoId
                 featureDictionary['pfoTrueType'] = pfoTrueType
-                featureDictionary['F0a'] = tsf0.GetFeature(pfo)
-                featureDictionary['F1a'] = tsf1.GetFeature(pfo)
-                F2a, F2b = tsf2.GetFeature(pfo)
-                featureDictionary['F2a'] = F2a
-                featureDictionary['F2b'] = F2b
-                
+                featureDictionary.update(tsf0.GetFeature(pfo))
+                featureDictionary.update(tsf1.GetFeature(pfo))
+                featureDictionary.update(tsf2.GetFeature(pfo))
+
                 pfoFeatureList.append(featureDictionary)
-                
+
     df = pd.DataFrame(pfoFeatureList)
     df.to_pickle('featureData.pickle')
-    
+
     print('\n\n Finished!')
-    
