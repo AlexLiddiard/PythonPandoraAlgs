@@ -30,9 +30,16 @@ class PfoClass(object):
         self.energyU = np.array(pfo.EnergyU, dtype = np.double)
         self.energyV = np.array(pfo.EnergyV, dtype = np.double)
         self.energyW = np.array(pfo.EnergyW, dtype = np.double)
-        self.nHitsU = len(pfo.DriftCoordU)
-        self.nHitsV = len(pfo.DriftCoordV)
-        self.nHitsW = len(pfo.DriftCoordW)
+        self.nHitsPfoU = pfo.nHitsPfoU
+        self.nHitsPfoV = pfo.nHitsPfoV
+        self.nHitsPfoW = pfo.nHitsPfoW
+        self.nHitsMatchU = pfo.nHitsMatchU
+        self.nHitsMatchV = pfo.nHitsMatchV
+        self.nHitsMatchW = pfo.nHitsMatchW
+        self.nHitsMcpU = pfo.nHitsMcpU
+        self.nHitsMcpV = pfo.nHitsMcpV
+        self.nHitsMcpW = pfo.nHitsMcpW
+        
 
     # These change how the PFO is printed to the screen
     def __str__(self):

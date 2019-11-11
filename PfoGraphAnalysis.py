@@ -45,7 +45,7 @@ if __name__ == "__main__":
         rnd.shuffle(events)
         for eventPfos in events:
             for pfo in eventPfos:
-                if pfo.nHitsW < minHits or pfo.TrueTypeW() == -1:
+                if pfo.nHitsPfoW < minHits or pfo.TrueTypeW() == -1:
                     continue
 
 

@@ -23,7 +23,7 @@ if __name__ == "__main__":
             for pfo in tqdm(eventPfos):
                 pfoTrueType = pfo.TrueTypeW()
 
-                if pfoTrueType == -1 or pfo.nHitsW < minHits:
+                if pfoTrueType == -1 or pfo.nHitsPfoW < minHits:
                     continue
 
                 featureDictionary = {}

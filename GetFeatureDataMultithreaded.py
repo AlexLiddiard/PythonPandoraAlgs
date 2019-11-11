@@ -17,7 +17,7 @@ def ProcessFile(filePath):
     for eventPfos in events:
         for pfo in eventPfos:
             pfoTrueType = pfo.TrueTypeW()
-            if pfoTrueType == -1 or pfo.nHitsW < minHits:
+            if pfoTrueType == -1 or pfo.nHitsPfoW < minHits:
                 continue
             featureDictionary = {
                 'fileName': os.path.basename(filePath),
