@@ -1,65 +1,80 @@
 import numpy as np
-import scipy as sp
+import scipy.stats as st
 import matplotlib.pyplot as plt
 import pandas as pd
 
-filename = '/home/jack/Documents/Pandora/PythonPandoraAlgs/featureData.pickle'
+filename = 'featureData.pickle'
 
 #Histogram Creator Programme
 
-#Load the pickle file.
+def L(featurePdfPairs, featureValues):
+    Pt = 1
+    Ps = 1
+    for i in range(0, len(featureValues)):
+        Pt *= featurePdfPairs[i][0](featureValues[i])
+        Ps *= featurePdfPairs[i][1](featureValues[i])
+    return Ps / (Pt + Ps)
 
-'''Separate true tracks from true showers. Then plot histograms for feature 
-values. Convert these histograms in to PDFs using scipy. Plot overlapping 
+def GetFeatureStats(featureName, df_shower, df_track, bins, ymax):
+    fig = plt.figure(figsize=(40,15))
+    ax1 = fig.add_subplot(1,3,1)
+    ax2 = fig.add_subplot(1,3,2)
+    ax3 = fig.add_subplot(1,3,3)
+    shower_filter = df_shower[featureName] != -1
+    track_filter = df_track[featureName] != -1
+    showerFeatureData = df_shower[shower_filter][featureName]
+    trackFeatureData = df_track[track_filter][featureName]
+    ax1.hist(showerFeatureData, bins=bins, density=1)
+    ax2.hist(trackFeatureData, bins=bins, density=1)
+    ax3.hist(showerFeatureData, bins=bins, density=1)
+    ax3.hist(trackFeatureData, bins=bins, density=1)
+
+    ax1.set_ylim([0,ymax])
+    ax2.set_ylim([0,ymax])
+    ax3.set_ylim([0,ymax])
+    plt.show()
+
+    shower_hist = np.histogram(showerFeatureData, bins=bins)
+    track_hist = np.histogram(trackFeatureData, bins=bins)
+    fS = st.rv_histogram(shower_hist).pdf
+    fT = st.rv_histogram(track_hist).pdf
+    return fS, fT
+
+
+'''Separate true tracks from true showers. Then plot histograms for feature
+values. Convert these histograms in to PDFs using scipy. Plot overlapping
 histograms for track and shower types.'''
 
+#Load the pickle file.
 df = pd.read_pickle(filename)
-
 is_shower = df['pfoTrueType'] == 1
-df_shower = df[is_shower]
 is_track = df['pfoTrueType'] == 0
+df_shower = df[is_shower]
 df_track = df[is_track]
 
-fig = plt.figure()
-fig.set_dpi(200)
-ax = fig.add_subplot(111)
+featurePdfPairs = [GetFeatureStats("F0a", df_shower, df_track, np.linspace(0, 1, num=200), 40),
+                   GetFeatureStats("F1a", df_shower, df_track, np.linspace(0, 6, num=200), 3),
+                   GetFeatureStats("F2b", df_shower, df_track, np.linspace(0, 1, num=200), 40)]
 
 
-'''
-f0a_shower_filter = df_shower['F0a'] != -1
-df_shower_f0a = df_shower[f0a_shower_filter]
-ax.hist(df_shower_f0a["F0a"], bins=100, density=1)
 
-f0a_track_filter = df_track['F0a'] != -1
-df_track_f0a = df_track[f0a_track_filter]
-ax.hist(df_track_f0a["F0a"], bins=100, density=1)
-'''
+showerFeatureValues = df_shower[['F0a','F1a','F2b']].to_numpy()
+trackFeatureValues = df_track[['F0a','F1a','F2b']].to_numpy()
+nShowers = len(showerFeatureValues)
+nTracks = len(trackFeatureValues)
+Lshowers = np.zeros(nShowers)
+Ltracks = np.zeros(nShowers)
+for i in range(0, nShowers):
+    Lshowers[i] = L(featurePdfPairs, showerFeatureValues[i])
+for i in range(0, nShowers):
+    Ltracks[i] = L(featurePdfPairs, trackFeatureValues[i])
 
-'''
-f1a_shower_filter = df_shower['F1a'] != -1
-df_shower_f1a = df_shower[f1a_shower_filter]
-ax.hist(df_shower_f1a["F1a"], bins=100, density=1)
-
-f1a_track_filter = df_track['F1a'] != -1
-df_track_f1a = df_track[f1a_track_filter]
-ax.hist(df_track_f1a["F1a"], bins=100, density=1)
-'''
-
-'''
-f2a_shower_filter = df_shower['F2a'] != -1
-df_shower_f2a = df_shower[f2a_shower_filter]
-ax.hist(df_shower_f2a["F2a"], bins=25, density=1)
-
-f2a_track_filter = df_track['F2a'] != -1
-df_track_f2a = df_track[f2a_track_filter]
-ax.hist(df_track_f2a["F2a"], bins=25, density=1)
-'''
-
-
-f2b_shower_filter = df_shower['F2b'] != -1
-df_shower_f2b = df_shower[f2b_shower_filter]
-ax.hist(df_shower_f2b["F2b"], bins=100, density=1)
-
-f2b_track_filter = df_track['F2b'] != -1
-df_track_f2b = df_track[f2b_track_filter]
-ax.hist(df_track_f2b["F2b"], bins=100, density=1)
+fig = plt.figure(figsize=(40,15))
+ax1 = fig.add_subplot(1,3,1)
+ax2 = fig.add_subplot(1,3,2)
+ax3 = fig.add_subplot(1,3,3)
+ax1.hist(Lshowers, bins=200, density=1)
+ax2.hist(Ltracks, bins=200, density=1)
+ax3.hist(Lshowers, bins=200, density=1)
+ax3.hist(Ltracks, bins=200, density=1)
+plt.show()
