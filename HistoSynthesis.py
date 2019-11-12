@@ -7,14 +7,6 @@ filename = 'featureData.pickle'
 
 #Histogram Creator Programme
 
-def L(featurePdfPairs, featureValues):
-    Pt = 1
-    Ps = 1
-    for i in range(0, len(featureValues)):
-        Pt *= featurePdfPairs[i][0](featureValues[i])
-        Ps *= featurePdfPairs[i][1](featureValues[i])
-    return Ps / (Pt + Ps)
-
 def GetFeatureStats(featureName, df_shower, df_track, bins, ymax):
     fig = plt.figure(figsize=(40,15))
     ax1 = fig.add_subplot(1,3,1)
@@ -41,25 +33,37 @@ def GetFeatureStats(featureName, df_shower, df_track, bins, ymax):
     return fS, fT
 
 
+def L(featurePdfPairs, featureValues):
+    Pt = 1
+    Ps = 1
+    for i in range(0, len(featureValues)):
+        if featureValues[i] == -1:
+            continue
+        Pt *= featurePdfPairs[i][0](featureValues[i])
+        Ps *= featurePdfPairs[i][1](featureValues[i])
+    return Ps / (Pt + Ps)
+
 '''Separate true tracks from true showers. Then plot histograms for feature
 values. Convert these histograms in to PDFs using scipy. Plot overlapping
 histograms for track and shower types.'''
 
-#Load the pickle file.
+# Load the pickle file.
 df = pd.read_pickle(filename)
 is_shower = df['pfoTrueType'] == 1
 is_track = df['pfoTrueType'] == 0
 df_shower = df[is_shower]
 df_track = df[is_track]
 
+# Make histograms and PDFs
 featurePdfPairs = [GetFeatureStats("F0a", df_shower, df_track, np.linspace(0, 1, num=200), 40),
                    GetFeatureStats("F1a", df_shower, df_track, np.linspace(0, 6, num=200), 3),
+                   GetFeatureStats("F2a", df_shower, df_track, np.linspace(0, 30, num=31), 1),
                    GetFeatureStats("F2b", df_shower, df_track, np.linspace(0, 1, num=200), 40)]
 
 
-
-showerFeatureValues = df_shower[['F0a','F1a','F2b']].to_numpy()
-trackFeatureValues = df_track[['F0a','F1a','F2b']].to_numpy()
+# All features combined
+showerFeatureValues = df_shower[['F0a','F1a','F2a','F2b']].to_numpy()
+trackFeatureValues = df_track[['F0a','F1a','F2a','F2b']].to_numpy()
 nShowers = len(showerFeatureValues)
 nTracks = len(trackFeatureValues)
 Lshowers = np.zeros(nShowers)
