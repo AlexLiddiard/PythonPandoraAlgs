@@ -53,7 +53,7 @@ if __name__ == "__main__":
                 x = pfo.driftCoordW
                 y = pfo.wireCoordW
                 xerr = pfo.driftCoordErrW / 2
-                yerr = np.repeat(pfo.wireCoordErr / 2, pfo.nHitsW)
+                yerr = np.repeat(pfo.wireCoordErr / 2, pfo.nHitsPfoW)
 
                 fig = plt.figure(figsize=(13,10))
                 ax = fig.add_subplot(1, 1, 1)
