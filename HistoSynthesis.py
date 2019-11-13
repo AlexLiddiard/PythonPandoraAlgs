@@ -8,7 +8,7 @@ filename = 'featureData.pickle'
 #Histogram Creator Programme
 
 def GetFeatureStats(featureName, df_shower, df_track, bins, ymax):
-    fig = plt.figure(figsize=(40,15))
+    fig = plt.figure(figsize=(20,7.5))
     ax1 = fig.add_subplot(1,3,1)
     ax2 = fig.add_subplot(1,3,2)
     ax3 = fig.add_subplot(1,3,3)
@@ -58,12 +58,13 @@ df_track = df[is_track]
 featurePdfPairs = [GetFeatureStats("F0a", df_shower, df_track, np.linspace(0, 1, num=200), 40),
                    GetFeatureStats("F1a", df_shower, df_track, np.linspace(0, 6, num=200), 3),
                    GetFeatureStats("F2a", df_shower, df_track, np.linspace(0, 30, num=31), 1),
-                   GetFeatureStats("F2b", df_shower, df_track, np.linspace(0, 1, num=200), 40)]
+                   GetFeatureStats("F2b", df_shower, df_track, np.linspace(0, 1, num=200), 40),
+                   GetFeatureStats("F2c", df_shower, df_track, np.linspace(0, 1, num=200), 40)]
 
 
 # All features combined
-showerFeatureValues = df_shower[['F0a','F1a','F2a','F2b']].to_numpy()
-trackFeatureValues = df_track[['F0a','F1a','F2a','F2b']].to_numpy()
+showerFeatureValues = df_shower[['F0a','F1a','F2a','F2b','F2c']].to_numpy()
+trackFeatureValues = df_track[['F0a','F1a','F2a','F2b','F2c']].to_numpy()
 nShowers = len(showerFeatureValues)
 nTracks = len(trackFeatureValues)
 Lshowers = np.zeros(nShowers)
@@ -73,7 +74,7 @@ for i in range(0, nShowers):
 for i in range(0, nShowers):
     Ltracks[i] = L(featurePdfPairs, trackFeatureValues[i])
 
-fig = plt.figure(figsize=(40,15))
+fig = plt.figure(figsize=(20,7.5))
 ax1 = fig.add_subplot(1,3,1)
 ax2 = fig.add_subplot(1,3,2)
 ax3 = fig.add_subplot(1,3,3)

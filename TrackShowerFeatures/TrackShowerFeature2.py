@@ -1,6 +1,7 @@
 # This module is for track/shower feature #2
 import math
-
+import numpy as np
+import TrackShowerFeatures.TrackShowerFeature0 as TSFO
 
 # Finds the nearest neighbour of a 2D point (out of a list of points)
 # It's quite slow
@@ -99,10 +100,24 @@ def CreatePointChain2(pointListX, pointListY, rectWidth, rectHeight):
             nearbyPoints = False
     return chainX, chainY, chainLength
 
+def SlidingPearsonRSquared(chainX, chainY, pointsPerSlide):
+    chainX, chainY = np.array(chainX), np.array(chainY)
+    if len(chainX) <= pointsPerSlide:
+        return TSFO.RSquared(chainX, chainY)
+    else:
+        sumChainRSquared = 0
+        n = len(chainX) - pointsPerSlide + 1
+        for i in range(n):
+            subChainX = chainX[i:i+pointsPerSlide]
+            subChainY = chainY[i:i+pointsPerSlide]
+            sumChainRSquared += TSFO.RSquared(subChainX, subChainY)
+        return sumChainRSquared/n
+            
 
-def GetChainInfo(driftCoord, wireCoord, rectWidth, rectHeight):
+def GetChainInfo(driftCoord, wireCoord, rectWidth, rectHeight, pointsPerSlide):
     chainCount = 0
     sumLengthRatios = 0
+    sumChainRSquareds = 0
     while driftCoord:    # While pfo hit list is not empty
         chainX, chainY, chainLength = CreatePointChain2(driftCoord, wireCoord, rectWidth, rectHeight)
         if len(chainX) > 1:
@@ -111,10 +126,12 @@ def GetChainInfo(driftCoord, wireCoord, rectWidth, rectHeight):
             lengthRatio = 0
         chainCount += 1
         sumLengthRatios += lengthRatio
+        sumChainRSquareds += SlidingPearsonRSquared(chainX, chainY, pointsPerSlide)
     avgLengthRatio = sumLengthRatios / chainCount
-    return chainCount, avgLengthRatio
+    avgChainRSquareds = sumChainRSquareds/chainCount
+    return chainCount, avgLengthRatio, avgChainRSquareds
 
 
-def GetFeature(pfo, rectWidth=5, rectHeight=5):
-    chainCount, avgLengthRatio = GetChainInfo(pfo.driftCoordW.tolist(), pfo.wireCoordW.tolist(), rectWidth, rectHeight)
-    return { "F2a": chainCount, "F2b": avgLengthRatio }
+def GetFeature(pfo, rectWidth=5, rectHeight=5, pointsPerSlide=10):
+    chainCount, avgLengthRatio, avgChainRSquareds = GetChainInfo(pfo.driftCoordW.tolist(), pfo.wireCoordW.tolist(), rectWidth, rectHeight, pointsPerSlide)
+    return { "F2a": chainCount, "F2b": avgLengthRatio, "F2c": avgChainRSquareds }
