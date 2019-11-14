@@ -54,25 +54,44 @@ is_track = df['pfoTrueType'] == 0
 df_shower = df[is_shower]
 df_track = df[is_track]
 
+nShowers = len(df_shower)
+nTracks = len(df_track)
+df_shower_1st_half = df_shower[:nShowers//2]
+df_shower_2nd_half = df_shower[nShowers//2:]
+df_track_1st_half = df_track[:nTracks//2]
+df_track_2nd_half = df_track[nTracks//2:]
+
+
+
 # Make histograms and PDFs
-featurePdfPairs = [GetFeatureStats("F0a", df_shower, df_track, np.linspace(0, 1, num=200), 40),
-                   GetFeatureStats("F1a", df_shower, df_track, np.linspace(0, 6, num=200), 3),
-                   GetFeatureStats("F2a", df_shower, df_track, np.linspace(0, 30, num=31), 1),
-                   GetFeatureStats("F2b", df_shower, df_track, np.linspace(0, 1, num=200), 40),
-                   GetFeatureStats("F2c", df_shower, df_track, np.linspace(0, 1, num=200), 40)]
+featurePdfPairs = [GetFeatureStats("F0a", df_shower_1st_half, df_track_1st_half, np.linspace(0, 1, num=200), 40),
+                   GetFeatureStats("F1a", df_shower_1st_half, df_track_1st_half, np.linspace(0, 6, num=200), 3),
+                   GetFeatureStats("F2a", df_shower_1st_half, df_track_1st_half, np.linspace(0, 30, num=31), 1),
+                   GetFeatureStats("F2b", df_shower_1st_half, df_track_1st_half, np.linspace(0, 1, num=200), 40),
+                   GetFeatureStats("F2c", df_shower_1st_half, df_track_1st_half, np.linspace(0, 1, num=200), 40)]
 
 
 # All features combined
-showerFeatureValues = df_shower[['F0a','F1a','F2a','F2b','F2c']].to_numpy()
-trackFeatureValues = df_track[['F0a','F1a','F2a','F2b','F2c']].to_numpy()
+showerFeatureValues = df_shower_2nd_half[['F0a','F1a','F2a','F2b','F2c']].to_numpy()
+trackFeatureValues = df_track_2nd_half[['F0a','F1a','F2a','F2b','F2c']].to_numpy()
 nShowers = len(showerFeatureValues)
 nTracks = len(trackFeatureValues)
 Lshowers = np.zeros(nShowers)
-Ltracks = np.zeros(nShowers)
+Ltracks = np.zeros(nTracks)
 for i in range(0, nShowers):
     Lshowers[i] = L(featurePdfPairs, showerFeatureValues[i])
-for i in range(0, nShowers):
+for i in range(0, nTracks):
     Ltracks[i] = L(featurePdfPairs, trackFeatureValues[i])
+
+sumCorrectShowers = (Lshowers < 0.5).sum()
+sumIncorrectShowers = (Lshowers > 0.5).sum()
+sumCorrectTracks = (Ltracks > 0.5).sum()
+sumIncorrectTracks = (Ltracks < 0.5).sum()
+
+trackEfficiency = sumCorrectTracks/(sumCorrectTracks+sumIncorrectTracks)
+trackPurity = sumCorrectTracks/(sumCorrectTracks + sumIncorrectShowers)
+showerEfficiency = sumCorrectShowers/(sumCorrectShowers+sumIncorrectShowers)
+showerPurity = sumCorrectShowers/(sumCorrectShowers + sumIncorrectTracks)
 
 fig = plt.figure(figsize=(20,7.5))
 ax1 = fig.add_subplot(1,3,1)
@@ -83,3 +102,5 @@ ax2.hist(Ltracks, bins=200, density=1)
 ax3.hist(Lshowers, bins=200, density=1)
 ax3.hist(Ltracks, bins=200, density=1)
 plt.show()
+
+print("Track Efficiency %f\n" "Track Purity %f\n" "ShowerEfficiency %f\n" "Shower Purity %f\n" %(trackEfficiency, trackPurity, showerEfficiency, showerPurity) )
