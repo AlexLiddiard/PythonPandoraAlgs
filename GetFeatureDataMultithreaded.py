@@ -9,7 +9,8 @@ import concurrent.futures
 from tqdm import tqdm
 
 minHits = 2
-dataFileName = 'featureData.pickle'
+inputFolder = "ROOT Files"
+outputFile = 'featureData.pickle'
 
 def ProcessFile(filePath):
     events = UpRootFileReader.ReadRootFile(filePath)
@@ -32,10 +33,9 @@ def ProcessFile(filePath):
     return pd.DataFrame(pfoFeatureList)
 
 if __name__ == "__main__":
-    directory = input("Enter a folder path containing ROOT files: ")
-    filePaths =  glob.glob(directory + '/**/*.root', recursive=True)
+    filePaths =  glob.glob(inputFolder + '/**/*.root', recursive=True)
     with concurrent.futures.ProcessPoolExecutor() as executor:
         results = list(tqdm(executor.map(ProcessFile, filePaths), total=len(filePaths)))
     df = pd.concat(results)
-    df.to_pickle(dataFileName)
+    df.to_pickle(outputFile)
     print('\nFinished!')
