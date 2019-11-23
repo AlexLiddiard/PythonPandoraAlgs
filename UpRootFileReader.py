@@ -44,47 +44,20 @@ class PfoClass(object):
     # These change how the PFO is printed to the screen
     def __str__(self):
         return "{PFO eventID=%d pfoID=%d}" % (self.eventId, self.pfoId)
-
     def __unicode__(self):
         return str(self)
-
     def __repr__(self):
         return str(self)
 
-    def TrueTypeU(self):
-        if self.monteCarloPDGU != 0:
-            return 1 if abs(self.monteCarloPDGU) in (11, 22) else 0
-        else:
-            return -1
-
-    def TrueTypeV(self):
-        if self.monteCarloPDGV != 0:
-            return 1 if abs(self.monteCarloPDGV) in (11, 22) else 0
-        else:
-            return -1
-
     def TrueTypeW(self):
-        if self.monteCarloPDGW != 0:
-            return 1 if abs(self.monteCarloPDGW) in (11, 22) else 0
-        else:
-            return -1
-
-    # Uses the PDG codes of all wire plane to check if the PFO truly is a track or shower
-    def TrueTypeCombined(self):
-        absPDGs = [self.TrueTypeU(), self.TrueTypeV(), self.TrueTypeW()]
-        # Is a shower if more than two views have majority of hits from electrons.
-        if absPDGs.count(1) > 1:
-            return 1
-        # Is a track if more than two views have majority of hits from other particle types.
-        elif absPDGs.count(0) == 0:
-            return 0
-        # Two conflicting PDGs.
-        elif absPDGs.count(-1) == 1:
-            return -1
-        # Only a PDG from one view. We just use that PDG.
-        elif absPDGs.count(-1) == 2:
-            return absPDGs.count(1)
-        # No PDG info available
+        return self.TrueType(self.monteCarloPDGW)
+    def TrueTypeV(self):
+        return self.TrueType(self.monteCarloPDGV)
+    def TrueTypeU(self):
+        return self.TrueType(self.monteCarloPDGU)
+    def TrueType(self, pdgCode):
+        if pdgCode != 0:
+            return 1 if abs(pdgCode) in (11, 22) else 0
         else:
             return -1
 
@@ -94,16 +67,14 @@ class PfoClass(object):
         return self.TrueParticle(self.monteCarloPDGV)
     def TrueParticleU(self):
         return self.TrueParticle(self.monteCarloPDGU)
-
     def TrueParticle(self, pdgCode):
-
             switcher = {
                     11: "Electron",
                     12: "Electron Neutrino",
                     13: "Muon",
                     14: "Muon Neutrino",
-                    15: "Tauon",
-                    16: "Tauon Neutrino",
+                    15: "Tau",
+                    16: "Tau Neutrino",
                     22: "Photon",
                     111: "Neutral Pion",
                     211: "Pion",
@@ -124,6 +95,27 @@ class PfoClass(object):
                     }
             return  ("Anti-" if pdgCode < 0 else "") + switcher.get(abs(pdgCode), "Unknown")
 
+    def PurityOverall(self):
+        return self.Purity(self.nHitsMatchU + self.nHitsMatchV + self.nHitsMatchW, self.nHitsPfoU + self.nHitsPfoV + self.nHitsPfoW)
+    def PurityU(self):
+        return self.Purity(self.nHitsMatchU, self.nHitsPfoU)
+    def PurityV(self):
+        return self.Purity(self.nHitsMatchV, self.nHitsPfoV)
+    def PurityW(self):
+        return self.Purity(self.nHitsMatchW, self.nHitsPfoW)
+    def Purity(self, nHitsMatch, nHitsPfo):
+        return nHitsMatch / nHitsPfo if nHitsPfo > 0 else -1
+
+    def CompletenessOverall(self):
+        return self.Purity(self.nHitsMatchU + self.nHitsMatchV + self.nHitsMatchW, self.nHitsMcpU + self.nHitsMcpV + self.nHitsMcpW)
+    def CompletenessU(self):
+        return self.Purity(self.nHitsMatchU, self.nHitsMcpU)
+    def CompletenessV(self):
+        return self.Purity(self.nHitsMatchV, self.nHitsMcpV)
+    def CompletenessW(self):
+        return self.Purity(self.nHitsMatchW, self.nHitsMcpW)
+    def Completeness(self, nHitsMatch, nHitsMcp):
+        return nHitsMatch / nHitsMcp if nHitsMcp > 0 else -1
 
 # This function inserts a pfo into an event. It also ensures that the list is ordered by the pfo ID.
 def AddPfoToEvent(eventPfos, pfo):

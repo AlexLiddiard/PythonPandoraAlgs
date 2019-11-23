@@ -9,6 +9,8 @@ import concurrent.futures
 from tqdm import tqdm
 
 minHits = 2
+minCompleteness = 0.8
+minPurity = 0.8
 inputFolder = "ROOT Files"
 outputFile = 'featureData.pickle'
 
@@ -18,7 +20,7 @@ def ProcessFile(filePath):
     for eventPfos in events:
         for pfo in eventPfos:
             pfoTrueType = pfo.TrueTypeW()
-            if pfoTrueType == -1 or pfo.nHitsPfoW < minHits:
+            if pfoTrueType == -1 or pfo.nHitsPfoW < minHits or pfo.PurityW() < minPurity or pfo.CompletenessW() < minCompleteness:
                 continue
             featureDictionary = {
                 'fileName': os.path.basename(filePath),
