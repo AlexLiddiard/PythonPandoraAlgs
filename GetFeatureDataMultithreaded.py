@@ -19,14 +19,13 @@ def ProcessFile(filePath):
     pfoFeatureList = []
     for eventPfos in events:
         for pfo in eventPfos:
-            pfoTrueType = pfo.TrueTypeW()
-            if pfoTrueType == -1 or pfo.nHitsPfoW < minHits or pfo.PurityW() < minPurity or pfo.CompletenessW() < minCompleteness:
+            if pfo.nHitsPfoW < minHits or pfo.PurityW() < minPurity or pfo.CompletenessW() < minCompleteness:
                 continue
             featureDictionary = {
                 'fileName': os.path.basename(filePath),
                 'eventId': pfo.eventId,
                 'pfoId': pfo.pfoId,
-                'pfoTrueType': pfoTrueType
+                'pfoTrueType': pfo.TrueTypeW()
             }
             featureDictionary.update(tsf0.GetFeature(pfo))
             featureDictionary.update(tsf1.GetFeature(pfo))
