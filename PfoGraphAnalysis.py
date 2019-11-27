@@ -1,11 +1,18 @@
 import os
+import glob
 import UpRootFileReader as rdr
 import matplotlib.pyplot as plt
 import matplotlib.colors
 import numpy as np
 import random as rnd
+import pandas as pd
 
-minHits = 2
+rootFileDirectory =  "/home/jack/Documents/Pandora/PythonPandoraAlgs/ROOT Files/"
+pickleFilePath = "/home/jack/Documents/Pandora/PythonPandoraAlgs/featureData.pickle"
+usePickleFile = True
+filters = ({'name': 'likelihood', 'min': 0.9, 'max': 1},
+           {'name': 'pfoTrueType', 'min': -0.5, 'max': 0.5})
+featuresToDisplay = ('F0a', 'F1a', 'F2a', 'F2b', 'F2c', 'likelihood')
 
 # Microboone Geometry stuff
 class MicroBooneGeo:
@@ -35,49 +42,91 @@ class MicroBooneGeo:
                   (820.9, 825.7),
                   (873.7, 878.5))
 
-if __name__ == "__main__":
-    directory = input("Enter a folder path containing ROOT files: ")
-    #directory = "/home/jack/Documents/Pandora/PythonPandoraAlgs/ROOT Files/"
-    fileList = os.listdir(directory)
-    rnd.shuffle(fileList)
-    for fileName in fileList:
-        events = rdr.ReadRootFile(os.path.join(directory, fileName))
+
+def DisplayPfo(pfo, featureValues = None):
+    # Setting variables to be plotted.
+    x = pfo.driftCoordW
+    y = pfo.wireCoordW
+    xerr = pfo.driftCoordErrW / 2
+    yerr = np.repeat(pfo.wireCoordErr / 2, pfo.nHitsPfoW)
+
+    fig = plt.figure(figsize=(13,10))
+    ax = fig.add_subplot(1, 1, 1)
+    ax.set_aspect('equal', 'box')
+    colorList = [(1, 0, 0), (0, 0, 1)]
+    energyMap = matplotlib.colors.LinearSegmentedColormap.from_list('energyMap', colorList, N=1024)
+
+    # Plot variables
+    sc = ax.scatter(x, y, s=20, c=pfo.energyW, cmap=energyMap, zorder=3)
+    clb = plt.colorbar(sc)
+    clb.set_label('Energy as Ionisation Charge', fontsize = 15)
+    ax.errorbar(x, y, yerr=yerr, xerr=xerr, fmt='o', mew=0, zorder=0, c='black')
+    ax.plot(pfo.vertex[0], pfo.vertex[2], marker = 'X', color = 'green', markersize = 15)
+
+    # Plot detector region and dead zones
+    ax.autoscale(False)
+    for zone in MicroBooneGeo.DeadZonesW:
+        ax.add_patch(plt.Rectangle((0, zone[0]), MicroBooneGeo.SpanX, zone[1] - zone[0], alpha=0.15))
+    ax.add_patch(plt.Rectangle((0, 0), MicroBooneGeo.SpanX, MicroBooneGeo.SpanW, fill=False))
+
+    featurestr = ''
+    if featureValues is not None:
+        featurestr = "\n" + ', '.join(['%s = %.2f' % (key, value) for (key, value) in featureValues.items()])
+
+
+    # Axes and labels
+    plt.title('%s\nEventId = %d, PfoId = %d, Hierarchy = %d, %s (%s)%s' %(pfo.fileName, pfo.eventId, pfo.pfoId, pfo.heirarchyTier, pfo.TrueParticleW(), 'Track' if pfo.TrueTypeW()==0 else 'Shower', featurestr), fontsize=20)
+    plt.xlabel('DriftCoordW (cm)', fontsize = 15)
+    plt.ylabel('WireCoordW (cm)', fontsize = 15)
+
+
+    plt.show()
+
+
+def RandomPfoView(filePaths):
+    rnd.shuffle(filePaths)
+    for filePath in filePaths:
+        events = rdr.ReadRootFile(filePath)
         rnd.shuffle(events)
         for eventPfos in events:
             for pfo in eventPfos:
-                if pfo.nHitsPfoW < minHits or pfo.TrueTypeW() == -1:
-                    continue
+                if pfo.monteCarloPDGW == 0:
+                    continue;
+                DisplayPfo(pfo)
+
+def SelectivePfoView(filePaths, dfPfoFeatureData, filters):
+    for filterer in filters:
+        dfFilter = (dfPfoFeatureData[filterer['name']] > filterer['min']) & (dfPfoFeatureData[filterer['name']] < filterer['max'])
+        dfPfoFeatureData = dfPfoFeatureData[dfFilter]
+    
+    for index, pfoData in dfPfoFeatureData.iterrows():
+        filePath = FileNameToFilePath(filePaths, pfoData.fileName)
+        if filePath is None:
+            continue
+        
+        pfo = rdr.ReadPfoFromRootFile(filePath, pfoData.eventId, pfoData.pfoId)
+        
+        featureValues = {}
+        for feature in featuresToDisplay:
+            featureValues[feature] = pfoData[feature]
+        
+        DisplayPfo(pfo, featureValues)
 
 
-                # Setting variables to be plotted.
-                x = pfo.driftCoordW
-                y = pfo.wireCoordW
-                xerr = pfo.driftCoordErrW / 2
-                yerr = np.repeat(pfo.wireCoordErr / 2, pfo.nHitsPfoW)
+def FileNameToFilePath(filePaths, fileName):
+    for filePath in filePaths:
+        if os.path.basename(filePath) == fileName:
+            return filePath
+    return None
 
-                fig = plt.figure(figsize=(13,10))
-                ax = fig.add_subplot(1, 1, 1)
-                ax.set_aspect(aspect = 1)
-                colorList = [(1, 0, 0), (0, 0, 1)]
-                energyMap = matplotlib.colors.LinearSegmentedColormap.from_list('energyMap', colorList, N=1024)
 
-                # Plot variables
-                sc = ax.scatter(x, y, s=20, c=pfo.energyW, cmap=energyMap, zorder=3)
-                clb = plt.colorbar(sc)
-                clb.set_label('Energy as Ionisation Charge', fontsize = 15)
-                ax.errorbar(x, y, yerr=yerr, xerr=xerr, fmt='o', mew=0, zorder=0, c='black')
-                ax.plot(pfo.vertex[0], pfo.vertex[2], marker = 'X', color = 'green', markersize = 15)
+if __name__ == "__main__":
+    filePaths =  glob.glob(rootFileDirectory + '/**/*.root', recursive=True)
+    if usePickleFile:
+        dfPfoFeatureData = pd.read_pickle(pickleFilePath)
+        SelectivePfoView(filePaths, dfPfoFeatureData, filters)    
+    else:
+        RandomPfoView(filePaths)
+    print("Done")
 
-                # Plot detector region and dead zones
-                ax.autoscale(False)
-                for zone in MicroBooneGeo.DeadZonesW:
-                    ax.add_patch(plt.Rectangle((0, zone[0]), MicroBooneGeo.SpanX, zone[1] - zone[0], alpha=0.15))
-                ax.add_patch(plt.Rectangle((0, 0), MicroBooneGeo.SpanX, MicroBooneGeo.SpanW, fill=False))
-
-                # Axes and labels
-                plt.title('%s\nEventId = %d, PfoId = %d, Hierarchy = %d, %s (%s)' %(fileName ,pfo.eventId, pfo.pfoId, pfo.heirarchyTier, pfo.TrueParticleW(), 'Track' if pfo.TrueTypeW()==0 else 'Shower'), fontsize=20)
-                plt.xlabel('DriftCoordW (cm)', fontsize = 15)
-                plt.ylabel('WireCoordW (cm)', fontsize = 15)
-
-                plt.show()
 

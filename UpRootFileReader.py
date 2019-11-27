@@ -1,14 +1,14 @@
 # This module is used to transcribe PFO data from a ROOT file (stored as vectors) into python arrays.
 import uproot as up
-import pandas as pd
 import numpy as np
+import os
 
 # This class defines the data associated with each PFO.
 class PfoClass(object):
 
     wireCoordErr = 0.3  # Sets wire coord error to 3 millimetres.
 
-    def __init__(self, pfo):
+    def __init__(self, pfo, fileName):
         self.eventId = pfo.EventId
         self.pfoId = pfo.PfoId
         self.parentPfoId = pfo.ParentPfoId
@@ -39,7 +39,7 @@ class PfoClass(object):
         self.nHitsMcpU = pfo.nHitsMcpU
         self.nHitsMcpV = pfo.nHitsMcpV
         self.nHitsMcpW = pfo.nHitsMcpW
-        
+        self.fileName = fileName
 
     # These change how the PFO is printed to the screen
     def __str__(self):
@@ -134,7 +134,7 @@ def ReadRootFile(filepath):
     currentEventId = 0    # Allows function writing to the events and eventPfos arrays to work (see below).
 
     for index, pfo in tree.iterrows():
-        PfoBeingRead = PfoClass(pfo)  # Inputing the variables read from the ROOT file into the class to create the PfoObject.
+        PfoBeingRead = PfoClass(pfo, os.path.basename(filepath))  # Inputing the variables read from the ROOT file into the class to create the PfoObject.
         if currentEventId == pfo.EventId:
             AddPfoToEvent(eventPfos, PfoBeingRead)
         else:
@@ -145,3 +145,13 @@ def ReadRootFile(filepath):
     # The for loop does not append the last event to the array
     events.append(eventPfos)
     return events
+
+def ReadPfoFromRootFile(filepath, eventId, pfoId):
+    file = up.open(filepath)
+    tree = file["PFOs"].pandas.df(flatten=False)
+    dfFilter = (tree['EventId'] == eventId) & (tree['PfoId'] == pfoId)
+    tree = tree[dfFilter]
+    if len(tree) == 1:
+        return PfoClass(tree.iloc[0], os.path.basename(filepath))
+    else:
+        return None

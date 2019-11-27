@@ -12,7 +12,7 @@ featureList = ({'name': 'F0a', 'bins': np.linspace(0, 1, num=200), 'graphMaxY': 
                {'name': 'F2a', 'bins': np.linspace(0, 30, num=31), 'graphMaxY': 1},
                {'name': 'F2b', 'bins': np.linspace(0, 1, num=200), 'graphMaxY': 40},
                {'name': 'F2c', 'bins': np.linspace(0, 1, num=200), 'graphMaxY': 40})
-likelihoodOptions = {'bins': np.linspace(0, 1, num=200), 'graphMaxY': 120}
+likelihoodOptions = {'bins': np.linspace(0, 1, num=200), 'graphMaxY': 200}
 
 #Histogram Creator Programme
 

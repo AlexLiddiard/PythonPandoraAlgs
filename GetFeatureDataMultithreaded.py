@@ -1,4 +1,3 @@
-import os
 import glob
 import UpRootFileReader
 import TrackShowerFeatures.TrackShowerFeature0 as tsf0
@@ -11,7 +10,7 @@ from tqdm import tqdm
 minHits = 2
 minCompleteness = 0.8
 minPurity = 0.8
-inputFolder = "ROOT Files"
+inputFolder = "/home/jack/Documents/Pandora/PythonPandoraAlgs/ROOT Files/"
 outputFile = 'featureData.pickle'
 
 def ProcessFile(filePath):
@@ -19,10 +18,11 @@ def ProcessFile(filePath):
     pfoFeatureList = []
     for eventPfos in events:
         for pfo in eventPfos:
+            print("PDG: %d, Purity: %.2f, Completeness: %.2f" % (pfo.monteCarloPDGW, pfo.PurityW(), pfo.CompletenessW()))
             if pfo.nHitsPfoW < minHits or pfo.PurityW() < minPurity or pfo.CompletenessW() < minCompleteness:
                 continue
             featureDictionary = {
-                'fileName': os.path.basename(filePath),
+                'fileName': pfo.fileName,
                 'eventId': pfo.eventId,
                 'pfoId': pfo.pfoId,
                 'pfoTrueType': pfo.TrueTypeW()
