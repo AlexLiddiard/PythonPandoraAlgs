@@ -49,15 +49,27 @@ class PfoClass(object):
     def __repr__(self):
         return str(self)
 
-    def TrueTypeW(self):
-        return self.TrueType(self.monteCarloPDGW)
-    def TrueTypeV(self):
-        return self.TrueType(self.monteCarloPDGV)
-    def TrueTypeU(self):
-        return self.TrueType(self.monteCarloPDGU)
-    def TrueType(self, pdgCode):
+    def IsShowerW(self):
+        return self.IsShower(self.monteCarloPDGW)
+    def IsShowerV(self):
+        return self.IsShower(self.monteCarloPDGV)
+    def IsShowerU(self):
+        return self.IsShower(self.monteCarloPDGU)
+    def IsShower(self, pdgCode):
         if pdgCode != 0:
             return 1 if abs(pdgCode) in (11, 22) else 0
+        else:
+            return -1
+
+    def IsTrackW(self):
+        return self.IsTrack(self.monteCarloPDGW)
+    def IsTrackV(self):
+        return self.IsTrack(self.monteCarloPDGV)
+    def IsTrackU(self):
+        return self.IsTrack(self.monteCarloPDGU)
+    def IsTrack(self, pdgCode):
+        if pdgCode != 0:
+            return 1 if abs(pdgCode) not in (11, 22) else 0
         else:
             return -1
 

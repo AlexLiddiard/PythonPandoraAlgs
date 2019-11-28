@@ -7,12 +7,14 @@ import numpy as np
 import random as rnd
 import pandas as pd
 
-rootFileDirectory =  "/home/jack/Documents/Pandora/PythonPandoraAlgs/ROOT Files/"
-pickleFilePath = "/home/jack/Documents/Pandora/PythonPandoraAlgs/featureData.pickle"
+myTestArea = "/home/alexliddiard/Desktop/Pandora"
+rootFileDirectory = myTestArea + "/PythonPandoraAlgs/ROOT Files"
+inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.pickle'
+
 usePickleFile = True
 filters = ({'name': 'likelihood', 'min': 0.9, 'max': 1},
-           {'name': 'pfoTrueType', 'min': -0.5, 'max': 0.5})
-featuresToDisplay = ('F0a', 'F1a', 'F2a', 'F2b', 'F2c', 'likelihood')
+           {'name': 'isShower', 'min': 0, 'max': 0})
+additionalInfo = ['F0a', 'F1a', 'F2a', 'F2b', 'F2c', 'likelihood']
 
 # Microboone Geometry stuff
 class MicroBooneGeo:
@@ -43,7 +45,7 @@ class MicroBooneGeo:
                   (873.7, 878.5))
 
 
-def DisplayPfo(pfo, featureValues = None):
+def DisplayPfo(pfo, additionalInfo = None):
     # Setting variables to be plotted.
     x = pfo.driftCoordW
     y = pfo.wireCoordW
@@ -69,16 +71,18 @@ def DisplayPfo(pfo, featureValues = None):
         ax.add_patch(plt.Rectangle((0, zone[0]), MicroBooneGeo.SpanX, zone[1] - zone[0], alpha=0.15))
     ax.add_patch(plt.Rectangle((0, 0), MicroBooneGeo.SpanX, MicroBooneGeo.SpanW, fill=False))
 
-    featurestr = ''
-    if featureValues is not None:
-        featurestr = "\n" + ', '.join(['%s = %.2f' % (key, value) for (key, value) in featureValues.items()])
-
-
     # Axes and labels
-    plt.title('%s\nEventId = %d, PfoId = %d, Hierarchy = %d, %s (%s)%s' %(pfo.fileName, pfo.eventId, pfo.pfoId, pfo.heirarchyTier, pfo.TrueParticleW(), 'Track' if pfo.TrueTypeW()==0 else 'Shower', featurestr), fontsize=20)
+    if additionalInfo is None:
+        additionalInfoStr = ''
+    else:
+        additionalInfoStr = '\n' + ', '.join([('%s = %.2f' % info).rstrip('0').rstrip('.') for info in additionalInfo.items()])
+
+    plt.title('%s\nEventId = %d, PfoId = %d, Hierarchy = %d, %s (%s)%s' %
+              (pfo.fileName,
+               pfo.eventId, pfo.pfoId, pfo.heirarchyTier, pfo.TrueParticleW(), 'Track' if pfo.IsShowerW()==0 else 'Shower',
+               additionalInfoStr), fontsize=20)
     plt.xlabel('DriftCoordW (cm)', fontsize = 15)
     plt.ylabel('WireCoordW (cm)', fontsize = 15)
-
 
     plt.show()
 
@@ -96,35 +100,31 @@ def RandomPfoView(filePaths):
 
 def SelectivePfoView(filePaths, dfPfoFeatureData, filters):
     for filterer in filters:
-        dfFilter = (dfPfoFeatureData[filterer['name']] > filterer['min']) & (dfPfoFeatureData[filterer['name']] < filterer['max'])
+        dfFilter = (dfPfoFeatureData[filterer['name']] >= filterer['min']) & (dfPfoFeatureData[filterer['name']] <= filterer['max'])
         dfPfoFeatureData = dfPfoFeatureData[dfFilter]
-    
+
+    nameToPathDict = FileNameToFilePath(filePaths)
+    dfFilter = dfPfoFeatureData['fileName'].isin(nameToPathDict)
+    dfPfoFeatureData = dfPfoFeatureData[dfFilter]
+
     for index, pfoData in dfPfoFeatureData.iterrows():
-        filePath = FileNameToFilePath(filePaths, pfoData.fileName)
-        if filePath is None:
-            continue
-        
+        filePath = nameToPathDict[pfoData.fileName]
         pfo = rdr.ReadPfoFromRootFile(filePath, pfoData.eventId, pfoData.pfoId)
-        
-        featureValues = {}
-        for feature in featuresToDisplay:
-            featureValues[feature] = pfoData[feature]
-        
-        DisplayPfo(pfo, featureValues)
+        DisplayPfo(pfo, pfoData[additionalInfo])
 
 
-def FileNameToFilePath(filePaths, fileName):
+def FileNameToFilePath(filePaths):
+    nameToPathDict = {}
     for filePath in filePaths:
-        if os.path.basename(filePath) == fileName:
-            return filePath
-    return None
+        nameToPathDict[os.path.basename(filePath)] = filePath
+    return nameToPathDict
 
 
 if __name__ == "__main__":
     filePaths =  glob.glob(rootFileDirectory + '/**/*.root', recursive=True)
     if usePickleFile:
-        dfPfoFeatureData = pd.read_pickle(pickleFilePath)
-        SelectivePfoView(filePaths, dfPfoFeatureData, filters)    
+        dfPfoFeatureData = pd.read_pickle(inputPickleFile)
+        SelectivePfoView(filePaths, dfPfoFeatureData, filters)
     else:
         RandomPfoView(filePaths)
     print("Done")

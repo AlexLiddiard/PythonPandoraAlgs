@@ -5,7 +5,10 @@ import pandas as pd
 import math as m
 from tqdm import tqdm
 
-inputFile = 'featureData.pickle'
+myTestArea = "/home/alexliddiard/Desktop/Pandora"
+inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.pickle'
+outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.pickle'
+
 trainingFraction = 0.5
 featureList = ({'name': 'F0a', 'bins': np.linspace(0, 1, num=200), 'graphMaxY': 40},
                {'name': 'F1a', 'bins': np.linspace(0, 6, num=200), 'graphMaxY': 3},
@@ -66,12 +69,12 @@ values. Convert these histograms in to PDFs using scipy. Plot overlapping
 histograms for track and shower types.'''
 
 # Load the pickle file.
-dfInputPfos = pd.read_pickle(inputFile)
+dfInputPfos = pd.read_pickle(inputPickleFile)
 nInputPfos = len(dfInputPfos)
 nTrainingPfos = m.floor(nInputPfos * trainingFraction)
 dfTrainingPfos = dfInputPfos[:nTrainingPfos]
-showerFilter = dfTrainingPfos['pfoTrueType'] == 1
-trackFilter = dfTrainingPfos['pfoTrueType'] == 0
+showerFilter = dfTrainingPfos['isShower'] == 1
+trackFilter = dfTrainingPfos['isShower'] == 0
 dfTrainingShowers = dfTrainingPfos[showerFilter]
 dfTrainingTracks = dfTrainingPfos[trackFilter]
 
@@ -89,11 +92,11 @@ print("\nCalculating likelihoods...")
 for i in tqdm(range(0, nInputPfos)):
     likelihoodArray[i] = Likelihood(featurePdfPairs, featureValuesArray[i])
 dfInputPfos["likelihood"] = likelihoodArray
-dfInputPfos.to_pickle(inputFile)
+dfInputPfos.to_pickle(outputPickleFile)
 
 dfPerformancePfos = dfInputPfos[nTrainingPfos:]
-showerFilter = dfPerformancePfos['pfoTrueType'] == 1
-trackFilter = dfPerformancePfos['pfoTrueType'] == 0
+showerFilter = dfPerformancePfos['isShower'] == 1
+trackFilter = dfPerformancePfos['isShower'] == 0
 likelihoodShowers = dfPerformancePfos[showerFilter]['likelihood']
 likelihoodTracks = dfPerformancePfos[trackFilter]['likelihood']
 

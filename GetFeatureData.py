@@ -15,12 +15,12 @@ if __name__ == "__main__":
 
     pfoFeatureList = []
 
-    for fileName in tqdm(fileList):
+    for fileName in fileList:
         events = UpRootFileReader.ReadRootFile(os.path.join(directory, fileName))
 
 
-        for eventPfos in tqdm(events):
-            for pfo in tqdm(eventPfos):
+        for eventPfos in events:
+            for pfo in eventPfos:
                 pfoTrueType = pfo.TrueTypeW()
 
                 if pfoTrueType == -1 or pfo.nHitsPfoW < minHits:
