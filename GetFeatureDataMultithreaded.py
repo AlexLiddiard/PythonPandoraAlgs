@@ -10,8 +10,8 @@ from tqdm import tqdm
 minHits = 2
 minCompleteness = 0.8
 minPurity = 0.8
-myTestArea = "/home/alexliddiard/Desktop/Pandora"
-rootFileDirectory = myTestArea + "/PythonPandoraAlgs/ROOT Files"
+myTestArea = "/home/epp/phuznm/Documents/Pandora"
+rootFileDirectory = myTestArea + "/PandoraCoW"
 outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.pickle'
 
 def ProcessFile(filePath):
@@ -25,7 +25,7 @@ def ProcessFile(filePath):
                 'fileName': pfo.fileName,
                 'eventId': pfo.eventId,
                 'pfoId': pfo.pfoId,
-                'absPdgCode': abs((pfo.monteCarloPDGW),
+                'absPdgCode': abs(pfo.monteCarloPDGW),
                 'isShower': pfo.IsShowerW()
             }
             featureDictionary.update(tsf0.GetFeature(pfo))
