@@ -77,9 +77,10 @@ def DisplayPfo(pfo, additionalInfo = None):
     else:
         additionalInfoStr = '\n' + ', '.join([('%s = %.2f' % info).rstrip('0').rstrip('.') for info in additionalInfo.items()])
 
-    plt.title('%s\nEventId = %d, PfoId = %d, Hierarchy = %d, %s (%s)%s' %
+    plt.title('%s\nEventId = %d, PfoId = %d, Hierarchy = %d\n%s (%s), Purity = %.2f, Completeness = %.2f%s' %
               (pfo.fileName,
-               pfo.eventId, pfo.pfoId, pfo.heirarchyTier, pfo.TrueParticleW(), 'Track' if pfo.IsShowerW()==0 else 'Shower',
+               pfo.eventId, pfo.pfoId, pfo.heirarchyTier,
+               pfo.TrueParticleW(), 'Track' if pfo.IsShowerW()==0 else 'Shower', pfo.PurityW(), pfo.CompletenessW(),
                additionalInfoStr), fontsize=20)
     plt.xlabel('DriftCoordW (cm)', fontsize = 15)
     plt.ylabel('WireCoordW (cm)', fontsize = 15)
