@@ -8,30 +8,38 @@ from tqdm import tqdm
 myTestArea = "/home/jack/Documents/Pandora"
 inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.pickle'
 outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.pickle'
+useExistingLikelihood = False
 
 trainingFraction = 0.5
-featureList = ({'name': 'F0a', 'bins': np.linspace(0, 1, num=200), 'graphMaxY': 40},
-               {'name': 'F1a', 'bins': np.linspace(0, 6, num=200), 'graphMaxY': 3},
-               {'name': 'F2a', 'bins': np.linspace(0, 30, num=31), 'graphMaxY': 1},
-               {'name': 'F2b', 'bins': np.linspace(0, 1, num=200), 'graphMaxY': 40},
-               {'name': 'F2c', 'bins': np.linspace(0, 1, num=200), 'graphMaxY': 40})
-likelihoodOptions = {'bins': np.linspace(0, 1, num=200), 'graphMaxY': 200}
+featureList = ({'name': 'F0a', 'bins': np.linspace(0, 1, num=200), 'graphMaxY': 0.1},
+               {'name': 'F1a', 'bins': np.linspace(0, 6, num=200), 'graphMaxY': 0.1},
+               {'name': 'F2a', 'bins': np.linspace(0, 30, num=31), 'graphMaxY': 0.2},
+               {'name': 'F2b', 'bins': np.linspace(0, 1, num=200), 'graphMaxY': 0.1},
+               {'name': 'F2c', 'bins': np.linspace(0, 1, num=200), 'graphMaxY': 0.1})
+likelihoodOptions = {'bins': np.linspace(0, 1, num=200), 'graphMaxY': 0.1}
 
 # Histogram Creator Programme
 
 def GetFeatureStats(df_shower, df_track, feature):
-    fig = plt.figure(figsize=(20,7.5))
-    ax1 = fig.add_subplot(1,3,1)
-    ax2 = fig.add_subplot(1,3,2)
-    ax3 = fig.add_subplot(1,3,3)
     shower_filter = df_shower[feature['name']] != -1
     track_filter = df_track[feature['name']] != -1
     showerFeatureData = df_shower[shower_filter][feature['name']]
     trackFeatureData = df_track[track_filter][feature['name']]
-    ax1.hist(showerFeatureData, bins=feature['bins'], density=1)
-    ax2.hist(trackFeatureData, bins=feature['bins'], density=1)
-    ax3.hist(showerFeatureData, bins=feature['bins'], density=1)
-    ax3.hist(trackFeatureData, bins=feature['bins'], density=1)
+    shower_hist = np.histogram(showerFeatureData, bins=feature['bins'])
+    track_hist = np.histogram(trackFeatureData, bins=feature['bins'])
+    normedTrackBinCounts = track_hist[0]/len(trackFeatureData)
+    normedShowerBinCounts = shower_hist[0]/len(showerFeatureData)
+    binWidth = feature['bins'][1]-feature['bins'][0]
+    barPositions = feature['bins'][:-1] + binWidth / 2
+    fig = plt.figure(figsize=(20,7.5))
+    ax1 = fig.add_subplot(1,3,1)
+    ax2 = fig.add_subplot(1,3,2)
+    ax3 = fig.add_subplot(1,3,3)
+    
+    ax1.bar(barPositions, normedShowerBinCounts, binWidth)
+    ax2.bar(barPositions, normedTrackBinCounts, binWidth)
+    ax3.bar(barPositions, normedShowerBinCounts, binWidth)
+    ax3.bar(barPositions, normedTrackBinCounts, binWidth)
 
     ax1.set_ylim([0, feature['graphMaxY']])
     ax1.set_title("%s probability density - Showers" % feature['name'])
@@ -46,17 +54,15 @@ def GetFeatureStats(df_shower, df_track, feature):
     ax3.set_xlabel(feature['name'])
     ax3.set_ylabel("Frequency Density")
     plt.show()
-
-    shower_hist = np.histogram(showerFeatureData, bins=feature['bins'])
-    track_hist = np.histogram(trackFeatureData, bins=feature['bins'])
+    
     fS = st.rv_histogram(shower_hist).pdf
     fT = st.rv_histogram(track_hist).pdf
     return fS, fT
 
 
-def Likelihood(featurePdfPairs, featureValues):
-    Pt = 1
-    Ps = 1
+def ShowerLikelihood(featurePdfPairs, featureValues, prior):
+    Pt = 1 - prior
+    Ps = prior
     for (fS, fT), featureValue in zip(featurePdfPairs, featureValues):
         if featureValue == -1:
             continue
@@ -84,15 +90,18 @@ for feature in featureList:
     featurePdfPairs.append(GetFeatureStats(dfTrainingShowers, dfTrainingTracks, feature))
 
 
-# Evaluate likelihood for all PFOs
-featureNames = (feature['name'] for feature in featureList)
-featureValuesArray = dfInputPfos[featureNames].to_numpy()
-likelihoodArray = np.zeros(nInputPfos)
-print("\nCalculating likelihoods...")
-for i in tqdm(range(0, nInputPfos)):
-    likelihoodArray[i] = Likelihood(featurePdfPairs, featureValuesArray[i])
-dfInputPfos["likelihood"] = likelihoodArray
-dfInputPfos.to_pickle(outputPickleFile)
+if 'likelihood' not in dfInputPfos or not useExistingLikelihood:
+    # Evaluate likelihood for all PFOs
+    featureNames = (feature['name'] for feature in featureList)
+    featureValuesArray = dfInputPfos[featureNames].to_numpy()
+    likelihoodArray = np.zeros(nInputPfos)
+    prior = len(dfTrainingShowers) / nTrainingPfos
+    print("\nCalculating likelihoods...")
+    for i in tqdm(range(0, nInputPfos)):
+        likelihoodArray[i] = ShowerLikelihood(featurePdfPairs, featureValuesArray[i], prior)
+    dfInputPfos["likelihood"] = likelihoodArray
+    dfInputPfos.to_pickle(outputPickleFile)
+
 
 dfPerformancePfos = dfInputPfos[nTrainingPfos:]
 showerFilter = dfPerformancePfos['isShower'] == 1
@@ -100,14 +109,22 @@ trackFilter = dfPerformancePfos['isShower'] == 0
 likelihoodShowers = dfPerformancePfos[showerFilter]['likelihood']
 likelihoodTracks = dfPerformancePfos[trackFilter]['likelihood']
 
+
+track_hist = np.histogram(likelihoodTracks, bins=likelihoodOptions['bins'])
+normedTrackBinCounts = track_hist[0]/len(likelihoodTracks)
+shower_hist = np.histogram(likelihoodShowers, bins=likelihoodOptions['bins'])
+normedShowerBinCounts = shower_hist[0]/len(likelihoodShowers)
+binWidth = likelihoodOptions['bins'][1]-likelihoodOptions['bins'][0]
+barPositions = likelihoodOptions['bins'][:-1] + binWidth / 2
+
 fig = plt.figure(figsize=(20,7.5))
 ax1 = fig.add_subplot(1,3,1)
 ax2 = fig.add_subplot(1,3,2)
 ax3 = fig.add_subplot(1,3,3)
-ax1.hist(likelihoodShowers, likelihoodOptions['bins'], density=1)
-ax2.hist(likelihoodTracks, likelihoodOptions['bins'], density=1)
-ax3.hist(likelihoodShowers, likelihoodOptions['bins'], density=1)
-ax3.hist(likelihoodTracks, likelihoodOptions['bins'], density=1)
+ax1.bar(barPositions, normedShowerBinCounts, binWidth)
+ax2.bar(barPositions, normedTrackBinCounts, binWidth)
+ax3.bar(barPositions, normedShowerBinCounts, binWidth)
+ax3.bar(barPositions, normedTrackBinCounts, binWidth)
 ax1.set_ylim([0, likelihoodOptions['graphMaxY']])
 ax1.set_title("Likelihood probability density - Showers")
 ax1.set_xlabel("Likelihood")
@@ -136,8 +153,8 @@ def CompletenessPurity(cutOff):
     showerPurity = sumCorrectShowers/(sumCorrectShowers + sumIncorrectTracks)
     return (trackEfficiency, trackPurity, showerEfficiency, showerPurity)
 
-# Printing completeness-purity for likelihood = 0.51,3,1
-print("\nTrack Efficiency %f\n" "Track Purity %f\n" "ShowerEfficiency %f\n" "Shower Purity %f\n" %CompletenessPurity(0.93))
+# Printing completeness-purity for likelihood = 0.89
+print("\nTrack Efficiency %f\n" "Track Purity %f\n" "ShowerEfficiency %f\n" "Shower Purity %f\n" %CompletenessPurity(0.89))
 
 # Plotting Likelihood against purity and completeness.
 trackEfficiencies = []

@@ -73,6 +73,5 @@ def GetFeature(pfo):
     R2 = RSquared(pfo.driftCoordW, pfo.wireCoordW)
 
     c, m, cErr, mErr = LineFit(pfo.wireCoordW, pfo.driftCoordW, pfo.driftCoordErrW)
-    angleErr = angleErr = abs(math.atan(m + mErr) - math.atan(m))
-    print("AngleErr = %s R2 = %s" % (angleErr, R2))
-    return { "F0a" : RSquared(pfo.wireCoordW, pfo.driftCoordW), "F0b" : angleErr}
+    angleErr = m
+    return { "F0a" : R2, "F0b" : angleErr}
