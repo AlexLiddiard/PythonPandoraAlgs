@@ -5,7 +5,7 @@ import pandas as pd
 import math as m
 from tqdm import tqdm
 
-myTestArea = "/home/alexliddiard/Desktop/Pandora"
+myTestArea = "/home/jack/Documents/Pandora"
 inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.pickle'
 outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.pickle'
 
@@ -17,7 +17,7 @@ featureList = ({'name': 'F0a', 'bins': np.linspace(0, 1, num=200), 'graphMaxY': 
                {'name': 'F2c', 'bins': np.linspace(0, 1, num=200), 'graphMaxY': 40})
 likelihoodOptions = {'bins': np.linspace(0, 1, num=200), 'graphMaxY': 200}
 
-#Histogram Creator Programme
+# Histogram Creator Programme
 
 def GetFeatureStats(df_shower, df_track, feature):
     fig = plt.figure(figsize=(20,7.5))
@@ -122,12 +122,55 @@ ax3.set_xlabel("Likelihood")
 ax3.set_ylabel("Frequency Density")
 plt.show()
 
-sumCorrectShowers = (likelihoodShowers > 0.5).sum()
-sumIncorrectShowers = (likelihoodShowers < 0.5).sum()
-sumCorrectTracks = (likelihoodTracks < 0.5).sum()
-sumIncorrectTracks = (likelihoodTracks > 0.5).sum()
-trackEfficiency = sumCorrectTracks/(sumCorrectTracks+sumIncorrectTracks)
-trackPurity = sumCorrectTracks/(sumCorrectTracks + sumIncorrectShowers)
-showerEfficiency = sumCorrectShowers/(sumCorrectShowers+sumIncorrectShowers)
-showerPurity = sumCorrectShowers/(sumCorrectShowers + sumIncorrectTracks)
-print("\nTrack Efficiency %f\n" "Track Purity %f\n" "ShowerEfficiency %f\n" "Shower Purity %f\n" %(trackEfficiency, trackPurity, showerEfficiency, showerPurity) )
+
+
+# Calculating completeness-purity against likelihood cut-off function
+def CompletenessPurity(cutOff):
+    sumCorrectShowers = (likelihoodShowers > cutOff).sum()
+    sumIncorrectShowers = (likelihoodShowers < cutOff).sum()
+    sumCorrectTracks = (likelihoodTracks < cutOff).sum()
+    sumIncorrectTracks = (likelihoodTracks > cutOff).sum()
+    trackEfficiency = sumCorrectTracks/(sumCorrectTracks+sumIncorrectTracks)
+    trackPurity = sumCorrectTracks/(sumCorrectTracks + sumIncorrectShowers)
+    showerEfficiency = sumCorrectShowers/(sumCorrectShowers+sumIncorrectShowers)
+    showerPurity = sumCorrectShowers/(sumCorrectShowers + sumIncorrectTracks)
+    return (trackEfficiency, trackPurity, showerEfficiency, showerPurity)
+
+# Printing completeness-purity for likelihood = 0.51,3,1
+print("\nTrack Efficiency %f\n" "Track Purity %f\n" "ShowerEfficiency %f\n" "Shower Purity %f\n" %CompletenessPurity(0.93))
+
+# Plotting Likelihood against purity and completeness.
+trackEfficiencies = []
+trackPurities = []
+showerEfficiencies = []
+showerPurities = []
+trackPurityEfficiency = []
+showerPurityEfficiency = []
+
+for cutOff in likelihoodOptions['bins']:
+    CompletenessPurityTuple = CompletenessPurity(cutOff)
+    trackEfficiencies.append(CompletenessPurityTuple[0])
+    trackPurities.append(CompletenessPurityTuple[1])
+    trackPurityEfficiency.append(CompletenessPurityTuple[0]*CompletenessPurityTuple[1])
+    showerEfficiencies.append(CompletenessPurityTuple[2])
+    showerPurities.append(CompletenessPurityTuple[3])
+    showerPurityEfficiency.append(CompletenessPurityTuple[2]*CompletenessPurityTuple[3])
+
+fig = plt.figure(figsize=(20,7.5))
+bx1 = fig.add_subplot(1,2,1)
+bx2 = fig.add_subplot(1,2,2)
+
+bx1.plot(likelihoodOptions['bins'], trackPurities, 'b', likelihoodOptions['bins'], trackEfficiencies, 'r', likelihoodOptions['bins'], trackPurityEfficiency, 'g')
+bx2.plot(likelihoodOptions['bins'], showerPurities, 'b', likelihoodOptions['bins'], showerEfficiencies, 'r', likelihoodOptions['bins'], showerPurityEfficiency, 'g')
+
+bx1.set_ylim([0, 1])
+bx1.set_title("%s Purity/Completeness/Product vs Likelihood - Tracks")
+bx1.set_xlabel("Likelihood")
+bx1.set_ylabel("Purity/Completeness/Product Fraction")
+
+bx2.set_ylim([0, 1])
+bx2.set_title("%s Purity/Completeness vs Likelihood - Showers")
+bx2.set_xlabel("Likelihood")
+bx2.set_ylabel("Purity/Completeness/Product Fraction")
+
+plt.show()
