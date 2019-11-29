@@ -22,8 +22,7 @@ def NearestPoint(pointX, pointY, pointListX, pointListY):
 # rectHeight centred on the point.
 # If the subsample is empty, a distance of infinity and a point index of -1 is
 # returned.
-def NearestPointInRectangle(pointX, pointY, pointListX, pointListY, rectWidth,
-                            rectHeight):
+def NearestPointInRectangle(pointX, pointY, pointListX, pointListY, rectWidth, rectHeight):
     xLow = pointX - rectWidth / 2
     xHigh = pointX + rectWidth / 2
     yLow = pointY - rectHeight / 2
@@ -121,12 +120,11 @@ def GetChainInfo(driftCoord, wireCoord, rectWidth, rectHeight, pointsPerSlide):
     while driftCoord:    # While pfo hit list is not empty
         chainX, chainY, chainLength = CreatePointChain2(driftCoord, wireCoord, rectWidth, rectHeight)
         if len(chainX) > 1:
-            lengthRatio = math.sqrt(Distance2(chainX[0], chainY[0], chainX[-1], chainY[-1])) / chainLength
+            sumLengthRatios += math.sqrt(Distance2(chainX[0], chainY[0], chainX[-1], chainY[-1])) / chainLength
+            sumChainRSquareds += SlidingPearsonRSquared(chainX, chainY, pointsPerSlide)
+            chainCount += 1
         else:
             lengthRatio = 0
-        chainCount += 1
-        sumLengthRatios += lengthRatio
-        sumChainRSquareds += SlidingPearsonRSquared(chainX, chainY, pointsPerSlide)
     avgLengthRatio = sumLengthRatios / chainCount
     avgChainRSquareds = sumChainRSquareds/chainCount
     return chainCount, avgLengthRatio, avgChainRSquareds
