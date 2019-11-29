@@ -1,7 +1,7 @@
 # This module is for track/shower algorithm #1
 import statistics
 import math
-
+import TrackShowerFeatures.TrackShowerFeature0 as tsfO
 
 # This function counts how many numbers fall in a set of bins of a given width.
 # Empty bins are ignored.
@@ -32,51 +32,30 @@ def GetBinCounts(numbers, binWidth):
     return binCounts
 
 
-# Ordinary Least Squares line fit
-
-def OLS(xCoords, yCoords):
-    Sxy = 0
-    Sxx = 0
-    Sx = 0
-    Sy = 0
-    n = len(xCoords)
-    if n == 0:
-        return float('-inf'), 0
-
-    for i in range(0, n):
-        Sxy += xCoords[i] * yCoords[i]
-        Sxx += xCoords[i] * xCoords[i]
-        Sx += xCoords[i]
-        Sy += yCoords[i]
-
-    divisor = Sxx - Sx * Sx / n
-    if divisor == 0:
-        return (float('inf'), 0)
-    b = (Sxy - Sx * Sy / n) / divisor
-    a = Sy / n - b * Sx / n
-    return b, a
-
-
 # Rotate a set of points clockwise by angle theta
-# Note that tanTheta = tan(theta) = gradient
+# Note the variable: tan = tan(theta) = gradient
 
-def RotateClockwise(xCoords, yCoords, tanTheta):
-    cosTheta = 1 / math.sqrt(1 + tanTheta * tanTheta)
-    sinTheta = tanTheta * cosTheta
+def RotatePointsClockwise(xCoords, yCoords, tan):
+    sin, cos = TanToSinCos(tan)
     xCoordsNew = []
     yCoordsNew = []
-    for i in range(0, len(xCoords)):
-        xCoordsNew.append(xCoords[i] * cosTheta + yCoords[i] * sinTheta)
-        yCoordsNew.append(yCoords[i] * cosTheta - xCoords[i] * sinTheta)
+    for x, y in zip(xCoords, yCoords):
+        xCoordsNew.append(x * cos + y * sin)
+        yCoordsNew.append(y * cos - x * sin)
     return xCoordsNew, yCoordsNew
+
+def TanToSinCos(tan):
+    cos = 1 / math.sqrt(1 + tan * tan)
+    sin = tan * cos
+    return sin, cos
 
 
 def GetRotatedBinStdev(driftCoord, wireCoord, binWidth, minBins):
-    b = OLS(driftCoord, wireCoord)[0]
+    a, b, r = tsfO.OLS(driftCoord, wireCoord)
 
     # Rotate the coords so that any tracks are roughly parallel to the x axis.
     # Prevents tracks from having hits in very few bins, giving high stdev.
-    driftCoordRotated = RotateClockwise(driftCoord, wireCoord, b)[0]
+    driftCoordRotated = RotatePointsClockwise(driftCoord, wireCoord, b)[0]
     rotatedBins = GetBinCounts(driftCoordRotated, binWidth)
 
     # Ensure there are enough bins

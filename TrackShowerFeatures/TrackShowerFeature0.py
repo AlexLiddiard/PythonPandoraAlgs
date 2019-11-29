@@ -3,31 +3,26 @@ import math
 import numpy as np
 import scipy.optimize as opt
 
-# Square of the Pearson product-moment correlation
-# https://en.wikipedia.org/wiki/Residual_sum_of_squares
-# It is a normalised measure of the sum of the residual squares
-# (of the least squares regression line).
-def RSquared(xCoords, yCoords):
-    Sxy = 0
-    Sxx = 0
-    Syy = 0
-    Sx = 0
-    Sy = 0
+# Ordinary Least Squares line fit
+def OLS(xCoords, yCoords):
     n = xCoords.size
     if n == 0:
         return -1
-
     Sxy = np.sum(xCoords * yCoords)
     Sxx = np.sum(xCoords * xCoords)
     Syy = np.sum(yCoords * yCoords)
     Sx = np.sum(xCoords)
     Sy = np.sum(yCoords)
-    divisor = math.sqrt((n * Sxx - Sx * Sx) * (n * Syy - Sy * Sy))
-    if divisor == 0:
-        return -1
 
-    r = (n * Sxy - Sy * Sx) / divisor
-    return r * r
+    tmp1 = n * Sxx - Sx * Sx
+    tmp2 = n * Syy - Sy * Sy
+    tmp3 = n * Sxy - Sx * Sy
+    if tmp1 == 0 or tmp2 == 0:
+        return -1, float("inf"), float("inf")
+    r = tmp3 / math.sqrt(tmp1 * tmp2)
+    b = tmp3 / tmp1
+    a = Sy / n - b * Sx / n
+    return a, b, r
 
 def LineEqn(x, a, b):
     return a * x + b
@@ -56,7 +51,7 @@ def LineFitScipy(x, y, yErr):
     angleErr = abs(math.atan(gradOpt + gradErr) - math.atan(gradOpt))
     return angleErr, RSquaredNew(y, yfit)
 
-def LineFit(x, y, yErr):
+def LineFitWithError(x, y, yErr):
     S = np.sum(1/(yErr * yErr))
     Sx = np.sum(x / (yErr * yErr))
     Sy = np.sum(y / (yErr * yErr))
@@ -70,8 +65,5 @@ def LineFit(x, y, yErr):
     return c, m, cErr, mErr
 
 def GetFeature(pfo):
-    R2 = RSquared(pfo.driftCoordW, pfo.wireCoordW)
-
-    c, m, cErr, mErr = LineFit(pfo.wireCoordW, pfo.driftCoordW, pfo.driftCoordErrW)
-    angleErr = m
-    return { "F0a" : R2, "F0b" : angleErr}
+    a, b, r = OLS(pfo.driftCoordW, pfo.wireCoordW)
+    return { "F0a" : r * r }

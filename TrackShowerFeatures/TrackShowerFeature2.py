@@ -1,7 +1,9 @@
 # This module is for track/shower feature #2
 import math
 import numpy as np
-import TrackShowerFeatures.TrackShowerFeature0 as TSFO
+import TrackShowerFeatures.TrackShowerFeature0 as tsfO
+import TrackShowerFeatures.TrackShowerFeature1 as tsf1
+from itertools import count
 
 # Finds the nearest neighbour of a 2D point (out of a list of points)
 # It's quite slow
@@ -16,31 +18,30 @@ def NearestPoint(pointX, pointY, pointListX, pointListY):
     return nearestPointIndex, shortestDistance2
 
 
-# Finds the nearest neighbour of a 2D point (out of a list of points)
-# The list of points checked is a subsample of the input list.
-# It consists of all points within a rectangle of width rectWidth and height
-# rectHeight centred on the point.
-# If the subsample is empty, a distance of infinity and a point index of -1 is
-# returned.
-def NearestPointInRectangle(pointX, pointY, pointListX, pointListY, rectWidth, rectHeight):
-    xLow = pointX - rectWidth / 2
-    xHigh = pointX + rectWidth / 2
-    yLow = pointY - rectHeight / 2
-    yHigh = pointY + rectHeight / 2
+# Searches for the nearest neighbour of a 2D point (out of a list of points)
+# It only checks points that are within a specified rectangular box (relative to the point).
+# If there are no points in this search box, a distance of infinity and a point index of -1 is returned.
+def NearestPointInRectangle(pointX, pointY, pointListX, pointListY, rectWidth, rectHeight, rectOffsetX = 0, rectOffsetY = 0, rectRotation = 0):
     nearestPointIndex = -1
     shortestDistance2 = float("inf")
-    for i in range(0, len(pointListX)):
-        xTest = pointListX[i]
-        yTest = pointListY[i]
-        if xTest < xLow:
+    sin, cos = tsf1.TanToSinCos(rectRotation)
+    xLow = rectOffsetX - rectWidth / 2
+    xHigh = rectOffsetX + rectWidth / 2
+    yLow = rectOffsetY - rectHeight / 2
+    yHigh = rectOffsetY + rectHeight / 2
+    for i, x, y in zip(count(), pointListX, pointListY):
+        x -= pointX
+        y -= pointY
+        yNew = y * cos - x * sin
+        if yNew < yLow:
             continue
-        if xTest > xHigh:
+        if yNew > yHigh:
             continue
-        if yTest < yLow:
+        xNew = x * cos + y * sin
+        if xNew < xLow:
             continue
-        if yTest > yHigh:
+        if xNew > xHigh:
             continue
-
         distance2 = Distance2(pointX, pointY, pointListX[i], pointListY[i])
         if distance2 < shortestDistance2:
             nearestPointIndex = i
@@ -48,7 +49,7 @@ def NearestPointInRectangle(pointX, pointY, pointListX, pointListY, rectWidth, r
     return nearestPointIndex, shortestDistance2
 
 
-# Resurns the square of the separation distance of a pair of 2D points
+# Returns the square of the separation distance of a pair of 2D points
 def Distance2(pointAX, pointAY, pointBX, pointBY):
     deltaX = pointAX - pointBX
     deltaY = pointAY - pointBY
@@ -99,21 +100,45 @@ def CreatePointChain2(pointListX, pointListY, rectWidth, rectHeight):
             nearbyPoints = False
     return chainX, chainY, chainLength
 
+# Same as above, but with an intelligent placement of the square based on local correlation
+# A bit more efficient than original version
+def CreatePointChain3(pointListX, pointListY, rectWidth, rectHeight, rectOffsetX, rectOffestY, localCorrelationPoints):
+    currentX = pointListX.pop(0)
+    currentY = pointListY.pop(0)
+    chainX = [currentX]
+    chainY = [currentY]
+    chainLength = 0
+    nearbyPoints = True
+    while (nearbyPoints):
+        nearestPointIndex, distance2 = NearestPointInRectangle(currentX, currentY, pointListX, pointListY, rectWidth, rectHeight)
+        if nearestPointIndex >= 0:
+            currentX = pointListX.pop(nearestPointIndex)
+            currentY = pointListY.pop(nearestPointIndex)
+            chainX.append(currentX)
+            chainY.append(currentY)
+            chainLength += math.sqrt(distance2)
+        else:
+            nearbyPoints = False
+    return chainX, chainY, chainLength
+
+
 def SlidingPearsonRSquared(chainX, chainY, pointsPerSlide):
     chainX, chainY = np.array(chainX), np.array(chainY)
     if len(chainX) <= pointsPerSlide:
-        return TSFO.RSquared(chainX, chainY)
+        r = tsfO.OLS(chainX, chainY)[2]
+        return r * r
     else:
         sumChainRSquared = 0
         n = len(chainX) - pointsPerSlide + 1
         for i in range(n):
             subChainX = chainX[i:i+pointsPerSlide]
             subChainY = chainY[i:i+pointsPerSlide]
-            sumChainRSquared += TSFO.RSquared(subChainX, subChainY)
-        return sumChainRSquared/n
+            r = tsfO.OLS(subChainX, subChainY)[2]
+            sumChainRSquared += r * r
+        return sumChainRSquared / n
 
 
-def GetChainInfo(driftCoord, wireCoord, rectWidth, rectHeight, pointsPerSlide):
+def GetChainInfo(driftCoord, wireCoord, rectWidth, rectHeight, rectOffsetX, rectOffestY, localCorrelationPoints):
     chainCount = 0
     sumLengthRatios = 0
     sumChainRSquareds = 0
@@ -121,15 +146,17 @@ def GetChainInfo(driftCoord, wireCoord, rectWidth, rectHeight, pointsPerSlide):
         chainX, chainY, chainLength = CreatePointChain2(driftCoord, wireCoord, rectWidth, rectHeight)
         if len(chainX) > 1:
             sumLengthRatios += math.sqrt(Distance2(chainX[0], chainY[0], chainX[-1], chainY[-1])) / chainLength
-            sumChainRSquareds += SlidingPearsonRSquared(chainX, chainY, pointsPerSlide)
+            sumChainRSquareds += SlidingPearsonRSquared(chainX, chainY, localCorrelationPoints)
             chainCount += 1
-        else:
-            lengthRatio = 0
-    avgLengthRatio = sumLengthRatios / chainCount
-    avgChainRSquareds = sumChainRSquareds/chainCount
+    if chainCount > 0:
+        avgLengthRatio = sumLengthRatios / chainCount
+        avgChainRSquareds = sumChainRSquareds / chainCount
+    else:
+        avgLengthRatio = -1
+        avgChainRSquareds = -1
     return chainCount, avgLengthRatio, avgChainRSquareds
 
 
-def GetFeature(pfo, rectWidth=5, rectHeight=5, pointsPerSlide=10):
-    chainCount, avgLengthRatio, avgChainRSquareds = GetChainInfo(pfo.driftCoordW.tolist(), pfo.wireCoordW.tolist(), rectWidth, rectHeight, pointsPerSlide)
+def GetFeature(pfo, rectWidth=5, rectHeight=5, rectOffsetX=2.5, rectOffestY=0, localCorrelationPoints=5):
+    chainCount, avgLengthRatio, avgChainRSquareds = GetChainInfo(pfo.driftCoordW.tolist(), pfo.wireCoordW.tolist(), rectWidth, rectHeight, rectOffsetX, rectOffestY, localCorrelationPoints)
     return { "F2a": chainCount, "F2b": avgLengthRatio, "F2c": avgChainRSquareds }
