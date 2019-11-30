@@ -6,25 +6,28 @@ import math as m
 from tqdm import tqdm
 from itertools import count
 
-myTestArea = "/home/jack/Documents/Pandora"
-inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.pickle'
-outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataNew.pickle'
+myTestArea = "/home/alexliddiard/Desktop/Pandora"
+inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.pickle'
+outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.pickle'
 useExistingLikelihood = False
 
 trainingFraction = 0.5
-featureHistograms = ({'name': 'F0a', 'bins': np.linspace(0, 1, num=200), 'graphMaxY': 0.1},
+featureHistograms = (#{'name': 'F0a', 'bins': np.linspace(0, 1, num=200), 'graphMaxY': 0.1},
                      {'name': 'F1a', 'bins': np.linspace(0, 6, num=200), 'graphMaxY': 0.1},
-                     {'name': 'F2a', 'bins': np.linspace(0, 30, num=31), 'graphMaxY': 0.2},
+                     #{'name': 'F2a', 'bins': np.linspace(0, 30, num=31), 'graphMaxY': 0.2},
                      {'name': 'F2b', 'bins': np.linspace(0, 1, num=200), 'graphMaxY': 0.1},
-                     {'name': 'F2c', 'bins': np.linspace(0, 1, num=200), 'graphMaxY': 0.1})
+                     #{'name': 'F2c', 'bins': np.linspace(0, 1, num=200), 'graphMaxY': 0.1},
+                     #{'name': 'F2d', 'bins': np.linspace(0, 1, num=200), 'graphMaxY': 0.1},
+                     {'name': 'F2e', 'bins': np.linspace(0, 1, num=200), 'graphMaxY': 0.1},
+                     )
 otherHistograms = ({'name': 'likelihood', 'filters': [('isShower==1', 'Showers'), ('isShower==0', 'Tracks')], 'bins': np.linspace(0, 1, num=200), 'graphMaxY': 0.1},
-                   {'name': 'likelihood', 'filters': [('absPdgCode==11', 'Electrons/Positrons'), ('absPdgCode==22', 'Photons')], 'bins': np.linspace(0, 1, num=200), 'graphMaxY': 0.1})
+                   {'name': 'likelihood', 'filters': [('absPdgCode==11', 'Electrons/Positrons'), ('absPdgCode==22', 'Photons')], 'bins': np.linspace(0, 1, num=200), 'graphMaxY': 0.2})
 purityCompletenessOptions = {'bins': np.linspace(0, 1, num=200)}
 
 # Histogram Creator Programme
 
 def CreateHistogram(df, feature):
-    
+
     df = df.query(feature['name'] + '!=-1')
 
     fig = plt.figure(figsize=(20, 7.5))
@@ -39,18 +42,18 @@ def CreateHistogram(df, feature):
         normedFeatureBinCounts = hist[0]/len(filteredDf)
         binWidth = feature['bins'][1] - feature['bins'][0]
         barPositions = feature['bins'][:-1] + binWidth/2
-        
+
         ax = fig.add_subplot(1, numberOfSubplots, i)
-        
+
         ax.bar(barPositions, normedFeatureBinCounts, binWidth)
         ax.set_ylim([0, feature['graphMaxY']])
-        ax.set_title("%s Probability Density - %s" %(feature['name'], name))
+        ax.set_title("%s - %s" %(feature['name'], name))
         ax.set_xlabel(feature['name'])
         ax.set_ylabel("Probability")
         f.append(st.rv_histogram(hist).pdf)
 
     plt.show()
-    
+
     return f
 
 def ShowerLikelihood(featurePdfPairs, featureValues, prior):
@@ -112,43 +115,61 @@ def CompletenessPurity(cutOff):
     trackPurity = sumCorrectTracks/(sumCorrectTracks + sumIncorrectShowers)
     showerEfficiency = sumCorrectShowers/(sumCorrectShowers+sumIncorrectShowers)
     showerPurity = sumCorrectShowers/(sumCorrectShowers + sumIncorrectTracks)
-    return (trackEfficiency, trackPurity, showerEfficiency, showerPurity)
+    return trackEfficiency, trackPurity, showerEfficiency, showerPurity
 
-# Printing completeness-purity for likelihood = 0.89
-print("\nTrack Efficiency %f\n" "Track Purity %f\n" "ShowerEfficiency %f\n" "Shower Purity %f\n" %CompletenessPurity(0.89))
 
 # Plotting Likelihood against purity and completeness.
 trackEfficiencies = []
 trackPurities = []
 showerEfficiencies = []
 showerPurities = []
-trackPurityEfficiency = []
-showerPurityEfficiency = []
+trackPurityEfficiencies = []
+showerPurityEfficiencies = []
 
+bestTrackCutoff = 0
+bestShowerCutoff = 0
+bestTrackPurityEfficiency = 0
+bestShowerPurityEfficiency = 0
 for cutOff in purityCompletenessOptions['bins']:
-    CompletenessPurityTuple = CompletenessPurity(cutOff)
-    trackEfficiencies.append(CompletenessPurityTuple[0])
-    trackPurities.append(CompletenessPurityTuple[1])
-    trackPurityEfficiency.append(CompletenessPurityTuple[0]*CompletenessPurityTuple[1])
-    showerEfficiencies.append(CompletenessPurityTuple[2])
-    showerPurities.append(CompletenessPurityTuple[3])
-    showerPurityEfficiency.append(CompletenessPurityTuple[2]*CompletenessPurityTuple[3])
+    trackEfficiency, trackPurity, showerEfficiency, showerPurity = CompletenessPurity(cutOff)
+    trackEfficiencies.append(trackEfficiency)
+    trackPurities.append(trackPurity)
+    trackPurityEfficiency = trackEfficiency*trackPurity
+    if trackPurityEfficiency > bestTrackPurityEfficiency:
+        bestTrackPurityEfficiency = trackPurityEfficiency
+        bestTrackCutoff = cutOff
+    trackPurityEfficiencies.append(trackPurityEfficiency)
+
+    showerEfficiencies.append(showerEfficiency)
+    showerPurities.append(showerPurity)
+    showerPurityEfficiency = showerEfficiency*showerPurity
+    if showerPurityEfficiency > bestShowerPurityEfficiency:
+        bestShowerPurityEfficiency = showerPurityEfficiency
+        bestShowerCutoff = cutOff
+    showerPurityEfficiencies.append(showerPurityEfficiency)
+
 
 fig = plt.figure(figsize=(20,7.5))
 bx1 = fig.add_subplot(1,2,1)
 bx2 = fig.add_subplot(1,2,2)
 
-bx1.plot(purityCompletenessOptions['bins'], trackPurities, 'b', purityCompletenessOptions['bins'], trackEfficiencies, 'r', purityCompletenessOptions['bins'], trackPurityEfficiency, 'g')
-bx2.plot(purityCompletenessOptions['bins'], showerPurities, 'b', purityCompletenessOptions['bins'], showerEfficiencies, 'r', purityCompletenessOptions['bins'], showerPurityEfficiency, 'g')
+bx1.plot(purityCompletenessOptions['bins'], trackPurities, 'b', purityCompletenessOptions['bins'], trackEfficiencies, 'r', purityCompletenessOptions['bins'], trackPurityEfficiencies, 'g')
+bx2.plot(purityCompletenessOptions['bins'], showerPurities, 'b', purityCompletenessOptions['bins'], showerEfficiencies, 'r', purityCompletenessOptions['bins'], showerPurityEfficiencies, 'g')
 
 bx1.set_ylim([0, 1])
-bx1.set_title("%s Purity/Completeness/Product vs Likelihood - Tracks")
+bx1.set_title("Purity/Completeness/Product vs Likelihood - Tracks")
 bx1.set_xlabel("Likelihood")
 bx1.set_ylabel("Purity/Completeness/Product Fraction")
 
 bx2.set_ylim([0, 1])
-bx2.set_title("%s Purity/Completeness vs Likelihood - Showers")
+bx2.set_title("Purity/Completeness vs Likelihood - Showers")
 bx2.set_xlabel("Likelihood")
 bx2.set_ylabel("Purity/Completeness/Product Fraction")
 
 plt.show()
+
+# Printing best purity*efficiency for tracks and showers
+print("\nBest track purity*efficiency %f, cutoff %f" % (bestTrackPurityEfficiency, bestTrackCutoff))
+print("\nTrack Efficiency %f\n" "Track Purity %f\n" "ShowerEfficiency %f\n" "Shower Purity %f\n" % CompletenessPurity(bestTrackCutoff))
+print("\nBest shower purity*efficiency %f, cutoff %f" % (bestShowerPurityEfficiency, bestShowerCutoff))
+print("\nTrack Efficiency %f\n" "Track Purity %f\n" "ShowerEfficiency %f\n" "Shower Purity %f\n" % CompletenessPurity(bestShowerCutoff))

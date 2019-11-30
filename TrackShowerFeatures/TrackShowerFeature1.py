@@ -67,5 +67,5 @@ def GetRotatedBinStdev(driftCoord, wireCoord, binWidth, minBins):
         return -1
 
 
-def GetFeature(pfo, binWidth=0.89, minBins=2):
+def GetFeature(pfo, binWidth=0.89, minBins=3):
     return { "F1a" : GetRotatedBinStdev(pfo.driftCoordW, pfo.wireCoordW, binWidth, minBins) }

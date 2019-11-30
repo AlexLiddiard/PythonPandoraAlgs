@@ -8,6 +8,7 @@ def OLS(xCoords, yCoords):
     n = xCoords.size
     if n == 0:
         return -1
+
     Sxy = np.sum(xCoords * yCoords)
     Sxx = np.sum(xCoords * xCoords)
     Syy = np.sum(yCoords * yCoords)
@@ -18,11 +19,29 @@ def OLS(xCoords, yCoords):
     tmp2 = n * Syy - Sy * Sy
     tmp3 = n * Sxy - Sx * Sy
     if tmp1 == 0 or tmp2 == 0:
-        return -1, float("inf"), float("inf")
-    r = tmp3 / math.sqrt(tmp1 * tmp2)
+        return float("inf"), float("inf"), -1
+    r2 = (tmp3 * tmp3) / (tmp1 * tmp2)
     b = tmp3 / tmp1
     a = Sy / n - b * Sx / n
-    return a, b, r
+    return a, b, r2
+
+def RSquared(xCoords, yCoords):
+    n = xCoords.size
+    if n == 0:
+        return -1
+
+    Sxy = np.sum(xCoords * yCoords)
+    Sxx = np.sum(xCoords * xCoords)
+    Syy = np.sum(yCoords * yCoords)
+    Sx = np.sum(xCoords)
+    Sy = np.sum(yCoords)
+
+    tmp1 = n * Sxy - Sx * Sy
+    tmp2 = (n * Syy - Sy * Sy) * (n * Sxx - Sx * Sx)
+    if tmp2 == 0:
+        return -1
+
+    return (tmp1 * tmp1) / tmp2
 
 def LineEqn(x, a, b):
     return a * x + b

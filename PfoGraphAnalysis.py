@@ -9,12 +9,12 @@ import pandas as pd
 
 myTestArea = "/home/alexliddiard/Desktop/Pandora"
 rootFileDirectory = myTestArea + "/PythonPandoraAlgs/ROOT Files"
-inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.pickle'
+inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.pickle'
 
 usePickleFile = True
-filters = ({'name': 'likelihood', 'min': 0.9, 'max': 1},
-           {'name': 'isShower', 'min': 0, 'max': 0})
-additionalInfo = ['F0a', 'F1a', 'F2a', 'F2b', 'F2c', 'likelihood']
+filters = ({'name': 'likelihood', 'min': 0, 'max': 0.87},
+           {'name': 'absPdgCode', 'min': 11, 'max': 11})
+additionalInfo = ['F0a', 'F1a', 'F2a', 'F2b', 'F2c', 'F2d', 'F2e', 'likelihood']
 
 # Microboone Geometry stuff
 class MicroBooneGeo:
@@ -44,6 +44,15 @@ class MicroBooneGeo:
                   (820.9, 825.7),
                   (873.7, 878.5))
 
+# From given axes limits, calculate new limits that give a square region.
+# The square region encloses the old (rectangular) region and shares the same centre point.
+def GetSquareRegionAxesLimits(xMin, xMax, yMin, yMax):
+    xSpan = (xMax - xMin) / 2
+    ySpan = (yMax - yMin) / 2
+    maxSpan = max(xSpan, ySpan)
+    xMid = xMin + xSpan
+    yMid = yMin + ySpan
+    return xMid - maxSpan, xMid + maxSpan, yMid - maxSpan, yMid + maxSpan
 
 def DisplayPfo(pfo, additionalInfo = None):
     # Setting variables to be plotted.
@@ -69,24 +78,29 @@ def DisplayPfo(pfo, additionalInfo = None):
     ax.autoscale(False)
     for zone in MicroBooneGeo.DeadZonesW:
         ax.add_patch(plt.Rectangle((0, zone[0]), MicroBooneGeo.SpanX, zone[1] - zone[0], alpha=0.15))
-    ax.add_patch(plt.Rectangle((0, 0), MicroBooneGeo.SpanX, MicroBooneGeo.SpanW, fill=False))
+    ax.add_patch(plt.Rectangle((0, 0), MicroBooneGeo.SpanX, MicroBooneGeo.SpanW, fill=False, linewidth=2))
+
+    # Set axes limits so that the region is a square
+    xMin, xMax, yMin, yMax = GetSquareRegionAxesLimits(*ax.get_xlim(), *ax.get_ylim())
+    ax.set_xlim(xMin, xMax)
+    ax.set_ylim(yMin, yMax)
 
     # Axes and labels
-    if additionalInfo is None:
-        additionalInfoStr = ''
-    else:
-        additionalInfoStr = '\n' + ', '.join([('%s = %.2f' % info).rstrip('0').rstrip('.') for info in additionalInfo.items()])
+    if additionalInfo is not None:
+        additionalInfoStr = '\n'.join([('%s = %.2f' % info).rstrip('0').rstrip('.') for info in additionalInfo.items()])
+        props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+        ax.text(0.75, 0.97, additionalInfoStr, transform=ax.transAxes, fontsize=14, verticalalignment='top', bbox=props)
 
-    plt.title('%s\nEventId = %d, PfoId = %d, Hierarchy = %d\n%s (%s), Purity = %.2f, Completeness = %.2f%s' %
+
+    plt.title('%s\nEventId = %d, PfoId = %d, Hierarchy = %d\n%s (%s), Purity = %.2f, Completeness = %.2f' %
               (pfo.fileName,
                pfo.eventId, pfo.pfoId, pfo.heirarchyTier,
-               pfo.TrueParticleW(), 'Track' if pfo.IsShowerW()==0 else 'Shower', pfo.PurityW(), pfo.CompletenessW(),
-               additionalInfoStr), fontsize=20)
+               pfo.TrueParticleW(), 'Track' if pfo.IsShowerW()==0 else 'Shower', pfo.PurityW(), pfo.CompletenessW()),
+               fontsize=20)
     plt.xlabel('DriftCoordW (cm)', fontsize = 15)
     plt.ylabel('WireCoordW (cm)', fontsize = 15)
 
     plt.show()
-
 
 def RandomPfoView(filePaths):
     rnd.shuffle(filePaths)

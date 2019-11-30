@@ -10,7 +10,7 @@ from tqdm import tqdm
 minHits = 2
 minCompleteness = 0.8
 minPurity = 0.8
-myTestArea = "/home/epp/phunqq/Documents/PandoraPFA"
+myTestArea = "/home/alexliddiard/Desktop/Pandora/"
 rootFileDirectory = myTestArea + "/PythonPandoraAlgs"
 outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.pickle'
 
@@ -36,8 +36,11 @@ def ProcessFile(filePath):
 
 if __name__ == "__main__":
     filePaths =  glob.glob(rootFileDirectory + '/**/*.root', recursive=True)
-    with concurrent.futures.ProcessPoolExecutor() as executor:
-        results = list(tqdm(executor.map(ProcessFile, filePaths), total=len(filePaths)))
-    df = pd.concat(results)
-    df.to_pickle(outputPickleFile)
-    print('\nFinished!')
+    if filePaths:
+        with concurrent.futures.ProcessPoolExecutor() as executor:
+            results = list(tqdm(executor.map(ProcessFile, filePaths), total=len(filePaths)))
+        df = pd.concat(results)
+        df.to_pickle(outputPickleFile)
+        print('\nFinished!')
+    else:
+        print('No ROOT files found!')
