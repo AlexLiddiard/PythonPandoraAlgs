@@ -10,9 +10,9 @@ from tqdm import tqdm
 minHits = 2
 minCompleteness = 0.8
 minPurity = 0.8
-myTestArea = "/home/alexliddiard/Desktop/Pandora/"
-rootFileDirectory = myTestArea + "/PythonPandoraAlgs"
-outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.pickle'
+myTestArea = "/home/epp/phuznm/Documents/Pandora/"
+rootFileDirectory = myTestArea + "/PandoraCoW"
+outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataExtended.pickle'
 
 def ProcessFile(filePath):
     events = UpRootFileReader.ReadRootFile(filePath)
