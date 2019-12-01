@@ -6,10 +6,10 @@ import math as m
 from tqdm import tqdm
 from itertools import count
 
-myTestArea = "/home/alexliddiard/Desktop/Pandora"
-inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.pickle'
-outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.pickle'
-useExistingLikelihood = False
+myTestArea = "/home/jack/Documents/Pandora"
+inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataExtended.pickle'
+outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataExtended(Processed).pickle'
+useExistingLikelihood = True
 
 trainingFraction = 0.5
 featureHistograms = (#{'name': 'F0a', 'bins': np.linspace(0, 1, num=200), 'graphMaxY': 0.1},
