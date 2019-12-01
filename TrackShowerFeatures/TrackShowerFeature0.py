@@ -7,7 +7,7 @@ import scipy.optimize as opt
 def OLS(xCoords, yCoords):
     n = xCoords.size
     if n == 0:
-        return -1
+        return float("inf"), float("inf"), -1
 
     Sxy = np.sum(xCoords * yCoords)
     Sxx = np.sum(xCoords * xCoords)

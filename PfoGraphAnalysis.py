@@ -9,11 +9,14 @@ import pandas as pd
 
 myTestArea = "/home/alexliddiard/Desktop/Pandora"
 rootFileDirectory = myTestArea + "/PythonPandoraAlgs/ROOT Files"
-inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.pickle'
+inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp(Processed).pickle'
 
 usePickleFile = True
-filters = ({'name': 'likelihood', 'min': 0, 'max': 0.87},
-           {'name': 'absPdgCode', 'min': 11, 'max': 11})
+pfoFilter = 'likelihood < 0.95 and absPdgCode==11' # track-like electrons
+           #'F1a==0' # F1a zero anomaly
+           #'likelihood > 0.95 and absPdgCode==211' # shower-like pions
+           #'absPdgCode==14' # muon neutrino anomaly
+
 additionalInfo = ['F0a', 'F1a', 'F2a', 'F2b', 'F2c', 'F2d', 'F2e', 'likelihood']
 
 # Microboone Geometry stuff
@@ -64,8 +67,8 @@ def DisplayPfo(pfo, additionalInfo = None):
     fig = plt.figure(figsize=(13,10))
     ax = fig.add_subplot(1, 1, 1)
     ax.set_aspect('equal', 'box')
-    colorList = [(1, 0, 0), (0, 0, 1)]
-    energyMap = matplotlib.colors.LinearSegmentedColormap.from_list('energyMap', colorList, N=1024)
+    colourList = [(1, 0, 0), (0, 0, 1)]
+    energyMap = matplotlib.colors.LinearSegmentedColormap.from_list('energyMap', colourList, N=1024)
 
     # Plot variables
     sc = ax.scatter(x, y, s=20, c=pfo.energyW, cmap=energyMap, zorder=3)
@@ -113,16 +116,12 @@ def RandomPfoView(filePaths):
                     continue;
                 DisplayPfo(pfo)
 
-def SelectivePfoView(filePaths, dfPfoFeatureData, filters):
-    for filterer in filters:
-        dfFilter = (dfPfoFeatureData[filterer['name']] >= filterer['min']) & (dfPfoFeatureData[filterer['name']] <= filterer['max'])
-        dfPfoFeatureData = dfPfoFeatureData[dfFilter]
-
+def SelectivePfoView(filePaths, dfPfoData, pfoFilter):
     nameToPathDict = FileNameToFilePath(filePaths)
-    dfFilter = dfPfoFeatureData['fileName'].isin(nameToPathDict)
-    dfPfoFeatureData = dfPfoFeatureData[dfFilter]
+    dfPfoData = dfPfoData.query(pfoFilter)
+    dfPfoData = dfPfoData.query('fileName in @nameToPathDict')
 
-    for index, pfoData in dfPfoFeatureData.iterrows():
+    for index, pfoData in dfPfoData.iterrows():
         filePath = nameToPathDict[pfoData.fileName]
         pfo = rdr.ReadPfoFromRootFile(filePath, pfoData.eventId, pfoData.pfoId)
         DisplayPfo(pfo, pfoData[additionalInfo])
@@ -139,9 +138,9 @@ if __name__ == "__main__":
     filePaths =  glob.glob(rootFileDirectory + '/**/*.root', recursive=True)
     if usePickleFile:
         dfPfoFeatureData = pd.read_pickle(inputPickleFile)
-        SelectivePfoView(filePaths, dfPfoFeatureData, filters)
+        SelectivePfoView(filePaths, dfPfoFeatureData, pfoFilter)
     else:
         RandomPfoView(filePaths)
-    print("Done")
+    print('\nFinished!')
 
 
