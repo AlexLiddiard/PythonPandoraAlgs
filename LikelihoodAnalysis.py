@@ -80,28 +80,36 @@ for cutOff in purityCompletenessGraph['bins']:
         bestShowerCutoff = cutOff
     showerPurityEfficiencies.append(showerPurityEfficiency)
 
-
-fig = plt.figure(figsize=(20,7.5))
-bx1 = fig.add_subplot(1,2,1)
-bx2 = fig.add_subplot(1,2,2)
-
-bx1.plot(purityCompletenessGraph['bins'], trackPurities, 'b', purityCompletenessGraph['bins'], trackEfficiencies, 'r', purityCompletenessGraph['bins'], trackPurityEfficiencies, 'g')
-bx2.plot(purityCompletenessGraph['bins'], showerPurities, 'b', purityCompletenessGraph['bins'], showerEfficiencies, 'r', purityCompletenessGraph['bins'], showerPurityEfficiencies, 'g')
-
-bx1.set_ylim([0, 1])
-bx1.set_title("Purity/Completeness/Product vs Likelihood - Tracks")
-bx1.set_xlabel("Likelihood")
-bx1.set_ylabel("Purity/Completeness/Product Fraction")
-
-bx2.set_ylim([0, 1])
-bx2.set_title("Purity/Completeness vs Likelihood - Showers")
-bx2.set_xlabel("Likelihood")
-bx2.set_ylabel("Purity/Completeness/Product Fraction")
-
-plt.show()
-
 # Printing best purity*efficiency for tracks and showers
 print("\nBest track purity*efficiency %f, cutoff %f" % (bestTrackPurityEfficiency, bestTrackCutoff))
 print("\nTrack Efficiency %f\n" "Track Purity %f\n" "ShowerEfficiency %f\n" "Shower Purity %f\n" % CompletenessPurity(bestTrackCutoff))
 print("\nBest shower purity*efficiency %f, cutoff %f" % (bestShowerPurityEfficiency, bestShowerCutoff))
 print("\nTrack Efficiency %f\n" "Track Purity %f\n" "ShowerEfficiency %f\n" "Shower Purity %f\n" % CompletenessPurity(bestShowerCutoff))
+
+# Show purity/completeness graph
+fig = plt.figure(figsize=(20,7.5))
+bx1 = fig.add_subplot(1,2,1)
+bx2 = fig.add_subplot(1,2,2)
+
+lines = bx1.plot(purityCompletenessGraph['bins'], trackPurities, 'b', purityCompletenessGraph['bins'], trackEfficiencies, 'r', purityCompletenessGraph['bins'], trackPurityEfficiencies, 'g')
+bx1.legend(lines, ('Purity', 'Efficiency', 'Purity * Efficiency'), loc='lower center')
+lines = bx2.plot(purityCompletenessGraph['bins'], showerPurities, 'b', purityCompletenessGraph['bins'], showerEfficiencies, 'r', purityCompletenessGraph['bins'], showerPurityEfficiencies, 'g')
+bx2.legend(lines, ('Purity', 'Efficiency', 'Purity * Efficiency'), loc='lower center')
+bx1.axvline(bestTrackCutoff)
+bx2.axvline(bestShowerCutoff)
+bx1.text(bestTrackCutoff - 0.03, 0.4 ,'Cutoff = %.2f' % bestTrackCutoff, rotation=90, fontsize=12)
+bx2.text(bestShowerCutoff - 0.03, 0.4 ,'Cutoff = %.2f' % bestShowerCutoff, rotation=90, fontsize=12)
+
+bx1.set_ylim([0, 1])
+bx1.set_title("Purity/Completeness/Product vs Likelihood - Tracks")
+bx1.set_xlabel("Likelihood")
+bx1.set_ylabel("Fraction")
+
+bx2.set_ylim([0, 1])
+bx2.set_title("Purity/Completeness vs Likelihood - Showers")
+bx2.set_xlabel("Likelihood")
+bx2.set_ylabel("Fraction")
+
+plt.show()
+
+
