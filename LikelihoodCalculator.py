@@ -4,19 +4,19 @@ import math as m
 import scipy.stats as st
 from tqdm import tqdm
 
-myTestArea = "/home/alexliddiard/Desktop/Pandora"
-inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.pickle'
-outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp(Processed).pickle'
+myTestArea = "/home/jack/Documents/Pandora"
+inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.pickle'
+outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData(Processed).pickle'
 
 trainingFraction = 0.5
 preFilters = ('purityW>=0.8', 'completenessW>=0.8', 'nHitsW>=10', 'absPdgCode not in [2112, 14, 12]')
 featurePdfs = (#{'name': 'F0a', 'bins': np.linspace(0, 1, num=200)},
-               {'name': 'F1a', 'bins': np.linspace(0, 6, num=50)},
-              #{'name': 'F2a', 'bins': np.linspace(0, 30, num=31)},
-               {'name': 'F2b', 'bins': np.linspace(0, 1, num=50)},
-              #{'name': 'F2c', 'bins': np.linspace(0, 1, num=200)},
-              #{'name': 'F2d', 'bins': np.linspace(0, 1, num=200)},
-               {'name': 'F2e', 'bins': np.linspace(0, 1, num=50)},
+               {'name': 'F1a', 'bins': np.linspace(0, 6, num=500)},
+               #{'name': 'F2a', 'bins': np.linspace(0, 30, num=31)},
+               {'name': 'F2b', 'bins': np.linspace(0, 1, num=500)},
+               #{'name': 'F2c', 'bins': np.linspace(0, 1, num=200)},
+               #{'name': 'F2d', 'bins': np.linspace(0, 1, num=200)},
+               {'name': 'F2e', 'bins': np.linspace(0, 1, num=500)},
               )
 
 
