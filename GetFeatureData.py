@@ -5,9 +5,10 @@ import UpRootFileReader
 import TrackShowerFeatures.TrackShowerFeature0 as tsf0
 import TrackShowerFeatures.TrackShowerFeature1 as tsf1
 import TrackShowerFeatures.TrackShowerFeature2 as tsf2
+import TrackShowerFeatures.TrackShowerFeature3 as tsf3
 
-myTestArea = "/home/alexliddiard/Desktop/Pandora"
-rootFileDirectory = myTestArea + "/PythonPandoraAlgs"
+myTestArea = "/home/jack/Documents/Pandora"
+rootFileDirectory = myTestArea + "/PythonPandoraAlgs/ROOT Files"
 outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.pickle'
 
 if __name__ == "__main__":
@@ -33,7 +34,7 @@ if __name__ == "__main__":
                 featureDictionary.update(tsf0.GetFeature(pfo))
                 featureDictionary.update(tsf1.GetFeature(pfo))
                 featureDictionary.update(tsf2.GetFeature(pfo))
-
+                featureDictionary.update(tsf3.GetFeature(pfo))
                 pfoFeatureList.append(featureDictionary)
 
     df = pd.DataFrame(pfoFeatureList)

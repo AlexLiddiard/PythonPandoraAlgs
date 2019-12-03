@@ -5,7 +5,7 @@ import math as m
 from HistoSynthesis import CreateHistogram
 
 myTestArea = "/home/jack/Documents/Pandora"
-inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData(Processed).pickle'
+inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp(Processed).pickle'
 trainingFraction = 0.5
 featureHistograms = (#{'name': 'F0a', 'bins': np.linspace(0, 1, num=200)},
                      {'name': 'F1a', 'bins': np.linspace(0, 6, num=50)},
@@ -14,7 +14,9 @@ featureHistograms = (#{'name': 'F0a', 'bins': np.linspace(0, 1, num=200)},
                      #{'name': 'F2c', 'bins': np.linspace(0, 1, num=200)},
                      #{'name': 'F2d', 'bins': np.linspace(0, 1, num=200)},
                      {'name': 'F2e', 'bins': np.linspace(0, 1, num=50)},
-                     )
+                     {'name': 'F3a', 'bins': np.linspace(0, 1.57, num=100)},
+                     #{'name': 'F3b', 'bins': np.linspace(0, 1000, num=100)}
+                    )
 likelihoodHistograms = ({'filters': [('isShower==1', 'Showers'), ('isShower==0', 'Tracks')], 'bins': np.linspace(0, 1, num=25)},
                         {'filters': [('absPdgCode==11', 'Electrons/Positrons'), ('absPdgCode==22', 'Photons')], 'bins': np.linspace(0, 1, num=25)},
                         {'filters': [('absPdgCode==2212', 'Protons'), ('absPdgCode==13', 'Muons'), ('absPdgCode==211', 'Charged Pions')], 'bins': np.linspace(0, 1, num=25)})

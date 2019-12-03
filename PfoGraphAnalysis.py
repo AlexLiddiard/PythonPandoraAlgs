@@ -113,7 +113,7 @@ def RandomPfoView(filePaths):
         for eventPfos in events:
             for pfo in eventPfos:
                 if pfo.monteCarloPDGW == 0:
-                    continue;
+                    continue
                 DisplayPfo(pfo)
 
 def SelectivePfoView(filePaths, dfPfoData, pfoFilter):
