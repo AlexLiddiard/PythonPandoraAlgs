@@ -25,6 +25,14 @@ def OLS(xCoords, yCoords):
     a = Sy / n - b * Sx / n
     return a, b, r2
 
+def OLSNoIntercept(xCoords, yCoords):
+    Sxy = np.sum(xCoords * yCoords)
+    Sxx = np.sum(xCoords * xCoords)
+    if Sxx == 0:
+        return float("inf")
+    b = Sxy / Sxx
+    return b
+
 def RSquared(xCoords, yCoords):
     n = xCoords.size
     if n == 0:

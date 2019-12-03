@@ -37,11 +37,8 @@ def GetBinCounts(numbers, binWidth):
 
 def RotatePointsClockwise(xCoords, yCoords, tan):
     sin, cos = TanToSinCos(tan)
-    xCoordsNew = []
-    yCoordsNew = []
-    for x, y in zip(xCoords, yCoords):
-        xCoordsNew.append(x * cos + y * sin)
-        yCoordsNew.append(y * cos - x * sin)
+    xCoordsNew = xCoords * cos + yCoords * sin
+    yCoordsNew = yCoords * cos - xCoords * sin
     return xCoordsNew, yCoordsNew
 
 def TanToSinCos(tan):
