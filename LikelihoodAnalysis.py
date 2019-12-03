@@ -4,24 +4,24 @@ import pandas as pd
 import math as m
 from HistoSynthesis import CreateHistogram
 
-myTestArea = "/home/jack/Documents/Pandora"
-inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp(Processed).pickle'
+myTestArea = "/home/alexliddiard/Desktop/Pandora"
+inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData(Processed).pickle'
 trainingFraction = 0.5
-featureHistograms = (#{'name': 'F0a', 'bins': np.linspace(0, 1, num=200)},
+featureHistograms = (#{'name': 'F0a', 'bins': np.linspace(0, 1, num=50)},
                      {'name': 'F1a', 'bins': np.linspace(0, 6, num=50)},
                      #{'name': 'F2a', 'bins': np.linspace(0, 30, num=31)},
                      {'name': 'F2b', 'bins': np.linspace(0, 1, num=50)},
                      #{'name': 'F2c', 'bins': np.linspace(0, 1, num=200)},
                      #{'name': 'F2d', 'bins': np.linspace(0, 1, num=200)},
                      {'name': 'F2e', 'bins': np.linspace(0, 1, num=50)},
-                     {'name': 'F3a', 'bins': np.linspace(0, 1.57, num=100)},
-                     #{'name': 'F3b', 'bins': np.linspace(0, 1000, num=100)}
+                     {'name': 'F3a', 'bins': np.linspace(0, 1.57, num=50)},
+                     {'name': 'F3b', 'bins': np.linspace(0, 1000, num=100)}
                     )
 likelihoodHistograms = ({'filters': [('isShower==1', 'Showers'), ('isShower==0', 'Tracks')], 'bins': np.linspace(0, 1, num=25)},
                         {'filters': [('absPdgCode==11', 'Electrons/Positrons'), ('absPdgCode==22', 'Photons')], 'bins': np.linspace(0, 1, num=25)},
                         {'filters': [('absPdgCode==2212', 'Protons'), ('absPdgCode==13', 'Muons'), ('absPdgCode==211', 'Charged Pions')], 'bins': np.linspace(0, 1, num=25)})
 purityCompletenessCutoffGraph = {'bins': np.linspace(0, 1, num=1000)}
-purityCompletenessNHitsGraph = {'bins': np.linspace(10, 1000, num=50)}
+purityCompletenessNHitsGraph = {'bins': np.linspace(10, 600, num=30)}
 
 # Calculating completeness-purity against likelihood cut-off function
 
@@ -160,7 +160,7 @@ for nHitsBinMin in purityCompletenessNHitsGraph['bins']:
     likelihoodShowersInBin = dfPerformancePfoData.query("isShower==1 and nHitsW>=@nHitsBinMin and nHitsW <@nHitsBinMin+@binWidth")['likelihood']
     likelihoodTracksInBin = dfPerformancePfoData.query("isShower==0 and nHitsW>=@nHitsBinMin and nHitsW <@nHitsBinMin+@binWidth")['likelihood']
     trackEfficiency, trackEfficiencyError, trackPurity, trackPurityError, showerEfficiency, showerEfficiencyError, showerPurity, showerPurityError = CompletenessPurity(likelihoodTracksInBin, likelihoodShowersInBin, bestShowerCutoff)
-    
+
     trackEfficiencies.append(trackEfficiency)
     trackEfficiencyErrors.append(trackEfficiencyError)
     trackPurities.append(trackPurity)
@@ -174,7 +174,7 @@ for nHitsBinMin in purityCompletenessNHitsGraph['bins']:
     showerPurityEfficiency = showerEfficiency*showerPurity
     showerPurityEfficiencies.append(showerPurityEfficiency)
     showerPurityErrors.append(showerPurityError)
-    
+
     trackPurityEfficiencyErrors.append(PurityEfficiencyError(trackPurity, trackPurityError, trackEfficiency, trackEfficiencyError))
     showerPurityEfficiencyErrors.append(PurityEfficiencyError(showerPurity, showerPurityError, showerEfficiency, showerEfficiencyError))
 
@@ -183,7 +183,7 @@ bx1 = fig.add_subplot(1,2,1)
 bx2 = fig.add_subplot(1,2,2)
 
 bx1.errorbar(purityCompletenessNHitsGraph['bins'], trackPurities, yerr=trackPurityErrors, color='b')
-bx1.errorbar(purityCompletenessNHitsGraph['bins'], trackEfficiencies, yerr=trackEfficiencyErrors, color='r') 
+bx1.errorbar(purityCompletenessNHitsGraph['bins'], trackEfficiencies, yerr=trackEfficiencyErrors, color='r')
 bx1.errorbar(purityCompletenessNHitsGraph['bins'], trackPurityEfficiencies, yerr=trackPurityEfficiencyErrors, color='g')
 bx1.legend(lines, ('Purity', 'Efficiency', 'Purity * Efficiency'), loc='lower center')
 
@@ -192,12 +192,12 @@ bx2.errorbar(purityCompletenessNHitsGraph['bins'], showerEfficiencies, yerr=show
 bx2.errorbar(purityCompletenessNHitsGraph['bins'], showerPurityEfficiencies, yerr=showerPurityEfficiencyErrors, color='g')
 bx2.legend(lines, ('Purity', 'Efficiency', 'Purity * Efficiency'), loc='lower center')
 
-bx1.set_ylim([0.3, 1])
+bx1.set_ylim([0.4, 1])
 bx1.set_title("Purity/Completeness/Product vs nHitsW - Tracks")
 bx1.set_xlabel("nHitsW")
 bx1.set_ylabel("Fraction")
 
-bx2.set_ylim([0.3, 1])
+bx2.set_ylim([0.4, 1])
 bx2.set_title("Purity/Completeness vs nHitsW - Showers")
 bx2.set_xlabel("nHitsW")
 bx2.set_ylabel("Fraction")

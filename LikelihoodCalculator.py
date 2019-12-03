@@ -4,20 +4,20 @@ import math as m
 import scipy.stats as st
 from tqdm import tqdm
 
-myTestArea = "/home/jack/Documents/Pandora"
-inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.pickle'
-outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp(Processed).pickle'
+myTestArea = "/home/alexliddiard/Desktop/Pandora"
+inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.pickle'
+outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData(Processed).pickle'
 
 trainingFraction = 0.5
 preFilters = ('purityW>=0.8', 'completenessW>=0.8', 'nHitsW>=10', 'absPdgCode not in [2112, 14, 12]')
-featurePdfs = (#{'name': 'F0a', 'bins': np.linspace(0, 1, num=200)},
-               {'name': 'F1a', 'bins': np.linspace(0, 6, num=500)},
+featurePdfs = (#{'name': 'F0a', 'bins': np.linspace(0, 1, num=50)},
+               {'name': 'F1a', 'bins': np.linspace(0, 6, num=50)},
                #{'name': 'F2a', 'bins': np.linspace(0, 30, num=31)},
-               {'name': 'F2b', 'bins': np.linspace(0, 1, num=500)},
+               {'name': 'F2b', 'bins': np.linspace(0, 1, num=50)},
                #{'name': 'F2c', 'bins': np.linspace(0, 1, num=200)},
                #{'name': 'F2d', 'bins': np.linspace(0, 1, num=200)},
-               {'name': 'F2e', 'bins': np.linspace(0, 1, num=500)},
-               {'name': 'F3a', 'bins': np.linspace(0, 1.57, num=100)},
+               {'name': 'F2e', 'bins': np.linspace(0, 1, num=50)},
+               {'name': 'F3a', 'bins': np.linspace(0, 1.57, num=50)},
                #{'name': 'F3b', 'bins': np.linspace(0, 1000, num=100)}
               )
 
@@ -45,8 +45,8 @@ dfInputPfos = dfInputPfos.query(' and '.join(preFilters))
 nInputPfoData = len(dfInputPfos)
 nTrainingPfoData = m.floor(nInputPfoData * trainingFraction)
 dfTrainingPfoData = dfInputPfos[:nTrainingPfoData]
-dfTrainingShowerData = dfInputPfos.query("isShower==1")
-dfTrainingTrackData = dfInputPfos.query("isShower==0")
+dfTrainingShowerData = dfTrainingPfoData.query("isShower==1")
+dfTrainingTrackData = dfTrainingPfoData.query("isShower==0")
 nTrainingShowerData = len(dfTrainingShowerData)
 nTrainingTrackData = len(dfTrainingTrackData)
 

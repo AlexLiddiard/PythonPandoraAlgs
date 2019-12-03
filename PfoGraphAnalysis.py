@@ -9,15 +9,15 @@ import pandas as pd
 
 myTestArea = "/home/alexliddiard/Desktop/Pandora"
 rootFileDirectory = myTestArea + "/PythonPandoraAlgs/ROOT Files"
-inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp(Processed).pickle'
+inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData(Processed).pickle'
 
 usePickleFile = True
-pfoFilter = 'likelihood < 0.95 and absPdgCode==11' # track-like electrons
-           #'F1a==0' # F1a zero anomaly
-           #'likelihood > 0.95 and absPdgCode==211' # shower-like pions
-           #'absPdgCode==14' # muon neutrino anomaly
+pfoFilter = 'likelihood > 0.89 and absPdgCode==211' # shower-like pions
+            #'likelihood < 0.89 and absPdgCode==11' # track-like electrons
+            #'F1a==0' # F1a zero anomaly
+            #'absPdgCode==14' # muon neutrino anomaly
 
-additionalInfo = ['F0a', 'F1a', 'F2a', 'F2b', 'F2c', 'F2d', 'F2e', 'likelihood']
+additionalInfo = ['F1a', 'F2b', 'F2e', 'F3a', 'likelihood']
 
 # Microboone Geometry stuff
 class MicroBooneGeo:
@@ -119,8 +119,10 @@ def RandomPfoView(filePaths):
 def SelectivePfoView(filePaths, dfPfoData, pfoFilter):
     nameToPathDict = FileNameToFilePath(filePaths)
     dfPfoData = dfPfoData.query(pfoFilter)
+    nPFOs = len(dfPfoData)
     dfPfoData = dfPfoData.query('fileName in @nameToPathDict')
-
+    nPFOsAvailable = len(dfPfoData)
+    print("Found %d matching PFOs, %d have calohit data available." % (nPFOs, nPFOsAvailable))
     for index, pfoData in dfPfoData.iterrows():
         filePath = nameToPathDict[pfoData.fileName]
         pfo = rdr.ReadPfoFromRootFile(filePath, pfoData.eventId, pfoData.pfoId)
