@@ -41,7 +41,7 @@ def GetTrianglarSpan(driftCoord, wireCoord, vertex, hitFraction):
     return openingAngle, distance
 
 
-def GetFeature(pfo, wireViews, hitFraction=0.65):
+def GetFeature(pfo, wireViews, hitFraction=0.7):
     #DisplayPfo(pfo)
     featureDict = {}
     if wireViews[2]:
