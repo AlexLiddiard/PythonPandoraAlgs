@@ -4,21 +4,25 @@ import math as m
 import scipy.stats as st
 from tqdm import tqdm
 
-myTestArea = "/home/alexliddiard/Desktop/Pandora"
+myTestArea = "/home/jack/Documents/Pandora"
 inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.pickle'
 outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp(Processed).pickle'
 
 trainingFraction = 0.5
-preFilters = ('purityU>=0.8',
+trainingPreFilters = ('purityU>=0.8',
               'purityV>=0.8',
               'purityW>=0.8',
               'completenessU>=0.8',
               'completenessV>=0.8',
               'completenessW>=0.8',
+              #'(nHitsU>=10 and nHitsV>=10) or (nHitsU>=10 and nHitsW>=10) or (nHitsV>=10 and nHitsW>=10)',
+              #'nHitsU + nHitsV + nHitsW >= 100',
               'nHitsU>=10',
               'nHitsV>=10',
               'nHitsW>=10',
-              'absPdgCode not in [2112, 14, 12]')
+              'absPdgCode not in [2112, 14, 12]'
+,)
+
 featurePdfs = (#{'name': 'F0aU', 'bins': np.linspace(0, 1, num=50)},
                #{'name': 'F0aV', 'bins': np.linspace(0, 1, num=50)},
                #{'name': 'F0aW', 'bins': np.linspace(0, 1, num=50)},
@@ -64,18 +68,20 @@ def ShowerLikelihood(featurePdfPairs, featureValues, showerPrior):
 values. Convert these histograms in to PDFs using scipy. Plot overlapping
 histograms for track and shower types.'''
 # Load the pickle file.
-dfInputPfos = pd.read_pickle(inputPickleFile)
-# Apply pre-filters.
-dfInputPfos = dfInputPfos.query(' and '.join(preFilters))
+dfPfoData = pd.read_pickle(inputPickleFile)
+nPfoData = len(dfPfoData)
 
 # Get training PFOs.
-nInputPfoData = len(dfInputPfos)
-nTrainingPfoData = m.floor(nInputPfoData * trainingFraction)
-dfTrainingPfoData = dfInputPfos[:nTrainingPfoData]
+nTrainingPfoData = m.floor(nPfoData * trainingFraction)
+dfTrainingPfoData = dfPfoData[:nTrainingPfoData]
+# Apply pre-filters.
+dfTrainingPfoData = dfTrainingPfoData.query(' and '.join(trainingPreFilters))
+nTrainingPfoData = len(dfTrainingPfoData)
 dfTrainingShowerData = dfTrainingPfoData.query("isShower==1")
 dfTrainingTrackData = dfTrainingPfoData.query("isShower==0")
 nTrainingShowerData = len(dfTrainingShowerData)
 nTrainingTrackData = len(dfTrainingTrackData)
+print("Training likelihood using %d tracks and %d showers." % (nTrainingTrackData, nTrainingShowerData))
 
 # Make feature PDFs
 featurePdfPairs = []
@@ -85,13 +91,13 @@ for pdf in featurePdfs:
     featurePdfPairs.append((st.rv_histogram(showerHist).pdf, st.rv_histogram(trackHist).pdf))
 
 # Calculate likelihood
-featureValuesArray = dfInputPfos[(feature['name'] for feature in featurePdfs)].to_numpy()
-likelihoodArray = np.zeros(nInputPfoData)
+featureValuesArray = dfPfoData[(feature['name'] for feature in featurePdfs)].to_numpy()
+likelihoodArray = np.zeros(nPfoData)
 showerPrior = nTrainingShowerData / nTrainingPfoData
 print("\nCalculating likelihoods...")
 print("Priors: showers %s, tracks %s" % (showerPrior, 1 - showerPrior))
-for i in tqdm(range(0, nInputPfoData)):
+for i in tqdm(range(0, nPfoData)):
     likelihoodArray[i] = ShowerLikelihood(featurePdfPairs, featureValuesArray[i], showerPrior)
-dfInputPfos["likelihood"] = likelihoodArray
-dfInputPfos.to_pickle(outputPickleFile)
+dfPfoData["likelihood"] = likelihoodArray
+dfPfoData.to_pickle(outputPickleFile)
 print("\nFinished!")

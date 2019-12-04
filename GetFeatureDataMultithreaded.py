@@ -8,7 +8,7 @@ import TrackShowerFeatures.TrackShowerFeature1 as tsf1
 import TrackShowerFeatures.TrackShowerFeature2 as tsf2
 import TrackShowerFeatures.TrackShowerFeature3 as tsf3
 
-myTestArea = "/home/alexliddiard/Desktop/Pandora"
+myTestArea = "/home/jack/Documents/Pandora"
 rootFileDirectory = myTestArea + "/PythonPandoraAlgs/ROOT Files"
 outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.pickle'
 wireViews = (True, True, True)
@@ -28,15 +28,15 @@ def ProcessFile(filePath):
             }
             if wireViews[0]:
                 featureDictionary.update({
-                'nHitsU': pfo.nHitsPfoW,
-                'purityU': pfo.PurityW(),
-                'completenessU': pfo.CompletenessW()
+                'nHitsU': pfo.nHitsPfoU,
+                'purityU': pfo.PurityU(),
+                'completenessU': pfo.CompletenessU()
                 })
             if wireViews[1]:
                 featureDictionary.update({
-                'nHitsV': pfo.nHitsPfoW,
-                'purityV': pfo.PurityW(),
-                'completenessV': pfo.CompletenessW()
+                'nHitsV': pfo.nHitsPfoV,
+                'purityV': pfo.PurityV(),
+                'completenessV': pfo.CompletenessV()
                 })
             if wireViews[2]:
                 featureDictionary.update({
