@@ -49,6 +49,8 @@ class PfoClass(object):
     def __repr__(self):
         return str(self)
 
+    def nHitsPfo(self):
+        return self.nHitsPfoU + self.nHitsPfoV + self.nHitsPfoW
     def IsShowerW(self):
         return self.IsShower(self.monteCarloPDGW)
     def IsShowerV(self):

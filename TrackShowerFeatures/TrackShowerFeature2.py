@@ -255,7 +255,17 @@ def GetChainInfoSimple(driftCoord, wireCoord, squareSideLength, localCorrelation
     return chainCount, avgLengthRatio, avgAvgR2, stdLengthRatio, avgStdR2
 
 
-def GetFeature(pfo, rectWidth=10, rectHeight=2.5, rectOffsetX=2.5, rectOffestY=0, squareSideLength=5, localCorrelationPoints=5):
+def GetFeature(pfo, wireViews, rectWidth=10, rectHeight=2.5, rectOffsetX=2.5, rectOffestY=0, squareSideLength=5, localCorrelationPoints=5):
+    # Advanced chain creation
     #chainCount, avgLengthRatio, avgChainRSquareds = GetChainInfoAdvanced(pfo.driftCoordW.tolist(), pfo.wireCoordW.tolist(), rectWidth, rectHeight, rectOffsetX, rectOffestY, squareSideLength, localCorrelationPoints)
-    chainCount, avgLengthRatio, avgAvgR2, stdLengthRatio, avgStdR2 = GetChainInfoSimple(pfo.driftCoordW.tolist(), pfo.wireCoordW.tolist(), squareSideLength, localCorrelationPoints)
-    return { "F2a": chainCount, "F2b": avgLengthRatio, "F2c": avgAvgR2, "F2d": stdLengthRatio, "F2e": avgStdR2 }
+    featureDict = {}
+    if wireViews[0]:
+        chainCount, avgLengthRatio, avgAvgR2, stdLengthRatio, avgStdR2 = GetChainInfoSimple(pfo.driftCoordU.tolist(), pfo.wireCoordU.tolist(), squareSideLength, localCorrelationPoints)
+        featureDict.update({ "F2aU": chainCount, "F2bU": avgLengthRatio, "F2cU": avgAvgR2, "F2dU": stdLengthRatio, "F2eU": avgStdR2 })
+    if wireViews[1]:
+        chainCount, avgLengthRatio, avgAvgR2, stdLengthRatio, avgStdR2 = GetChainInfoSimple(pfo.driftCoordV.tolist(), pfo.wireCoordV.tolist(), squareSideLength, localCorrelationPoints)
+        featureDict.update({ "F2aV": chainCount, "F2bV": avgLengthRatio, "F2cV": avgAvgR2, "F2dV": stdLengthRatio, "F2eV": avgStdR2 })
+    if wireViews[2]:
+        chainCount, avgLengthRatio, avgAvgR2, stdLengthRatio, avgStdR2 = GetChainInfoSimple(pfo.driftCoordW.tolist(), pfo.wireCoordW.tolist(), squareSideLength, localCorrelationPoints)
+        featureDict.update({ "F2aW": chainCount, "F2bW": avgLengthRatio, "F2cW": avgAvgR2, "F2dW": stdLengthRatio, "F2eW": avgStdR2 })
+    return featureDict

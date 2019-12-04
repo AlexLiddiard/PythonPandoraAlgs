@@ -12,7 +12,7 @@ rootFileDirectory = myTestArea + "/PythonPandoraAlgs/ROOT Files"
 inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData(Processed).pickle'
 
 usePickleFile = True
-pfoFilter = 'likelihood > 0.89 and absPdgCode==211' # shower-like pions
+pfoFilter = 'likelihood > 0.89 and absPdgCode==2212' # shower-like protons
             #'likelihood < 0.89 and absPdgCode==11' # track-like electrons
             #'F1a==0' # F1a zero anomaly
             #'absPdgCode==14' # muon neutrino anomaly

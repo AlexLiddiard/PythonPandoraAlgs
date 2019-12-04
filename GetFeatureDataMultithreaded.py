@@ -11,13 +11,13 @@ import TrackShowerFeatures.TrackShowerFeature3 as tsf3
 myTestArea = "/home/alexliddiard/Desktop/Pandora"
 rootFileDirectory = myTestArea + "/PythonPandoraAlgs/ROOT Files"
 outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.pickle'
-
+wireViews = (True, True, True)
 def ProcessFile(filePath):
     events = UpRootFileReader.ReadRootFile(filePath)
     pfoFeatureList = []
     for eventPfos in events:
         for pfo in eventPfos:
-            if pfo.monteCarloPDGW == 0 or pfo.nHitsPfoW == 0:
+            if pfo.monteCarloPDGW == 0 or pfo.nHitsPfo() == 0:
                 continue
             featureDictionary = {
                 'fileName': pfo.fileName,
@@ -25,14 +25,29 @@ def ProcessFile(filePath):
                 'pfoId': pfo.pfoId,
                 'absPdgCode': abs(pfo.monteCarloPDGW),
                 'isShower': pfo.IsShowerW(),
+            }
+            if wireViews[0]:
+                featureDictionary.update({
+                'nHitsU': pfo.nHitsPfoW,
+                'purityU': pfo.PurityW(),
+                'completenessU': pfo.CompletenessW()
+                })
+            if wireViews[1]:
+                featureDictionary.update({
+                'nHitsV': pfo.nHitsPfoW,
+                'purityV': pfo.PurityW(),
+                'completenessV': pfo.CompletenessW()
+                })
+            if wireViews[2]:
+                featureDictionary.update({
                 'nHitsW': pfo.nHitsPfoW,
                 'purityW': pfo.PurityW(),
                 'completenessW': pfo.CompletenessW()
-            }
-            featureDictionary.update(tsf0.GetFeature(pfo))
-            featureDictionary.update(tsf1.GetFeature(pfo))
-            featureDictionary.update(tsf2.GetFeature(pfo))
-            featureDictionary.update(tsf3.GetFeature(pfo))
+                })
+            featureDictionary.update(tsf0.GetFeature(pfo, wireViews))
+            featureDictionary.update(tsf1.GetFeature(pfo, wireViews))
+            featureDictionary.update(tsf2.GetFeature(pfo, wireViews))
+            featureDictionary.update(tsf3.GetFeature(pfo, wireViews))
             pfoFeatureList.append(featureDictionary)
     return pd.DataFrame(pfoFeatureList)
 

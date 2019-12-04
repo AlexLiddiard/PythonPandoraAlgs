@@ -3,8 +3,8 @@ import numpy as np
 import math as m
 import TrackShowerFeatures.TrackShowerFeature0 as tsf0
 import TrackShowerFeatures.TrackShowerFeature1 as tsf1
-import matplotlib.pyplot as plt
-from PfoGraphAnalysis import DisplayPfo
+#import matplotlib.pyplot as plt
+#from PfoGraphAnalysis import DisplayPfo
 
 def GetTrianglarSpan(driftCoord, wireCoord, vertex, hitFraction):
     if len(driftCoord) < 2:
@@ -41,7 +41,10 @@ def GetTrianglarSpan(driftCoord, wireCoord, vertex, hitFraction):
     return openingAngle, distance
 
 
-def GetFeature(pfo, hitFraction=0.85):
+def GetFeature(pfo, wireViews, hitFraction=0.65):
     #DisplayPfo(pfo)
-    openingAngle, distance = GetTrianglarSpan(pfo.driftCoordW, pfo.wireCoordW, pfo.vertex, hitFraction)
-    return { "F3a": openingAngle, "F3b": distance }
+    featureDict = {}
+    if wireViews[2]:
+        openingAngle, distance = GetTrianglarSpan(pfo.driftCoordW, pfo.wireCoordW, pfo.vertex, hitFraction)
+        featureDict.update({ "F3aW": openingAngle, "F3bW": distance })
+    return featureDict
