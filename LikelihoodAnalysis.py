@@ -4,22 +4,23 @@ import pandas as pd
 import math as m
 from HistoSynthesis import CreateHistogram
 
-myTestArea = "/home/jack/Documents/Pandora"
+myTestArea = "/home/alexliddiard/Desktop/Pandora"
 inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp(Processed).pickle'
 trainingFraction = 0.5
 performancePreFilters = (#'purityU>=0.5',
-              #'purityV>=0.5',
-              #'purityW>=0.5',
-              #'completenessU>=0.5',
-              #'completenessV>=0.5',
-              #'completenessW>=0.5',
-              #'(nHitsU>=10 and nHitsV>=10) or (nHitsU>=10 and nHitsW>=10) or (nHitsV>=10 and nHitsW>=10)',
-              #'nHitsU + nHitsV + nHitsW >= 100',
-              'nHitsU>=10',
-              'nHitsV>=10',
-              'nHitsW>=10'
-              #'absPdgCode not in [2112, 14, 12]'
+                         #'purityV>=0.5',
+                         #'purityW>=0.5',
+                         #'completenessU>=0.5',
+                         #'completenessV>=0.5',
+                         #'completenessW>=0.5',
+                         #'(nHitsU>=10 and nHitsV>=10) or (nHitsU>=10 and nHitsW>=10) or (nHitsV>=10 and nHitsW>=10)',
+                         #'nHitsU + nHitsV + nHitsW >= 100',
+                         'nHitsU>=20',
+                         'nHitsV>=20',
+                         'nHitsW>=20',
+                         'absPdgCode not in [14, 12]'
 ,)
+
 featureHistograms = (#{'name': 'F0aU', 'bins': np.linspace(0, 1, num=50)},
                      #{'name': 'F0aV', 'bins': np.linspace(0, 1, num=50)},
                      #{'name': 'F0aW', 'bins': np.linspace(0, 1, num=50)},
@@ -47,7 +48,8 @@ featureHistograms = (#{'name': 'F0aU', 'bins': np.linspace(0, 1, num=50)},
                      #{'name': 'F3bU', 'bins': np.linspace(0, 1000, num=100)},
                      #{'name': 'F3bV', 'bins': np.linspace(0, 1000, num=100)},
                      #{'name': 'F3bW', 'bins': np.linspace(0, 1000, num=100)}
-              )
+)
+
 likelihoodHistograms = ({'filters': [('isShower==1', 'Showers'), ('isShower==0', 'Tracks')], 'bins': np.linspace(0, 1, num=25)},
                         {'filters': [('absPdgCode==11', 'Electrons/Positrons'), ('absPdgCode==22', 'Photons')], 'bins': np.linspace(0, 1, num=25)},
                         {'filters': [('absPdgCode==2212', 'Protons'), ('absPdgCode==13', 'Muons'), ('absPdgCode==211', 'Charged Pions')], 'bins': np.linspace(0, 1, num=25)})
@@ -88,7 +90,7 @@ def CompletenessPurity(likelihoodTracks, likelihoodShowers, cutOff):
 
 # Load the pickle file.
 dfPfoData = pd.read_pickle(inputPickleFile)
-# Apply pre-filters
+# Apply performance pre-filters
 dfPfoData = dfPfoData.query(' and '.join(performancePreFilters))
 
 # Make feature histograms.
@@ -123,7 +125,7 @@ for cutOff in purityCompletenessCutoffGraph['bins']:
     trackEfficiencies.append(trackEfficiency)
     trackPurities.append(trackPurity)
     trackPurityEfficiency = trackEfficiency*trackPurity
-    if trackPurityEfficiency > bestTrackPurityEfficiency:
+    if trackPurityEfficiency > bestTrackPurityEfficiency and cutOff not in (0, 1):
         bestTrackPurityEfficiency = trackPurityEfficiency
         bestTrackCutoff = cutOff
     trackPurityEfficiencies.append(trackPurityEfficiency)
@@ -131,7 +133,7 @@ for cutOff in purityCompletenessCutoffGraph['bins']:
     showerEfficiencies.append(showerEfficiency)
     showerPurities.append(showerPurity)
     showerPurityEfficiency = showerEfficiency*showerPurity
-    if showerPurityEfficiency > bestShowerPurityEfficiency:
+    if showerPurityEfficiency > bestShowerPurityEfficiency and cutOff not in (0, 1):
         bestShowerPurityEfficiency = showerPurityEfficiency
         bestShowerCutoff = cutOff
     showerPurityEfficiencies.append(showerPurityEfficiency)

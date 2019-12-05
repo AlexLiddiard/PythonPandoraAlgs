@@ -17,12 +17,16 @@ pfoFilter = 'likelihood > 0.89 and absPdgCode==2212' # shower-like protons
             #'F1a==0' # F1a zero anomaly
             #'absPdgCode==14' # muon neutrino anomaly
 
-additionalInfo = ['F1a', 'F2b', 'F2e', 'F3a', 'likelihood']
+additionalInfo = ['F1aW', 'F2bW', 'F2eW', 'F3aW', 'likelihood']
+wireView = "V"
 
 # Microboone Geometry stuff
 class MicroBooneGeo:
-    SpanX = 256.35
-    SpanW = 1036.8
+    RangeX = (0, 256.35)
+    RangeY = (0, 233)
+    RangeZ = (0, 1036.8)
+    WireRangeU = (-96.7, 619.1)
+    WireRangeV = (-96.7, 619.1)
     DeadZonesW = ((5.8, 6.1),
                   (24.7, 25),
                   (25.3, 25.6),
@@ -57,12 +61,50 @@ def GetSquareRegionAxesLimits(xMin, xMax, yMin, yMax):
     yMid = yMin + ySpan
     return xMid - maxSpan, xMid + maxSpan, yMid - maxSpan, yMid + maxSpan
 
-def DisplayPfo(pfo, additionalInfo = None):
+def DisplayPfo(pfo, wireView = "W", additionalInfo = None):
     # Setting variables to be plotted.
-    x = pfo.driftCoordW
-    y = pfo.wireCoordW
-    xerr = pfo.driftCoordErrW / 2
-    yerr = np.repeat(pfo.wireCoordErr / 2, pfo.nHitsPfoW)
+    if wireView == "U":
+        x = pfo.driftCoordU
+        y = pfo.wireCoordU
+        xerr = pfo.driftCoordErrU / 2
+        yerr = np.repeat(pfo.wireCoordErr / 2, pfo.nHitsPfoU)
+        energy = pfo.energyU
+        trueParticle = pfo.TrueParticleU()
+        isShower = pfo.IsShowerU()
+        purity = pfo.PurityU()
+        completeness = pfo.CompletenessU()
+        vertexDriftCoord = pfo.vertex[0]
+        vertexWireCoord = 0.5 * pfo.vertex[2] - 0.8660254 * pfo.vertex[1]
+        wireRange = MicroBooneGeo.WireRangeU
+        deadZones = ()
+    if wireView == "V":
+        x = pfo.driftCoordV
+        y = pfo.wireCoordV
+        xerr = pfo.driftCoordErrV / 2
+        yerr = np.repeat(pfo.wireCoordErr / 2, pfo.nHitsPfoV)
+        energy = pfo.energyV
+        trueParticle = pfo.TrueParticleV()
+        isShower = pfo.IsShowerV()
+        purity = pfo.PurityV()
+        completeness = pfo.CompletenessV()
+        vertexDriftCoord = pfo.vertex[0]
+        vertexWireCoord = 0.5 * pfo.vertex[2] + 0.8660254 * pfo.vertex[1]
+        wireRange = MicroBooneGeo.WireRangeV
+        deadZones = ()
+    if wireView == "W":
+        x = pfo.driftCoordW
+        y = pfo.wireCoordW
+        xerr = pfo.driftCoordErrW / 2
+        yerr = np.repeat(pfo.wireCoordErr / 2, pfo.nHitsPfoW)
+        energy = pfo.energyW
+        trueParticle = pfo.TrueParticleW()
+        isShower = pfo.IsShowerW()
+        purity = pfo.PurityW()
+        completeness = pfo.CompletenessW()
+        vertexDriftCoord = pfo.vertex[0]
+        vertexWireCoord = pfo.vertex[2]
+        wireRange = MicroBooneGeo.RangeZ
+        deadZones = MicroBooneGeo.DeadZonesW
 
     fig = plt.figure(figsize=(13,10))
     ax = fig.add_subplot(1, 1, 1)
@@ -71,17 +113,19 @@ def DisplayPfo(pfo, additionalInfo = None):
     energyMap = matplotlib.colors.LinearSegmentedColormap.from_list('energyMap', colourList, N=1024)
 
     # Plot variables
-    sc = ax.scatter(x, y, s=20, c=pfo.energyW, cmap=energyMap, zorder=3)
+    sc = ax.scatter(x, y, s=20, c=energy, cmap=energyMap, zorder=3)
     clb = plt.colorbar(sc)
     clb.set_label('Energy as Ionisation Charge', fontsize = 15)
     ax.errorbar(x, y, yerr=yerr, xerr=xerr, fmt='o', mew=0, zorder=0, c='black')
-    ax.plot(pfo.vertex[0], pfo.vertex[2], marker = 'X', color = 'green', markersize = 15)
+    ax.plot(vertexDriftCoord, vertexWireCoord, marker = 'X', color = 'green', markersize = 15)
 
     # Plot detector region and dead zones
     ax.autoscale(False)
-    for zone in MicroBooneGeo.DeadZonesW:
-        ax.add_patch(plt.Rectangle((0, zone[0]), MicroBooneGeo.SpanX, zone[1] - zone[0], alpha=0.15))
-    ax.add_patch(plt.Rectangle((0, 0), MicroBooneGeo.SpanX, MicroBooneGeo.SpanW, fill=False, linewidth=2))
+    driftSpan = MicroBooneGeo.RangeX[1] - MicroBooneGeo.RangeX[0]
+    wireSpan = wireRange[1] - wireRange[0]
+    for zone in deadZones:
+        ax.add_patch(plt.Rectangle((MicroBooneGeo.RangeX[0], zone[0]), driftSpan, zone[1] - zone[0], alpha=0.15))
+    ax.add_patch(plt.Rectangle((MicroBooneGeo.RangeX[0], wireRange[0]), driftSpan, wireSpan, fill=False, linewidth=2))
 
     # Set axes limits so that the region is a square
     xMin, xMax, yMin, yMax = GetSquareRegionAxesLimits(*ax.get_xlim(), *ax.get_ylim())
@@ -98,10 +142,10 @@ def DisplayPfo(pfo, additionalInfo = None):
     plt.title('%s\nEventId = %d, PfoId = %d, Hierarchy = %d\n%s (%s), Purity = %.2f, Completeness = %.2f' %
               (pfo.fileName,
                pfo.eventId, pfo.pfoId, pfo.heirarchyTier,
-               pfo.TrueParticleW(), 'Track' if pfo.IsShowerW()==0 else 'Shower', pfo.PurityW(), pfo.CompletenessW()),
+               trueParticle, 'Track' if isShower==0 else 'Shower', purity, completeness),
                fontsize=20)
-    plt.xlabel('DriftCoordW (cm)', fontsize = 15)
-    plt.ylabel('WireCoordW (cm)', fontsize = 15)
+    plt.xlabel('DriftCoord%s (cm)' % wireView, fontsize = 15)
+    plt.ylabel('WireCoord%s (cm)' % wireView, fontsize = 15)
 
     plt.show()
 
@@ -114,7 +158,7 @@ def RandomPfoView(filePaths):
             for pfo in eventPfos:
                 if pfo.monteCarloPDGW == 0:
                     continue
-                DisplayPfo(pfo)
+                DisplayPfo(pfo, wireView)
 
 def SelectivePfoView(filePaths, dfPfoData, pfoFilter):
     nameToPathDict = FileNameToFilePath(filePaths)
@@ -126,7 +170,7 @@ def SelectivePfoView(filePaths, dfPfoData, pfoFilter):
     for index, pfoData in dfPfoData.iterrows():
         filePath = nameToPathDict[pfoData.fileName]
         pfo = rdr.ReadPfoFromRootFile(filePath, pfoData.eventId, pfoData.pfoId)
-        DisplayPfo(pfo, pfoData[additionalInfo])
+        DisplayPfo(pfo, wireView, pfoData[additionalInfo])
 
 
 def FileNameToFilePath(filePaths):
