@@ -88,7 +88,7 @@ psArray = np.repeat(showerPrior, nPfoData)
 for feature in featurePdfs:
     showerHist, binEdges = np.histogram(dfTrainingShowerData[feature['name']], bins=feature['bins'], density=True)
     trackHist, binEdges = np.histogram(dfTrainingTrackData[feature['name']], bins=feature['bins'], density=True)
-    showerHist = np.concatenate(([1], showerHist, [1]))
+    showerHist = np.concatenate(([1], showerHist, [1])) # values that fall outside the histogram range will not be used for calculating likelihood
     trackHist = np.concatenate(([1], trackHist, [1]))
     featureValues = dfPfoData[feature['name']]
     histIndices = np.digitize(featureValues, feature['bins'])
