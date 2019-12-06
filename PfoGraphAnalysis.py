@@ -9,7 +9,7 @@ import pandas as pd
 
 myTestArea = "/home/alexliddiard/Desktop/Pandora"
 rootFileDirectory = myTestArea + "/PythonPandoraAlgs/ROOT Files"
-inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData(Processed).pickle'
+inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData(Processed).bz2'
 
 usePickleFile = True
 pfoFilter = 'likelihood > 0.89 and absPdgCode==2212' # shower-like protons

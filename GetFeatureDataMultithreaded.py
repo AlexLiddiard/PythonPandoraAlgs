@@ -10,7 +10,7 @@ import TrackShowerFeatures.TrackShowerFeature3 as tsf3
 
 myTestArea = "/home/alexliddiard/Desktop/Pandora"
 rootFileDirectory = myTestArea + "/PythonPandoraAlgs/ROOT Files/"
-outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.pickle'
+outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.bz2'
 wireViews = (True, True, True)
 def ProcessFile(filePath):
     events = UpRootFileReader.ReadRootFile(filePath)

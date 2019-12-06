@@ -2,9 +2,9 @@ import numpy as np
 import pandas as pd
 import math as m
 
-myTestArea = "/home/alexliddiard/Desktop/Pandora"
-inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.pickle'
-outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp(Processed).pickle'
+myTestArea = "/home/jack/Documents/Pandora"
+inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
+outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData(Processed).bz2'
 
 trainingFraction = 0.5
 trainingPreFilters = ('purityU>=0.8',

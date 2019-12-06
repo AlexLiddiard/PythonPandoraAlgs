@@ -22,6 +22,8 @@ def CreateHistogram(df, histogram):
         ax.set_title("%s - %s" %(histogram['name'], name))
         ax.set_xlabel(histogram['name'])
         ax.set_ylabel("Probability")
+        if 'yAxis' in histogram:
+            ax.set_yscale(histogram['yAxis'])
         ax.yaxis.set_tick_params(which='both', labelbottom=True)
 
     plt.show()
