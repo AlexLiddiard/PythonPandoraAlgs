@@ -8,9 +8,9 @@ import TrackShowerFeatures.TrackShowerFeature1 as tsf1
 import TrackShowerFeatures.TrackShowerFeature2 as tsf2
 import TrackShowerFeatures.TrackShowerFeature3 as tsf3
 
-myTestArea = "/home/alexliddiard/Desktop/Pandora"
-rootFileDirectory = myTestArea + "/PythonPandoraAlgs/ROOT Files/"
-outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.bz2'
+myTestArea = "/home/epp/phuznm/Documents/Pandora/"
+rootFileDirectory = myTestArea + "PandoraCoW/"
+outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 wireViews = (True, True, True)
 
 def ProcessFile(filePath):
@@ -33,7 +33,7 @@ def ProcessFile(filePath):
                 'maxCoordY': max(pfo.yCoordThreeD),
                 'maxCoordZ': max(pfo.zCoordThreeD)
             }
-            print(min(pfo.yCoordThreeD))
+            #print(min(pfo.yCoordThreeD))
             if wireViews[0]:
                 pfoDataDict.update({
                 'nHitsU': pfo.nHitsPfoU,
