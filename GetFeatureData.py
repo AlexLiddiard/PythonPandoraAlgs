@@ -10,67 +10,56 @@ import TrackShowerFeatures.TrackShowerFeature3 as tsf3
 myTestArea = "/home/alexliddiard/Desktop/Pandora"
 rootFileDirectory = myTestArea + "/PythonPandoraAlgs/ROOT Files"
 outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.bz2'
+wireViews = (True, True, True)
 
 if __name__ == "__main__":
     filePaths =  glob(rootFileDirectory + '/**/*.root', recursive=True)
-    pfoFeatureList = []
-    uMin = 1000
-    uMax = 0
-    vMin = 1000
-    vMax = 0
-    wMin = 1000
-    wMax = 0
-    xMin = 1000
-    xMax = 0
+    pfoData = []
     for filePath in tqdm(filePaths):
         events = UpRootFileReader.ReadRootFile(filePath)
 
         for eventPfos in events:
             for pfo in eventPfos:
-                if len(pfo.wireCoordU) > 0:
-                    uMin = min(uMin, min(pfo.wireCoordU))
-                    uMax = max(uMax, max(pfo.wireCoordU))
-                if len(pfo.wireCoordV) > 0:
-                    vMin = min(vMin, min(pfo.wireCoordV))
-                    vMax = max(vMax, max(pfo.wireCoordV))
-                if len(pfo.wireCoordW) > 0:
-                    wMin = min(wMin, min(pfo.wireCoordW))
-                    wMax = max(wMax, max(pfo.wireCoordW))
-                if len(pfo.driftCoordU) > 0:
-                    xMin = min(xMin, min(pfo.driftCoordU))
-                    xMax = max(xMax, max(pfo.driftCoordU))
-                if len(pfo.driftCoordV) > 0:
-                    xMin = min(xMin, min(pfo.driftCoordV))
-                    xMax = max(xMax, max(pfo.driftCoordV))
-                if len(pfo.driftCoordW) > 0:
-                    xMin = min(xMin, min(pfo.driftCoordW))
-                    xMax = max(xMax, max(pfo.driftCoordW))
-                '''
-                if pfo.monteCarloPDGW == 0 or pfo.nHitsPfoW == 0:
+                if abs(pfo.mcPdgCodeW) in (0, 14, 12) or pfo.nHitsPfoThreeD == 0:
                     continue
-                featureDictionary = {
+                pfoDataDict = {
                     'fileName': pfo.fileName,
                     'eventId': pfo.eventId,
                     'pfoId': pfo.pfoId,
-                    'absPdgCode': abs(pfo.monteCarloPDGW),
+                    'absPdgCode': abs(pfo.mcPdgCodeW),
                     'isShower': pfo.IsShowerW(),
+                    'minCoordX': min(pfo.xCoordThreeD),
+                    'minCoordY': min(pfo.yCoordThreeD),
+                    'minCoordZ': min(pfo.zCoordThreeD),
+                    'maxCoordX': min(pfo.xCoordThreeD),
+                    'maxCoordY': min(pfo.yCoordThreeD),
+                    'maxCoordZ': min(pfo.zCoordThreeD)
+                }
+                if wireViews[0]:
+                    pfoDataDict.update({
+                    'nHitsU': pfo.nHitsPfoU,
+                    'purityU': pfo.PurityU(),
+                    'completenessU': pfo.CompletenessU()
+                    })
+                if wireViews[1]:
+                    pfoDataDict.update({
+                    'nHitsV': pfo.nHitsPfoV,
+                    'purityV': pfo.PurityV(),
+                    'completenessV': pfo.CompletenessV()
+                    })
+                if wireViews[2]:
+                    pfoDataDict.update({
                     'nHitsW': pfo.nHitsPfoW,
                     'purityW': pfo.PurityW(),
                     'completenessW': pfo.CompletenessW()
-                }
-                featureDictionary.update(tsf0.GetFeature(pfo))
-                featureDictionary.update(tsf1.GetFeature(pfo))
-                featureDictionary.update(tsf2.GetFeature(pfo))
-                featureDictionary.update(tsf3.GetFeature(pfo))
-                pfoFeatureList.append(featureDictionary)
-                '''
-    print("\nuMin %f, uMax %f" % (uMin, uMax))
-    print("vMin %f, vMax %f" % (vMin, vMax))
-    print("wMin %f, wMax %f" % (wMin, wMax))
-    print("xMin %f, xMax %f" % (xMin, xMax))
-'''
-    df = pd.DataFrame(pfoFeatureList)
+                    })
+                pfoDataDict.update(tsf0.GetFeature(pfo, wireViews))
+                pfoDataDict.update(tsf1.GetFeature(pfo, wireViews))
+                pfoDataDict.update(tsf2.GetFeature(pfo, wireViews))
+                pfoDataDict.update(tsf3.GetFeature(pfo, wireViews))
+                pfoData.append(pfoDataDict)
+
+    df = pd.DataFrame(pfoData)
     df.to_pickle('featureData.pickle')
 
     print('\n\n Finished!')
-'''

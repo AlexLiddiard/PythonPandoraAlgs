@@ -23,7 +23,7 @@ wireView = "V"
 # Microboone Geometry stuff
 class MicroBooneGeo:
     RangeX = (0, 256.35)
-    RangeY = (0, 233)
+    RangeY = (-116.5, 116.5)
     RangeZ = (0, 1036.8)
     WireRangeU = (-96.7, 619.1)
     WireRangeV = (-96.7, 619.1)

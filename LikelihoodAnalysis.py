@@ -4,8 +4,8 @@ import pandas as pd
 import math as m
 from HistoSynthesis import CreateHistogram
 
-myTestArea = "/home/jack/Documents/Pandora"
-inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData(Processed).bz2'
+myTestArea = "/home/alexliddiard/Desktop/Pandora"
+inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp(Processed).bz2'
 trainingFraction = 0.5
 performancePreFilters = (#'purityU>=0.5',
                          #'purityV>=0.5',
@@ -18,13 +18,46 @@ performancePreFilters = (#'purityU>=0.5',
                          'nHitsU>=20',
                          'nHitsV>=20',
                          'nHitsW>=20',
-                         'absPdgCode not in [14, 12]'
-,)
+                         'minCoordX >= @MicroBooneGeo.RangeX[0] + 10',
+                         'maxCoordX <= @MicroBooneGeo.RangeX[1] - 10',
+                         'minCoordY >= @MicroBooneGeo.RangeY[0] + 20',
+                         'maxCoordY <= @MicroBooneGeo.RangeY[1] - 20',
+                         'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
+                         'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
+)
 
+featureHistograms = (#{'name': 'F0aU', 'bins': np.linspace(0, 1, num=50)},
+                     #{'name': 'F0aV', 'bins': np.linspace(0, 1, num=50)},
+                     #{'name': 'F0aW', 'bins': np.linspace(0, 1, num=50)},
+                     #{'name': 'F1aU', 'bins': np.linspace(0, 6, num=50)},
+                     #{'name': 'F1aV', 'bins': np.linspace(0, 6, num=50)},
+                     #{'name': 'F1aW', 'bins': np.linspace(0, 6, num=50)},
+                     #{'name': 'F2aU', 'bins': np.linspace(0, 30, num=31)},
+                     #{'name': 'F2aV', 'bins': np.linspace(0, 30, num=31)},
+                     #{'name': 'F2aW', 'bins': np.linspace(0, 30, num=31)},
+                     #{'name': 'F2bU', 'bins': np.linspace(0, 1, num=50)},
+                     #{'name': 'F2bV', 'bins': np.linspace(0, 1, num=50)},
+                     #{'name': 'F2bW', 'bins': np.linspace(0, 1, num=50)},
+                     #{'name': 'F2cU', 'bins': np.linspace(0, 1, num=50)},
+                     #{'name': 'F2cV', 'bins': np.linspace(0, 1, num=50)},
+                     #{'name': 'F2cW', 'bins': np.linspace(0, 1, num=50)},
+                     #{'name': 'F2dU', 'bins': np.linspace(0, 1, num=50)},
+                     #{'name': 'F2dV', 'bins': np.linspace(0, 1, num=50)},
+                     #{'name': 'F2dW', 'bins': np.linspace(0, 1, num=50)},
+                     #{'name': 'F2eU', 'bins': np.linspace(0, 1, num=50)},
+                     #{'name': 'F2eV', 'bins': np.linspace(0, 1, num=50)},
+                     #{'name': 'F2eW', 'bins': np.linspace(0, 1, num=50)},
+                     #{'name': 'F3aU', 'bins': np.linspace(0, 1.57, num=50)},
+                     #{'name': 'F3aV', 'bins': np.linspace(0, 1.57, num=50)},
+                     #{'name': 'F3aW', 'bins': np.linspace(0, 1.57, num=50)},
+                     #{'name': 'F3bU', 'bins': np.linspace(0, 1000, num=100)},
+                     #{'name': 'F3bV', 'bins': np.linspace(0, 1000, num=100)},
+                     #{'name': 'F3bW', 'bins': np.linspace(0, 1000, num=100)}
+)
 
-likelihoodHistograms = ({'filters': [('isShower==1', 'Showers'), ('isShower==0', 'Tracks')], 'bins': np.linspace(0, 1, num=25), 'yAxis': 'log'},
-                        {'filters': [('absPdgCode==11', 'Electrons/Positrons'), ('absPdgCode==22', 'Photons')], 'bins': np.linspace(0, 1, num=25), 'yAxis': 'log'},
-                        {'filters': [('absPdgCode==2212', 'Protons'), ('absPdgCode==13', 'Muons'), ('absPdgCode==211', 'Charged Pions')], 'bins': np.linspace(0, 1, num=25), 'yAxis': 'log'})
+likelihoodHistograms = ({'filters': [('isShower==1', 'Showers'), ('isShower==0', 'Tracks')], 'bins': np.linspace(0, 1, num=25)},
+                        {'filters': [('absPdgCode==11', 'Electrons/Positrons'), ('absPdgCode==22', 'Photons')], 'bins': np.linspace(0, 1, num=25)},
+                        {'filters': [('absPdgCode==2212', 'Protons'), ('absPdgCode==13', 'Muons'), ('absPdgCode==211', 'Charged Pions')], 'bins': np.linspace(0, 1, num=25)})
 purityCompletenessCutoffGraph = {'bins': np.linspace(0, 1, num=1000)}
 purityCompletenessNHitsGraph = {'bins': np.linspace(10, 600, num=30)}
 
@@ -64,6 +97,11 @@ def CompletenessPurity(likelihoodTracks, likelihoodShowers, cutOff):
 dfPfoData = pd.read_pickle(inputPickleFile)
 # Apply performance pre-filters
 dfPfoData = dfPfoData.query(' and '.join(performancePreFilters))
+
+# Make feature histograms.
+for histogram in featureHistograms:
+    histogram['filters'] = [("isShower==1", "Showers"), ("isShower==0", "Tracks")]
+    CreateHistogram(dfPfoData, histogram)
 
 # Make likelihood histograms.
 nPfoData = len(dfPfoData)
@@ -107,9 +145,9 @@ for cutOff in purityCompletenessCutoffGraph['bins']:
 
 # Printing best purity*efficiency for tracks and showers
 print("\nBest track purity*efficiency %f, cutoff %f" % (bestTrackPurityEfficiency, bestTrackCutoff))
-print("\nTrack Efficiency %f+-%f\n" "Track Purity %f+-%f\n" "ShowerEfficiency %f+-%f\n" "Shower Purity %f+-%f\n" % CompletenessPurity(likelihoodTracks, likelihoodShowers, bestTrackCutoff))
+print("\nTrack Efficiency %f+-%f\n" "Track Purity %f+-%f\n" "Shower Efficiency %f+-%f\n" "Shower Purity %f+-%f\n" % CompletenessPurity(likelihoodTracks, likelihoodShowers, bestTrackCutoff))
 print("\nBest shower purity*efficiency %f, cutoff %f" % (bestShowerPurityEfficiency, bestShowerCutoff))
-print("\nTrack Efficiency %f+-%f\n" "Track Purity %f+-%f\n" "ShowerEfficiency %f+-%f\n" "Shower Purity %f+-%f\n" % CompletenessPurity(likelihoodTracks, likelihoodShowers, bestShowerCutoff))
+print("\nTrack Efficiency %f+-%f\n" "Track Purity %f+-%f\n" "Shower Efficiency %f+-%f\n" "Shower Purity %f+-%f\n" % CompletenessPurity(likelihoodTracks, likelihoodShowers, bestShowerCutoff))
 
 # Show purity/completeness graph
 fig = plt.figure(figsize=(20,7.5))

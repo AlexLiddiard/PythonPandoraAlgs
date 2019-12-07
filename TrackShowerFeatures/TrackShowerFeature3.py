@@ -24,7 +24,7 @@ def GetTrianglarSpan(driftCoord, wireCoord, vertexDriftCoord, vertexWireCoord, h
     transWireCoord = transWireCoord[transDriftCoordCheck]
 
     openingAngleIndex = m.floor(hitFraction * (len(transDriftCoord) - 1))
-    hitAnglesFromAxis = np.abs(np.arctan(transWireCoord / transDriftCoord))
+    hitAnglesFromAxis = np.abs(np.arctan2(transWireCoord, transDriftCoord))
     hitAnglesFromAxis.sort()
 
     #fig = plt.figure(figsize=(13,10))

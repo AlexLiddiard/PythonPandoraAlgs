@@ -1,10 +1,11 @@
 import numpy as np
 import pandas as pd
 import math as m
+from PfoGraphAnalysis import MicroBooneGeo
 
-myTestArea = "/home/jack/Documents/Pandora"
-inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
-outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData(Processed).bz2'
+myTestArea = "/home/alexliddiard/Desktop/Pandora"
+inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.bz2'
+outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp(Processed).bz2'
 
 trainingFraction = 0.5
 trainingPreFilters = ('purityU>=0.8',
@@ -18,8 +19,14 @@ trainingPreFilters = ('purityU>=0.8',
                       'nHitsU>=50',
                       'nHitsV>=50',
                       'nHitsW>=50',
-                      'absPdgCode not in [2112, 14, 12]'
-,)
+                      'absPdgCode != 2112',
+                      'minCoordX >= @MicroBooneGeo.RangeX[0] + 10',
+                      'maxCoordX <= @MicroBooneGeo.RangeX[1] - 10',
+                      'minCoordY >= @MicroBooneGeo.RangeY[0] + 20',
+                      'maxCoordY <= @MicroBooneGeo.RangeY[1] - 20',
+                      'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
+                      'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
+)
 
 featurePdfs = (#{'name': 'F0aU', 'bins': np.linspace(0, 1, num=50)},
                #{'name': 'F0aV', 'bins': np.linspace(0, 1, num=50)},
@@ -27,9 +34,9 @@ featurePdfs = (#{'name': 'F0aU', 'bins': np.linspace(0, 1, num=50)},
                {'name': 'F1aU', 'bins': np.linspace(0, 6, num=50)},
                {'name': 'F1aV', 'bins': np.linspace(0, 6, num=50)},
                {'name': 'F1aW', 'bins': np.linspace(0, 6, num=50)},
-               #{'name': 'F2aU', 'bins': np.linspace(0, 30, num=31)},
-               #{'name': 'F2aV', 'bins': np.linspace(0, 30, num=31)},
-               #{'name': 'F2aW', 'bins': np.linspace(0, 30, num=31)},
+               #{'name': 'F2aU', 'bins': np.linspace(1, 50, num=50)},
+               #{'name': 'F2aV', 'bins': np.linspace(1, 50, num=50)},
+               #{'name': 'F2aW', 'bins': np.linspace(1, 50, num=50)},
                {'name': 'F2bU', 'bins': np.linspace(0, 1, num=50)},
                {'name': 'F2bV', 'bins': np.linspace(0, 1, num=50)},
                {'name': 'F2bW', 'bins': np.linspace(0, 1, num=50)},
@@ -45,21 +52,10 @@ featurePdfs = (#{'name': 'F0aU', 'bins': np.linspace(0, 1, num=50)},
                {'name': 'F3aU', 'bins': np.linspace(0, 1.57, num=50)},
                {'name': 'F3aV', 'bins': np.linspace(0, 1.57, num=50)},
                {'name': 'F3aW', 'bins': np.linspace(0, 1.57, num=50)},
-               #{'name': 'F3bU', 'bins': np.linspace(0, 1000, num=100)},
-               #{'name': 'F3bV', 'bins': np.linspace(0, 1000, num=100)},
-               #{'name': 'F3bW', 'bins': np.linspace(0, 1000, num=100)}
-              )
-
-
-def ShowerLikelihood(featurePdfPairs, featureValues, showerPrior):
-    Pt = 1 - showerPrior
-    Ps = showerPrior
-    for (fS, fT), featureValue in zip(featurePdfPairs, featureValues):
-        if featureValue == -1:
-            continue
-        Pt *= fT(featureValue)
-        Ps *= fS(featureValue)
-    return Ps / (Pt + Ps)
+               {'name': 'F3bU', 'bins': np.linspace(0, 1000, num=50)},
+               {'name': 'F3bV', 'bins': np.linspace(0, 1000, num=50)},
+               {'name': 'F3bW', 'bins': np.linspace(0, 1000, num=50)},
+)
 
 '''Separate true tracks from true showers. Then plot histograms for feature
 values. Convert these histograms in to PDFs using scipy. Plot overlapping
@@ -72,9 +68,9 @@ nPfoData = len(dfPfoData)
 dfTrainingPfoData = dfPfoData[:m.floor(nPfoData * trainingFraction)]
 # Apply training pre-filters.
 dfTrainingPfoData = dfTrainingPfoData.query(' and '.join(trainingPreFilters))
-nTrainingPfoData = len(dfTrainingPfoData)
 dfTrainingShowerData = dfTrainingPfoData.query("isShower==1")
 dfTrainingTrackData = dfTrainingPfoData.query("isShower==0")
+nTrainingPfoData = len(dfTrainingPfoData)
 nTrainingShowerData = len(dfTrainingShowerData)
 nTrainingTrackData = len(dfTrainingTrackData)
 print("Training likelihood using %d tracks and %d showers." % (nTrainingTrackData, nTrainingShowerData))

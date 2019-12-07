@@ -9,37 +9,51 @@ class PfoClass(object):
     wireCoordErr = 0.3  # Sets wire coord error to 3 millimetres.
 
     def __init__(self, pfo, fileName):
+        # PFO identification + relations
+        self.fileName = fileName
         self.eventId = pfo.EventId
         self.pfoId = pfo.PfoId
         self.parentPfoId = pfo.ParentPfoId
         self.daughterPfoIds = np.array(pfo.DaughterPfoIds)
         self.heirarchyTier = pfo.HierarchyTier
-        self.monteCarloPDGU = pfo.MCPdgCodeU
-        self.monteCarloPDGV = pfo.MCPdgCodeV
-        self.monteCarloPDGW = pfo.MCPdgCodeW
-        self.vertex = np.array([pfo.get("Vertex[0]"), pfo.get("Vertex[1]"), pfo.get("Vertex[2]")], dtype = np.double)
-        self.driftCoordW = np.array(pfo.DriftCoordW, dtype = np.double)
-        self.driftCoordErrW = np.array(pfo.DriftCoordErrorW, dtype = np.double)
-        self.wireCoordW = np.array(pfo.WireCoordW, dtype = np.double)
+
+        # U view
         self.driftCoordU = np.array(pfo.DriftCoordU, dtype = np.double)
         self.driftCoordErrU = np.array(pfo.DriftCoordErrorU, dtype = np.double)
         self.wireCoordU = np.array(pfo.WireCoordU, dtype = np.double)
+        self.energyU = np.array(pfo.EnergyU, dtype = np.double)
+        self.mcPdgCodeU = pfo.MCPdgCodeU
+        self.nHitsPfoU = pfo.nHitsPfoU
+        self.nHitsMcpU = pfo.nHitsMcpU
+        self.nHitsMatchU = pfo.nHitsMatchU
+
+        # V view
         self.driftCoordV = np.array(pfo.DriftCoordV, dtype = np.double)
         self.driftCoordErrV = np.array(pfo.DriftCoordErrorV, dtype = np.double)
         self.wireCoordV = np.array(pfo.WireCoordV, dtype = np.double)
-        self.energyU = np.array(pfo.EnergyU, dtype = np.double)
         self.energyV = np.array(pfo.EnergyV, dtype = np.double)
-        self.energyW = np.array(pfo.EnergyW, dtype = np.double)
-        self.nHitsPfoU = pfo.nHitsPfoU
+        self.mcPdgCodeV = pfo.MCPdgCodeV
         self.nHitsPfoV = pfo.nHitsPfoV
-        self.nHitsPfoW = pfo.nHitsPfoW
-        self.nHitsMatchU = pfo.nHitsMatchU
-        self.nHitsMatchV = pfo.nHitsMatchV
-        self.nHitsMatchW = pfo.nHitsMatchW
-        self.nHitsMcpU = pfo.nHitsMcpU
         self.nHitsMcpV = pfo.nHitsMcpV
+        self.nHitsMatchV = pfo.nHitsMatchV
+
+        # W view
+        self.driftCoordW = np.array(pfo.DriftCoordW, dtype = np.double)
+        self.driftCoordErrW = np.array(pfo.DriftCoordErrorW, dtype = np.double)
+        self.wireCoordW = np.array(pfo.WireCoordW, dtype = np.double)
+        self.energyW = np.array(pfo.EnergyW, dtype = np.double)
+        self.mcPdgCodeW = pfo.MCPdgCodeW
+        self.nHitsPfoW = pfo.nHitsPfoW
         self.nHitsMcpW = pfo.nHitsMcpW
-        self.fileName = fileName
+        self.nHitsMatchW = pfo.nHitsMatchW
+
+        # 3D view
+        self.xCoordThreeD = pfo.XCoordThreeD
+        self.yCoordThreeD = pfo.YCoordThreeD
+        self.zCoordThreeD = pfo.ZCoordThreeD
+        self.energyThreeD = pfo.EnergyThreeD
+        self.vertex = np.array([pfo.get("Vertex[0]"), pfo.get("Vertex[1]"), pfo.get("Vertex[2]")], dtype = np.double)
+        self.nHitsPfoThreeD = len(self.xCoordThreeD)
 
     # These change how the PFO is printed to the screen
     def __str__(self):
@@ -52,11 +66,11 @@ class PfoClass(object):
     def nHitsPfo(self):
         return self.nHitsPfoU + self.nHitsPfoV + self.nHitsPfoW
     def IsShowerW(self):
-        return self.IsShower(self.monteCarloPDGW)
+        return self.IsShower(self.mcPdgCodeW)
     def IsShowerV(self):
-        return self.IsShower(self.monteCarloPDGV)
+        return self.IsShower(self.mcPdgCodeV)
     def IsShowerU(self):
-        return self.IsShower(self.monteCarloPDGU)
+        return self.IsShower(self.mcPdgCodeU)
     def IsShower(self, pdgCode):
         if pdgCode != 0:
             return 1 if abs(pdgCode) in (11, 22) else 0
@@ -64,11 +78,11 @@ class PfoClass(object):
             return -1
 
     def IsTrackW(self):
-        return self.IsTrack(self.monteCarloPDGW)
+        return self.IsTrack(self.mcPdgCodeW)
     def IsTrackV(self):
-        return self.IsTrack(self.monteCarloPDGV)
+        return self.IsTrack(self.mcPdgCodeV)
     def IsTrackU(self):
-        return self.IsTrack(self.monteCarloPDGU)
+        return self.IsTrack(self.mcPdgCodeU)
     def IsTrack(self, pdgCode):
         if pdgCode != 0:
             return 1 if abs(pdgCode) not in (11, 22) else 0
@@ -76,11 +90,11 @@ class PfoClass(object):
             return -1
 
     def TrueParticleW(self):
-        return self.TrueParticle(self.monteCarloPDGW)
+        return self.TrueParticle(self.mcPdgCodeW)
     def TrueParticleV(self):
-        return self.TrueParticle(self.monteCarloPDGV)
+        return self.TrueParticle(self.mcPdgCodeV)
     def TrueParticleU(self):
-        return self.TrueParticle(self.monteCarloPDGU)
+        return self.TrueParticle(self.mcPdgCodeU)
     def TrueParticle(self, pdgCode):
             switcher = {
                     11: "Electron",
