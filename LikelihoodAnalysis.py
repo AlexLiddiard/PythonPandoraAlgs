@@ -2,10 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import math as m
-from HistoSynthesis import CreateHistogram
+from PfoGraphAnalysis import MicroBooneGeo
+from HistoSynthesis import CreateHistogramWire
 
 myTestArea = "/home/alexliddiard/Desktop/Pandora"
-inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp(Processed).bz2'
+inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData(Processed).bz2'
 trainingFraction = 0.5
 performancePreFilters = (#'purityU>=0.5',
                          #'purityV>=0.5',
@@ -55,9 +56,25 @@ featureHistograms = (#{'name': 'F0aU', 'bins': np.linspace(0, 1, num=50)},
                      #{'name': 'F3bW', 'bins': np.linspace(0, 1000, num=100)}
 )
 
-likelihoodHistograms = ({'filters': [('isShower==1', 'Showers'), ('isShower==0', 'Tracks')], 'bins': np.linspace(0, 1, num=25)},
-                        {'filters': [('absPdgCode==11', 'Electrons/Positrons'), ('absPdgCode==22', 'Photons')], 'bins': np.linspace(0, 1, num=25)},
-                        {'filters': [('absPdgCode==2212', 'Protons'), ('absPdgCode==13', 'Muons'), ('absPdgCode==211', 'Charged Pions')], 'bins': np.linspace(0, 1, num=25)})
+likelihoodHistograms = ({'filters': (('Showers', 'isShower==1', '', True),
+                                     ('Tracks', 'isShower==0', '', True)),
+                         'bins': np.linspace(0, 1, num=25),
+                         'yAxis': 'log'},
+
+                        {'filters': (('Showers', 'isShower==1', '', True),
+                                     ('Electrons/Positrons', 'absPdgCode==11', 'isShower==1', False),
+                                     ('Photons', 'absPdgCode==22', 'isShower==1', False)),
+                         'bins': np.linspace(0, 1, num=25),
+                         'yAxis': 'log'},
+
+                        {'filters': (('Tracks', 'isShower==0', '', True),
+                                     ('Protons', 'absPdgCode==2212', 'isShower==0', False),
+                                     ('Muons', 'absPdgCode==13', 'isShower==0', False),
+                                     ('Charged Pions', 'absPdgCode==211', 'isShower==0', False)),
+                        'bins': np.linspace(0, 1, num=25),
+                        'yAxis': 'log'},
+)
+
 purityCompletenessCutoffGraph = {'bins': np.linspace(0, 1, num=1000)}
 purityCompletenessNHitsGraph = {'bins': np.linspace(10, 600, num=30)}
 
@@ -101,7 +118,7 @@ dfPfoData = dfPfoData.query(' and '.join(performancePreFilters))
 # Make feature histograms.
 for histogram in featureHistograms:
     histogram['filters'] = [("isShower==1", "Showers"), ("isShower==0", "Tracks")]
-    CreateHistogram(dfPfoData, histogram)
+    CreateHistogramWire(dfPfoData, histogram)
 
 # Make likelihood histograms.
 nPfoData = len(dfPfoData)
@@ -109,7 +126,7 @@ nTrainingPfos = m.floor(nPfoData * trainingFraction)
 dfPerformancePfoData = dfPfoData[nTrainingPfos:]
 for histogram in likelihoodHistograms:
     histogram['name'] = 'likelihood'
-    CreateHistogram(dfPerformancePfoData, histogram)
+    CreateHistogramWire(dfPerformancePfoData, histogram)
 
 # Plotting Likelihood against purity and completeness.
 likelihoodShowers = dfPerformancePfoData.query("isShower==1")['likelihood']
@@ -160,16 +177,16 @@ lines = bx2.plot(purityCompletenessCutoffGraph['bins'], showerPurities, 'b', pur
 bx2.legend(lines, ('Purity', 'Efficiency', 'Purity * Efficiency'), loc='lower center')
 bx1.axvline(bestTrackCutoff)
 bx2.axvline(bestShowerCutoff)
-bx1.text(bestTrackCutoff - 0.03, 0.4 ,'Cutoff = %.2f' % bestTrackCutoff, rotation=90, fontsize=12)
-bx2.text(bestShowerCutoff - 0.03, 0.4 ,'Cutoff = %.2f' % bestShowerCutoff, rotation=90, fontsize=12)
+bx1.text(bestTrackCutoff - 0.03, 0.4 ,'Cutoff = %.3f' % bestTrackCutoff, rotation=90, fontsize=12)
+bx2.text(bestShowerCutoff - 0.03, 0.4 ,'Cutoff = %.3f' % bestShowerCutoff, rotation=90, fontsize=12)
 
 bx1.set_ylim([0, 1])
-bx1.set_title("Purity/Completeness/Product vs Likelihood - Tracks")
+bx1.set_title("Purity/Completeness/Product vs Likelihood — Tracks")
 bx1.set_xlabel("Likelihood")
 bx1.set_ylabel("Fraction")
 
 bx2.set_ylim([0, 1])
-bx2.set_title("Purity/Completeness vs Likelihood - Showers")
+bx2.set_title("Purity/Completeness vs Likelihood — Showers")
 bx2.set_xlabel("Likelihood")
 bx2.set_ylabel("Fraction")
 
@@ -233,12 +250,12 @@ bx2.errorbar(purityCompletenessNHitsGraph['bins'], showerPurityEfficiencies, yer
 bx2.legend(lines, ('Purity', 'Efficiency', 'Purity * Efficiency'), loc='lower center')
 
 bx1.set_ylim([0.4, 1])
-bx1.set_title("Purity/Completeness/Product vs nHitsW - Tracks")
+bx1.set_title("Purity/Completeness/Product vs nHitsW — Cutoff=%.3f — Tracks" % bestShowerCutoff)
 bx1.set_xlabel("nHitsW")
 bx1.set_ylabel("Fraction")
 
 bx2.set_ylim([0.4, 1])
-bx2.set_title("Purity/Completeness vs nHitsW - Showers")
+bx2.set_title("Purity/Completeness vs nHitsW — Cutoff=%.3f — Showers" % bestShowerCutoff)
 bx2.set_xlabel("nHitsW")
 bx2.set_ylabel("Fraction")
 

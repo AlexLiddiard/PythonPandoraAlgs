@@ -28,4 +28,31 @@ def CreateHistogram(df, histogram):
 
     plt.show()
 
+def CreateHistogramWire(df, histogram):
+
+    df = df.query(histogram['name'] + '!=-1')
+
+    fig, ax = plt.subplots(figsize=(10, 7.5))
+
+    for (name, filter, normFilter, fill) in histogram['filters']:
+        filteredDf = df.query(filter)
+        binCounts, binEdges = np.histogram(filteredDf[histogram['name']], bins = histogram['bins'])
+        if normFilter != "":
+            normedBinCounts = binCounts/len(df.query(normFilter))
+        else:
+            normedBinCounts = binCounts/len(filteredDf)
+        normedBinCountsYcoord = np.concatenate(([0], np.repeat(normedBinCounts, 2), [0]))
+        normedBinCountsXcoord = np.repeat(binEdges, 2)
+        ax.plot(normedBinCountsXcoord, normedBinCountsYcoord, label=name)
+        if fill:
+            ax.fill(normedBinCountsXcoord, normedBinCountsYcoord, alpha=0.2)
+        ax.set_xlabel(histogram['name'])
+        ax.set_ylabel("Probability")
+        if 'yAxis' in histogram:
+            ax.set_yscale(histogram['yAxis'])
+
+    plt.legend(loc='upper center')
+    plt.show()
+
+
 

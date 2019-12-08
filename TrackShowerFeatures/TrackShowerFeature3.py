@@ -12,9 +12,6 @@ def GetTrianglarSpan(driftCoord, wireCoord, vertexDriftCoord, vertexWireCoord, h
     transDriftCoord = driftCoord - vertexDriftCoord
     transWireCoord = wireCoord - vertexWireCoord
     principleAxisGradient = tsf0.OLSNoIntercept(transDriftCoord, transWireCoord)
-    intercept, principleAxisGradient2, r2 = tsf0.OLS(transDriftCoord, transWireCoord)
-    #print(principleAxisGradient)
-    #print(principleAxisGradient2)
     transDriftCoord, transWireCoord = tsf1.RotatePointsClockwise(transDriftCoord, transWireCoord, principleAxisGradient)
 
     transDriftCoordCheck = transDriftCoord > 0

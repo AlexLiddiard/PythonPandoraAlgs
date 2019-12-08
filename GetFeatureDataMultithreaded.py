@@ -33,7 +33,6 @@ def ProcessFile(filePath):
                 'maxCoordY': max(pfo.yCoordThreeD),
                 'maxCoordZ': max(pfo.zCoordThreeD)
             }
-            #print(min(pfo.yCoordThreeD))
             if wireViews[0]:
                 pfoDataDict.update({
                 'nHitsU': pfo.nHitsPfoU,
