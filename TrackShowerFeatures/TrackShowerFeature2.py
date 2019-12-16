@@ -261,11 +261,11 @@ def GetFeature(pfo, wireViews, rectWidth=10, rectHeight=2.5, rectOffsetX=2.5, re
     featureDict = {}
     if wireViews[0]:
         chainCount, avgLengthRatio, avgAvgR2, stdLengthRatio, avgStdR2 = GetChainInfoSimple(pfo.driftCoordU.tolist(), pfo.wireCoordU.tolist(), squareSideLength, localCorrelationPoints)
-        featureDict.update({ "F2aU": chainCount, "F2bU": avgLengthRatio, "F2cU": avgAvgR2, "F2dU": stdLengthRatio, "F2eU": avgStdR2 })
+        featureDict.update({ "ChainCountU": chainCount, "ChainRatioAvgU": avgLengthRatio, "ChainRSquaredAvgU": avgAvgR2, "ChainRatioStdU": stdLengthRatio, "ChainRSquaredStdU": avgStdR2 })
     if wireViews[1]:
         chainCount, avgLengthRatio, avgAvgR2, stdLengthRatio, avgStdR2 = GetChainInfoSimple(pfo.driftCoordV.tolist(), pfo.wireCoordV.tolist(), squareSideLength, localCorrelationPoints)
-        featureDict.update({ "F2aV": chainCount, "F2bV": avgLengthRatio, "F2cV": avgAvgR2, "F2dV": stdLengthRatio, "F2eV": avgStdR2 })
+        featureDict.update({ "ChainCountV": chainCount, "ChainRatioAvgV": avgLengthRatio, "ChainRSquaredAvgV": avgAvgR2, "ChainRatioStdV": stdLengthRatio, "ChainRSquaredStdV": avgStdR2 })
     if wireViews[2]:
         chainCount, avgLengthRatio, avgAvgR2, stdLengthRatio, avgStdR2 = GetChainInfoSimple(pfo.driftCoordW.tolist(), pfo.wireCoordW.tolist(), squareSideLength, localCorrelationPoints)
-        featureDict.update({ "F2aW": chainCount, "F2bW": avgLengthRatio, "F2cW": avgAvgR2, "F2dW": stdLengthRatio, "F2eW": avgStdR2 })
+        featureDict.update({ "ChainCountW": chainCount, "ChainRatioAvgW": avgLengthRatio, "ChainRSquaredAvgW": avgAvgR2, "ChainRatioStdW": stdLengthRatio, "ChainRSquaredStdW": avgStdR2 })
     return featureDict

@@ -95,11 +95,11 @@ def GetFeature(pfo, wireViews):
     featureDict = {}
     if wireViews[0]:
         a, b, r2 = OLS(pfo.driftCoordU, pfo.wireCoordU)
-        featureDict.update({ "F0aU" : r2 })
+        featureDict.update({ "RSquaredU" : r2 })
     if wireViews[1]:
         a, b, r2 = OLS(pfo.driftCoordV, pfo.wireCoordV)
-        featureDict.update({ "F0aV" : r2 })
+        featureDict.update({ "RSquaredV" : r2 })
     if wireViews[2]:
         a, b, r2 = OLS(pfo.driftCoordW, pfo.wireCoordW)
-        featureDict.update({ "F0aW" : r2 })
+        featureDict.update({ "RSquaredW" : r2 })
     return featureDict

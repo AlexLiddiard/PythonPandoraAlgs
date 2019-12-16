@@ -43,11 +43,11 @@ def GetFeature(pfo, wireViews, hitFraction=0.7):
     featureDict = {}
     if wireViews[0]:
         openingAngle, distance = GetTrianglarSpan(pfo.driftCoordU, pfo.wireCoordU, pfo.vertex[0], 0.5 * pfo.vertex[2] - 0.8660254 * pfo.vertex[1], hitFraction)
-        featureDict.update({ "F3aU": openingAngle, "F3bU": distance })
+        featureDict.update({ "AngularSpanU": openingAngle, "LongitudinalSpanU": distance })
     if wireViews[1]:
         openingAngle, distance = GetTrianglarSpan(pfo.driftCoordV, pfo.wireCoordV, pfo.vertex[0], 0.5 * pfo.vertex[2] + 0.8660254 * pfo.vertex[1], hitFraction)
-        featureDict.update({ "F3aV": openingAngle, "F3bV": distance })
+        featureDict.update({ "AngularSpanV": openingAngle, "LongitudinalSpanV": distance })
     if wireViews[2]:
         openingAngle, distance = GetTrianglarSpan(pfo.driftCoordW, pfo.wireCoordW, pfo.vertex[0], pfo.vertex[2], hitFraction)
-        featureDict.update({ "F3aW": openingAngle, "F3bW": distance })
+        featureDict.update({ "AngularSpanW": openingAngle, "LongitudinalSpanW": distance })
     return featureDict

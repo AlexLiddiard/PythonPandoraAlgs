@@ -7,6 +7,31 @@ import os
 class PfoClass(object):
 
     wireCoordErr = 0.3  # Sets wire coord error to 3 millimetres.
+    particleTypes = {
+        11: "Electron",
+        -11: "Positron",
+        12: "Electron Neutrino",
+        -12: "Electron Anti-Neutrino",
+        13: "Positive Muon",
+        -13: "Negative Muon",
+        14: "Muon Neutrino",
+        -14: "Muon Anti-Neutrino",
+        22: "Photon",
+        111: "Neutral Pion",
+        130: "Neutral Kaon",
+        211: "Positive Pion",
+        -211: "Negative Pion",
+        310: "Neutral Kaon Short",
+        321: "Positive Kaon",
+        -321: "Negative Kaon",
+        2212: "Proton",
+        2112: "Neutron",
+        3112: "Negative Sigma",
+        3122: "Lambda",
+        3222: "Positive Sigma",
+        1000010020: "Deuteron",
+        1000010030: "Triton"
+    }
 
     def __init__(self, pfo, fileName):
         # PFO identification + relations
@@ -96,32 +121,10 @@ class PfoClass(object):
     def TrueParticleU(self):
         return self.TrueParticle(self.mcPdgCodeU)
     def TrueParticle(self, pdgCode):
-            switcher = {
-                    11: "Electron",
-                    12: "Electron Neutrino",
-                    13: "Muon",
-                    14: "Muon Neutrino",
-                    15: "Tau",
-                    16: "Tau Neutrino",
-                    22: "Photon",
-                    111: "Neutral Pion",
-                    211: "Pion",
-                    311: "Neutral Kaon",
-                    321: "Kaon",
-                    411: "D",
-                    421: "Neutral D",
-                    511: "Neutral B",
-                    521: "B",
-                    2212: "Proton",
-                    2112: "Neutron",
-                    2224: "Doubly Delta",
-                    2214: "Delta",
-                    2114: "Neutral Delta",
-                    1114: "Negative Delta",
-                    9221132: "Theta",
-                    9331122: "Phi"
-                    }
-            return  ("Anti-" if pdgCode < 0 else "") + switcher.get(abs(pdgCode), "Unknown")
+            if pdgCode in self.particleTypes:
+                return  self.particleTypes[pdgCode]
+            else:
+                return str(pdgCode)
 
     def PurityOverall(self):
         return self.Purity(self.nHitsMatchU + self.nHitsMatchV + self.nHitsMatchW, self.nHitsPfoU + self.nHitsPfoV + self.nHitsPfoW)

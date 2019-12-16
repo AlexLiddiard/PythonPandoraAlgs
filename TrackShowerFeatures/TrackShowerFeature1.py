@@ -67,9 +67,9 @@ def GetRotatedBinStdev(driftCoord, wireCoord, binWidth, minBins):
 def GetFeature(pfo, wireViews, binWidth=0.89, minBins=3):
     featureDict = {}
     if wireViews[0]:
-        featureDict.update({ "F1aU" : GetRotatedBinStdev(pfo.driftCoordU, pfo.wireCoordU, binWidth, minBins)})
+        featureDict.update({ "BinnedHitStdU" : GetRotatedBinStdev(pfo.driftCoordU, pfo.wireCoordU, binWidth, minBins)})
     if wireViews[1]:
-        featureDict.update({ "F1aV" : GetRotatedBinStdev(pfo.driftCoordV, pfo.wireCoordV, binWidth, minBins)})
+        featureDict.update({ "BinnedHitStdV" : GetRotatedBinStdev(pfo.driftCoordV, pfo.wireCoordV, binWidth, minBins)})
     if wireViews[2]:
-        featureDict.update({ "F1aW" : GetRotatedBinStdev(pfo.driftCoordW, pfo.wireCoordW, binWidth, minBins)})
+        featureDict.update({ "BinnedHitStdW" : GetRotatedBinStdev(pfo.driftCoordW, pfo.wireCoordW, binWidth, minBins)})
     return featureDict

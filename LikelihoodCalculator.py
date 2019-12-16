@@ -1,60 +1,62 @@
 import numpy as np
 import pandas as pd
 import math as m
-from PfoGraphAnalysis import MicroBooneGeo
+from PfoGraphicalAnalyser import MicroBooneGeo
 
-myTestArea = "/home/alexliddiard/Desktop/Pandora"
+myTestArea = "/home/tomalex/Pandora"
 inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData(Processed).bz2'
 
 trainingFraction = 0.5
-trainingPreFilters = ('purityU>=0.8',
-                      'purityV>=0.8',
-                      'purityW>=0.8',
-                      'completenessU>=0.8',
-                      'completenessV>=0.8',
-                      'completenessW>=0.8',
-                      #'(nHitsU>=10 and nHitsV>=10) or (nHitsU>=10 and nHitsW>=10) or (nHitsV>=10 and nHitsW>=10)',
-                      #'nHitsU + nHitsV + nHitsW >= 100',
-                      'nHitsU>=50',
-                      'nHitsV>=50',
-                      'nHitsW>=50',
-                      'absPdgCode != 2112',
-                      'minCoordX >= @MicroBooneGeo.RangeX[0] + 10',
-                      'maxCoordX <= @MicroBooneGeo.RangeX[1] - 10',
-                      'minCoordY >= @MicroBooneGeo.RangeY[0] + 20',
-                      'maxCoordY <= @MicroBooneGeo.RangeY[1] - 20',
-                      'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
-                      'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
+trainingPreFilters = (
+    'purityU>=0.8',
+    'purityV>=0.8',
+    'purityW>=0.8',
+    'completenessU>=0.8',
+    'completenessV>=0.8',
+    'completenessW>=0.8',
+    #'(nHitsU>=10 and nHitsV>=10) or (nHitsU>=10 and nHitsW>=10) or (nHitsV>=10 and nHitsW>=10)',
+    #'nHitsU + nHitsV + nHitsW >= 100',
+    'nHitsU>=50',
+    'nHitsV>=50',
+    'nHitsW>=50',
+    'absPdgCode != 2112',
+    'minCoordX >= @MicroBooneGeo.RangeX[0] + 10',
+    'maxCoordX <= @MicroBooneGeo.RangeX[1] - 10',
+    'minCoordY >= @MicroBooneGeo.RangeY[0] + 20',
+    'maxCoordY <= @MicroBooneGeo.RangeY[1] - 20',
+    'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
+    'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
 )
 
-featurePdfs = (#{'name': 'F0aU', 'bins': np.linspace(0, 1, num=50)},
-               #{'name': 'F0aV', 'bins': np.linspace(0, 1, num=50)},
-               #{'name': 'F0aW', 'bins': np.linspace(0, 1, num=50)},
-               {'name': 'F1aU', 'bins': np.linspace(0, 6, num=50)},
-               {'name': 'F1aV', 'bins': np.linspace(0, 6, num=50)},
-               {'name': 'F1aW', 'bins': np.linspace(0, 6, num=50)},
-               #{'name': 'F2aU', 'bins': np.linspace(1, 50, num=50)},
-               #{'name': 'F2aV', 'bins': np.linspace(1, 50, num=50)},
-               #{'name': 'F2aW', 'bins': np.linspace(1, 50, num=50)},
-               {'name': 'F2bU', 'bins': np.linspace(0, 1, num=50)},
-               {'name': 'F2bV', 'bins': np.linspace(0, 1, num=50)},
-               {'name': 'F2bW', 'bins': np.linspace(0, 1, num=50)},
-               #{'name': 'F2cU', 'bins': np.linspace(0, 1, num=50)},
-               #{'name': 'F2cV', 'bins': np.linspace(0, 1, num=50)},
-               #{'name': 'F2cW', 'bins': np.linspace(0, 1, num=50)},
-               #{'name': 'F2dU', 'bins': np.linspace(0, 1, num=50)},
-               #{'name': 'F2dV', 'bins': np.linspace(0, 1, num=50)},
-               #{'name': 'F2dW', 'bins': np.linspace(0, 1, num=50)},
-               {'name': 'F2eU', 'bins': np.linspace(0, 1, num=50)},
-               {'name': 'F2eV', 'bins': np.linspace(0, 1, num=50)},
-               {'name': 'F2eW', 'bins': np.linspace(0, 1, num=50)},
-               {'name': 'F3aU', 'bins': np.linspace(0, 1.57, num=50)},
-               {'name': 'F3aV', 'bins': np.linspace(0, 1.57, num=50)},
-               {'name': 'F3aW', 'bins': np.linspace(0, 1.57, num=50)},
-               {'name': 'F3bU', 'bins': np.linspace(0, 1000, num=50)},
-               {'name': 'F3bV', 'bins': np.linspace(0, 1000, num=50)},
-               {'name': 'F3bW', 'bins': np.linspace(0, 1000, num=50)},
+featurePdfs = (
+    #{'name': 'RSquaredU', 'bins': np.linspace(0, 1, num=50)},
+    #{'name': 'RSquaredV', 'bins': np.linspace(0, 1, num=50)},
+    #{'name': 'RSquaredW', 'bins': np.linspace(0, 1, num=50)},
+    {'name': 'BinnedHitStdU', 'bins': np.linspace(0, 12, num=50)},
+    {'name': 'BinnedHitStdV', 'bins': np.linspace(0, 12, num=50)},
+    {'name': 'BinnedHitStdW', 'bins': np.linspace(0, 12, num=50)},
+    #{'name': 'ChainCountU', 'bins': np.linspace(1, 50, num=50)},
+    #{'name': 'ChainCountV', 'bins': np.linspace(1, 50, num=50)},
+    #{'name': 'ChainCountW', 'bins': np.linspace(1, 50, num=50)},
+    {'name': 'ChainRatioAvgU', 'bins': np.linspace(0, 1, num=50)},
+    {'name': 'ChainRatioAvgV', 'bins': np.linspace(0, 1, num=50)},
+    {'name': 'ChainRatioAvgW', 'bins': np.linspace(0, 1, num=50)},
+    #{'name': 'ChainRSquaredAvgU', 'bins': np.linspace(0, 1, num=50)},
+    #{'name': 'ChainRSquaredAvgV', 'bins': np.linspace(0, 1, num=50)},
+    #{'name': 'ChainRSquaredAvgW', 'bins': np.linspace(0, 1, num=50)},
+    #{'name': 'ChainRatioStdU', 'bins': np.linspace(0, 0.8, num=50)},
+    #{'name': 'ChainRatioStdV', 'bins': np.linspace(0, 0.8, num=50)},
+    #{'name': 'ChainRatioStdW', 'bins': np.linspace(0, 0.8, num=50)},
+    {'name': 'ChainRSquaredStdU', 'bins': np.linspace(0, 0.8, num=50)},
+    {'name': 'ChainRSquaredStdV', 'bins': np.linspace(0, 0.8, num=50)},
+    {'name': 'ChainRSquaredStdW', 'bins': np.linspace(0, 0.8, num=50)},
+    {'name': 'AngularSpanU', 'bins': np.linspace(0, 1.57, num=50)},
+    {'name': 'AngularSpanV', 'bins': np.linspace(0, 1.57, num=50)},
+    {'name': 'AngularSpanW', 'bins': np.linspace(0, 1.57, num=50)},
+    #{'name': 'LongitudinalSpanU', 'bins': np.linspace(0, 400, num=50)},
+    #{'name': 'LongitudinalSpanV', 'bins': np.linspace(0, 400, num=50)},
+    #{'name': 'LongitudinalSpanW', 'bins': np.linspace(0, 600, num=50)},
 )
 
 '''Separate true tracks from true showers. Then plot histograms for feature
@@ -91,6 +93,6 @@ for feature in featurePdfs:
     ptArray *= trackHist[histIndices]
     psArray *= showerHist[histIndices]
 likelihoodArray = psArray / (ptArray + psArray)
-dfPfoData["likelihood"] = likelihoodArray
+dfPfoData["Likelihood"] = likelihoodArray
 dfPfoData.to_pickle(outputPickleFile)
 print("Finished!")
