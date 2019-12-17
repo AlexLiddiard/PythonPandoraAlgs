@@ -4,8 +4,8 @@ import math as m
 from PfoGraphicalAnalyser import MicroBooneGeo
 
 myTestArea = "/home/tomalex/Pandora"
-inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
-outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData(Processed).bz2'
+inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.bz2'
+outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.bz2'
 
 trainingFraction = 0.5
 trainingPreFilters = (
@@ -51,9 +51,9 @@ featurePdfs = (
     {'name': 'ChainRSquaredStdU', 'bins': np.linspace(0, 0.8, num=50)},
     {'name': 'ChainRSquaredStdV', 'bins': np.linspace(0, 0.8, num=50)},
     {'name': 'ChainRSquaredStdW', 'bins': np.linspace(0, 0.8, num=50)},
-    {'name': 'AngularSpanU', 'bins': np.linspace(0, 1.57, num=50)},
-    {'name': 'AngularSpanV', 'bins': np.linspace(0, 1.57, num=50)},
-    {'name': 'AngularSpanW', 'bins': np.linspace(0, 1.57, num=50)},
+    {'name': 'AngularSpanU', 'bins': np.linspace(0, m.pi, num=50)},
+    {'name': 'AngularSpanV', 'bins': np.linspace(0, m.pi, num=50)},
+    {'name': 'AngularSpanW', 'bins': np.linspace(0, m.pi, num=50)},
     #{'name': 'LongitudinalSpanU', 'bins': np.linspace(0, 400, num=50)},
     #{'name': 'LongitudinalSpanV', 'bins': np.linspace(0, 400, num=50)},
     #{'name': 'LongitudinalSpanW', 'bins': np.linspace(0, 600, num=50)},

@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-params = {
+plotStyle = {
     'legend.fontsize': 'xx-large',
     'figure.figsize': (10, 7.5),
     'axes.labelsize': 'xx-large',
@@ -9,7 +9,7 @@ params = {
     'xtick.labelsize':'xx-large',
     'ytick.labelsize':'xx-large'
 }
-plt.rcParams.update(params)
+plt.rcParams.update(plotStyle)
 
 # Histogram Creator Programme
 

@@ -9,11 +9,11 @@ import pandas as pd
 
 myTestArea = "/home/tomalex/Pandora"
 rootFileDirectory = myTestArea + "/PythonPandoraAlgs/ROOT Files"
-inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData(Processed).bz2'
+inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.bz2'
 usePickleFile = True
 pfoFilters = (
     #### PFO selection ####
-    'likelihood > 0.89 and nHitsW > 200 and isShower != 1', # shower-like muons/protons/etc. with many hits
+    #'Likelihood > 0.89 and nHitsW > 200 and isShower != 1', # shower-like muons/protons/etc. with many hits
     #'likelihood > 0.89 and absPdgCode==2212' # shower-like protons
     #'likelihood < 0.89 and absPdgCode==11' # track-like electrons
     #'BinnedHitStdW==0' # BinnedHitStd anomaly
@@ -37,14 +37,24 @@ pfoFilters = (
     'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
     'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
 )
-additionalInfo = (
+additionalInfo = [
     'BinnedHitStdW',
-    'ChainRatiovgW',
+    'ChainRatioAvgW',
     'ChainRSquaredStdW',
     'AngularSpanW',
     'Likelihood'
-)
+]
 wireView = "W"
+
+plotStyle = {
+    'legend.fontsize': 'xx-large',
+    'figure.figsize': (13,10),
+    'axes.labelsize': 'xx-large',
+    'axes.titlesize':'xx-large',
+    'xtick.labelsize':'xx-large',
+    'ytick.labelsize':'xx-large'
+}
+plt.rcParams.update(plotStyle)
 
 # Microboone Geometry stuff
 class MicroBooneGeo:
@@ -132,8 +142,8 @@ def DisplayPfo(pfo, wireView = "W", additionalInfo = None):
         wireRange = MicroBooneGeo.RangeZ
         deadZones = MicroBooneGeo.DeadZonesW
 
-    fig = plt.figure(figsize=(13,10))
-    ax = fig.add_subplot(1, 1, 1)
+    fig, ax = plt.subplots()
+    fig.tight_layout()
     ax.set_aspect('equal', 'box')
     colourList = [(1, 0, 0), (0, 0, 1)]
     energyMap = matplotlib.colors.LinearSegmentedColormap.from_list('energyMap', colourList, N=1024)
@@ -141,7 +151,7 @@ def DisplayPfo(pfo, wireView = "W", additionalInfo = None):
     # Plot variables
     sc = ax.scatter(x, y, s=20, c=energy, cmap=energyMap, zorder=3)
     clb = plt.colorbar(sc)
-    clb.set_label('Energy as Ionisation Charge', fontsize = 15)
+    clb.set_label('Energy as Ionisation Charge')
     ax.errorbar(x, y, yerr=yerr, xerr=xerr, fmt='o', mew=0, zorder=0, c='black')
     ax.plot(vertexDriftCoord, vertexWireCoord, marker = 'X', color = 'green', markersize = 15)
 
@@ -161,8 +171,8 @@ def DisplayPfo(pfo, wireView = "W", additionalInfo = None):
     # Axes and labels
     if additionalInfo is not None:
         additionalInfoStr = '\n'.join([('%s = %.2f' % info).rstrip('0').rstrip('.') for info in additionalInfo.items()])
-        props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-        ax.text(0.57, 0.98, additionalInfoStr, transform=ax.transAxes, fontsize=14, verticalalignment='top', bbox=props)
+        props = {"boxstyle": 'round', "facecolor": 'wheat', "alpha": 0.5}
+        ax.text(0.57, 0.98, additionalInfoStr, transform=ax.transAxes, va='top', ha='right', position=(1,1), bbox=props)
 
 
     plt.title('%s\nEventId = %d, PfoId = %d, Hierarchy = %d\n%s (%s), Purity = %.2f, Completeness = %.2f' %
@@ -170,9 +180,9 @@ def DisplayPfo(pfo, wireView = "W", additionalInfo = None):
                pfo.eventId, pfo.pfoId, pfo.heirarchyTier,
                trueParticle, 'Track' if isShower==0 else 'Shower', purity, completeness),
                fontsize=20)
-    plt.xlabel('DriftCoord%s (cm)' % wireView, fontsize = 15)
-    plt.ylabel('WireCoord%s (cm)' % wireView, fontsize = 15)
-
+    plt.xlabel('DriftCoord%s (cm)' % wireView)
+    plt.ylabel('WireCoord%s (cm)' % wireView)
+    plt.tight_layout()
     plt.show()
 
 def RandomPfoView(filePaths):
