@@ -59,6 +59,8 @@ featurePdfs = (
     #{'name': 'LongitudinalSpanW', 'bins': np.linspace(0, 600, num=50)},
 )
 
+delta = 1e-12
+
 '''Separate true tracks from true showers. Then plot histograms for feature
 values. Convert these histograms in to PDFs using scipy. Plot overlapping
 histograms for track and shower types.'''
@@ -87,6 +89,8 @@ for feature in featurePdfs:
     showerHist, binEdges = np.histogram(dfTrainingShowerData[feature['name']], bins=feature['bins'], density=True)
     trackHist, binEdges = np.histogram(dfTrainingTrackData[feature['name']], bins=feature['bins'], density=True)
     showerHist = np.concatenate(([1], showerHist, [1])) # values that fall outside the histogram range will not be used for calculating likelihood
+    showerHist[showerHist==0] = delta # Avoid nan-valued likelihoods by replacing zero with a tiny positive number
+    trackHist[trackHist==0] = delta
     trackHist = np.concatenate(([1], trackHist, [1]))
     featureValues = dfPfoData[feature['name']]
     histIndices = np.digitize(featureValues, feature['bins'])
