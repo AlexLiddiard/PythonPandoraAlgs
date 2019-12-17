@@ -66,5 +66,3 @@ def CreateHistogramWire(df, histogram):
     plt.legend(loc='upper right')
     fig.savefig('%s distribution for %s' % (histogram['name'], ', '.join((filter[0] for filter in histogram['filters'])) + '.svg'), format='svg', dpi=1200)
     plt.show()
-
-

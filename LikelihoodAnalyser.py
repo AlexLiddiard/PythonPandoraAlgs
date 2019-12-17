@@ -6,7 +6,7 @@ from PfoGraphicalAnalyser import MicroBooneGeo
 from HistoSynthesis import CreateHistogramWire
 
 myTestArea = "/home/tomalex/Pandora"
-inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.bz2'
+inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 trainingFraction = 0.5
 performancePreFilters = (
     #'purityU>=0.5',
@@ -192,7 +192,7 @@ def PurityEfficiencyError(purity, purityError, efficiency, efficiencyError):
     error = m.sqrt(purityEfficiencyPurityErr**2 + purityEfficiencyEfficiencyErr**2)
     return error
 
-for nHitsBinMin in purityCompletenessNHitsGraph['bins']:
+for nHitsBinMin in purityCompletenessNHitsGraph['bins'][:-1]:
     likelihoodShowersInBin = dfPerformancePfoData.query("isShower==1 and (nHitsU + nHitsV + nHitsW) >=@nHitsBinMin and (nHitsU + nHitsV + nHitsW) <@nHitsBinMin+@binWidth")['Likelihood']
     likelihoodTracksInBin = dfPerformancePfoData.query("isShower==0 and (nHitsU + nHitsV + nHitsW) >=@nHitsBinMin and (nHitsU + nHitsV + nHitsW) <@nHitsBinMin+@binWidth")['Likelihood']
     trackEfficiency, trackEfficiencyError, trackPurity, trackPurityError, showerEfficiency, showerEfficiencyError, showerPurity, showerPurityError = CompletenessPurity(likelihoodTracksInBin, likelihoodShowersInBin, bestShowerCutoff)
@@ -214,11 +214,20 @@ for nHitsBinMin in purityCompletenessNHitsGraph['bins']:
     trackPurityEfficiencyErrors.append(PurityEfficiencyError(trackPurity, trackPurityError, trackEfficiency, trackEfficiencyError))
     showerPurityEfficiencyErrors.append(PurityEfficiencyError(showerPurity, showerPurityError, showerEfficiency, showerEfficiencyError))
 
+Xcoord = np.concatenate((purityCompletenessNHitsGraph['bins'][:1], np.repeat(purityCompletenessNHitsGraph['bins'][1:-1], 2), purityCompletenessNHitsGraph['bins'][-1:]))
+XcoordErrorBars = purityCompletenessNHitsGraph['bins'][:-1] + (purityCompletenessNHitsGraph['bins'][1] - purityCompletenessNHitsGraph['bins'][0]) / 2
+
 fig, ax = plt.subplots(figsize=(10, 7.5))
-ax.errorbar(purityCompletenessNHitsGraph['bins'], trackPurities, yerr=trackPurityErrors, color='b')
-ax.errorbar(purityCompletenessNHitsGraph['bins'], trackEfficiencies, yerr=trackEfficiencyErrors, color='r')
-ax.errorbar(purityCompletenessNHitsGraph['bins'], trackPurityEfficiencies, yerr=trackPurityEfficiencyErrors, color='g')
-ax.legend(lines, ('Purity', 'Efficiency', 'Purity * Efficiency'), loc='lower center')
+trackPuritiesYcoord = np.repeat(trackPurities, 2)
+trackEfficienciesYcoord = np.repeat(trackEfficiencies, 2)
+trackPurityEfficienciesYcoord = np.repeat(trackPurityEfficiencies, 2)
+ax.plot(Xcoord, trackPuritiesYcoord, label='Purity', color='r')
+ax.plot(Xcoord, trackEfficienciesYcoord, label='Efficiency', color='g')
+ax.plot(Xcoord, trackPurityEfficienciesYcoord, label='Purity * Efficiency', color='b')
+ax.errorbar(XcoordErrorBars, trackPurities, yerr=trackPurityErrors, fmt="none", capsize=2, color='r')
+ax.errorbar(XcoordErrorBars, trackEfficiencies, yerr=trackEfficiencyErrors, fmt="none", capsize=2, color='g')
+ax.errorbar(XcoordErrorBars, trackPurityEfficiencies, yerr=trackPurityEfficiencyErrors, fmt="none", capsize=2, color='b')
+ax.legend(loc='lower center')
 ax.set_ylim((0.5, 1.01))
 #ax.set_title("Purity/Efficiency vs nHits, Cutoff=%.3f, Tracks" % bestShowerCutoff)
 ax.set_xlabel("Number of hits")
@@ -227,12 +236,19 @@ plt.tight_layout()
 plt.savefig("TrackPurityEfficiencyVsNhits.svg", format='svg', dpi=1200)
 plt.show()
 
-
 fig, ax = plt.subplots(figsize=(10, 7.5))
-ax.errorbar(purityCompletenessNHitsGraph['bins'], showerPurities, yerr=showerPurityErrors, color='b')
-ax.errorbar(purityCompletenessNHitsGraph['bins'], showerEfficiencies, yerr=showerEfficiencyErrors, color='r')
-ax.errorbar(purityCompletenessNHitsGraph['bins'], showerPurityEfficiencies, yerr=showerPurityEfficiencyErrors, color='g')
-ax.legend(lines, ('Purity', 'Efficiency', 'Purity * Efficiency'), loc='lower center')
+showerPuritiesYcoord = np.repeat(showerPurities, 2)
+showerEfficienciesYcoord = np.repeat(showerEfficiencies, 2)
+showerPurityEfficienciesYcoord = np.repeat(showerPurityEfficiencies, 2)
+Xcoord = np.concatenate((purityCompletenessNHitsGraph['bins'][:1], np.repeat(purityCompletenessNHitsGraph['bins'][1:-1], 2), purityCompletenessNHitsGraph['bins'][-1:]))
+XcoordErrorBars = purityCompletenessNHitsGraph['bins'][:-1] + (purityCompletenessNHitsGraph['bins'][1] - purityCompletenessNHitsGraph['bins'][0]) / 2
+ax.plot(Xcoord, showerPuritiesYcoord, label='Purity', color='r')
+ax.plot(Xcoord, showerEfficienciesYcoord, label='Efficiency', color='g')
+ax.plot(Xcoord, showerPurityEfficienciesYcoord, label='Purity * Efficiency', color='b')
+ax.errorbar(XcoordErrorBars, showerPurities, yerr=showerPurityErrors, fmt="none", capsize=2, color='r')
+ax.errorbar(XcoordErrorBars, showerEfficiencies, yerr=showerEfficiencyErrors, fmt="none", capsize=2, color='g')
+ax.errorbar(XcoordErrorBars, showerPurityEfficiencies, yerr=showerPurityEfficiencyErrors, fmt="none", capsize=2, color='b')
+ax.legend(loc='lower center')
 ax.set_ylim((0.5, 1.01))
 #ax.set_title("Purity/Efficiency vs nHits, Cutoff=%.3f, Tracks" % bestShowerCutoff)
 ax.set_xlabel("Number of hits")

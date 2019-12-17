@@ -13,6 +13,7 @@ inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.bz2'
 usePickleFile = True
 pfoFilters = (
     #### PFO selection ####
+    'AngularSpanW > 1',
     #'Likelihood > 0.89 and nHitsW > 200 and isShower != 1', # shower-like muons/protons/etc. with many hits
     #'likelihood > 0.89 and absPdgCode==2212' # shower-like protons
     #'likelihood < 0.89 and absPdgCode==11' # track-like electrons

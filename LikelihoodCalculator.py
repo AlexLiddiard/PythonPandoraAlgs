@@ -4,8 +4,8 @@ import math as m
 from PfoGraphicalAnalyser import MicroBooneGeo
 
 myTestArea = "/home/tomalex/Pandora"
-inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.bz2'
-outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.bz2'
+inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
+outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 
 trainingFraction = 0.5
 trainingPreFilters = (
