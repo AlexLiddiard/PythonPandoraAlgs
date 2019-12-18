@@ -82,14 +82,14 @@ print("Training likelihood using %d tracks and %d showers." % (nTrainingTrackDat
 
 # Calculate histogram bins, obtain likelihood from them
 showerPrior = nTrainingShowerData / nTrainingPfoData
-print("Priors: showers %s, tracks %s" % (showerPrior, 1 - showerPrior))
+print("Priors: showers %.3f, tracks %.3f" % (showerPrior, 1 - showerPrior))
 ptArray = np.repeat(1 - showerPrior, nPfoData)
 psArray = np.repeat(showerPrior, nPfoData)
 for feature in featurePdfs:
     showerHist, binEdges = np.histogram(dfTrainingShowerData[feature['name']], bins=feature['bins'], density=True)
     trackHist, binEdges = np.histogram(dfTrainingTrackData[feature['name']], bins=feature['bins'], density=True)
     showerHist = np.concatenate(([1], showerHist, [1])) # values that fall outside the histogram range will not be used for calculating likelihood
-    showerHist[showerHist==0] = delta # Avoid nan-valued likelihoods by replacing zero with a tiny positive number
+    showerHist[showerHist==0] = delta # Avoid nan-valued likelihoods by replacing zero probability densities with a tiny positive number
     trackHist[trackHist==0] = delta
     trackHist = np.concatenate(([1], trackHist, [1]))
     featureValues = dfPfoData[feature['name']]

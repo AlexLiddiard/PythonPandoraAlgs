@@ -63,7 +63,7 @@ if __name__ == "__main__":
     if filePaths:
         with cf.ProcessPoolExecutor() as executor:
             results = list(tqdm(executor.map(ProcessFile, filePaths), total=len(filePaths)))
-        df = pd.concat(results)
+        df = pd.concat(results).sample(frac=1).reset_index(drop=True) # Shuffle the data to avoid ordering bias during our analysis
         df.to_pickle(outputPickleFile)
         print('\nFinished!')
     else:

@@ -7,7 +7,7 @@ plotStyle = {
     'axes.labelsize': 'xx-large',
     'axes.titlesize':'xx-large',
     'xtick.labelsize':'xx-large',
-    'ytick.labelsize':'xx-large'
+    'ytick.labelsize':'xx-large',
 }
 plt.rcParams.update(plotStyle)
 
@@ -63,6 +63,5 @@ def CreateHistogramWire(df, histogram):
             ax.fill(normedBinCountsXcoord, normedBinCountsYcoord, alpha=0.2)
 
     plt.tight_layout()
-    plt.legend(loc='upper right')
-    fig.savefig('%s distribution for %s' % (histogram['name'], ', '.join((filter[0] for filter in histogram['filters'])) + '.svg'), format='svg', dpi=1200)
-    plt.show()
+    plt.legend(loc='upper right', framealpha=0.5)
+    return fig, ax
