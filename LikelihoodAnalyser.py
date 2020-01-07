@@ -114,20 +114,20 @@ def GraphCutoffLine(ax, cutoff, arrows=False, flipArrows=False):
         if not flipArrows:
             ax.annotate(
                 "Track", xy=(cutoff, 0.93), xycoords=ax.get_xaxis_transform(), ha="right", va="center",
-                xytext=(-10,0), textcoords="offset points", bbox={'boxstyle': "larrow", 'fc': 'C1', 'ec': 'C1', 'alpha': 0.5}, fontsize=18
+                xytext=(-18,0), textcoords="offset points", bbox={'boxstyle': "larrow", 'fc': 'C1', 'ec': 'C1', 'alpha': 0.5}, fontsize=20
             )
             ax.annotate(
                 "Shower", xy=(cutoff, 0.93), xycoords=ax.get_xaxis_transform(), ha="left", va="center",
-                xytext=(10,0), textcoords="offset points", bbox={'boxstyle': "rarrow", 'fc': 'C0', 'ec': 'C0', 'alpha': 0.5}, fontsize=18
+                xytext=(18,0), textcoords="offset points", bbox={'boxstyle': "rarrow", 'fc': 'C0', 'ec': 'C0', 'alpha': 0.5}, fontsize=20
             )
         else:
             ax.annotate(
                 "Track", xy=(cutoff, 0.93), xycoords=ax.get_xaxis_transform(), ha="left", va="center",
-                xytext=(10,0), textcoords="offset points", bbox={'boxstyle': "rarrow", 'fc': 'C1', 'ec': 'C1', 'alpha': 0.5}, fontsize=18
+                xytext=(18,0), textcoords="offset points", bbox={'boxstyle': "rarrow", 'fc': 'C1', 'ec': 'C1', 'alpha': 0.5}, fontsize=20
             )
             ax.annotate(
                 "Shower", xy=(cutoff, 0.93), xycoords=ax.get_xaxis_transform(), ha="right", va="center",
-                xytext=(-10,0), textcoords="offset points", bbox={'boxstyle': "larrow", 'fc': 'C0', 'ec': 'C0', 'alpha': 0.5}, fontsize=18
+                xytext=(-18,0), textcoords="offset points", bbox={'boxstyle': "larrow", 'fc': 'C0', 'ec': 'C0', 'alpha': 0.5}, fontsize=20
             )
 
 

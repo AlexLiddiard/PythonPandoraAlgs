@@ -35,7 +35,7 @@ preFilters = (
 features = (
     #{'name': 'RSquaredU', 'bins': np.linspace(0, 1, num=50), 'showerCutDirection': 'left'},
     #{'name': 'RSquaredV', 'bins': np.linspace(0, 1, num=50), 'showerCutDirection': 'left'},
-    {'name': 'RSquaredW', 'bins': np.linspace(0, 1, num=50), 'showerCutDirection': 'left'},
+    #{'name': 'RSquaredW', 'bins': np.linspace(0, 1, num=50), 'showerCutDirection': 'left'},
     #{'name': 'BinnedHitStdU', 'bins': np.linspace(0, 12, num=50), 'showerCutDirection': 'right'},
     #{'name': 'BinnedHitStdV', 'bins': np.linspace(0, 12, num=50), 'showerCutDirection': 'right'},
     {'name': 'BinnedHitStdW', 'bins': np.linspace(0, 12, num=50), 'showerCutDirection': 'right'},
@@ -44,7 +44,7 @@ features = (
     #{'name': 'ChainCountW', 'bins': np.linspace(1, 50, num=50), 'showerCutDirection': 'right'},
     #{'name': 'ChainRatioAvgU', 'bins': np.linspace(0, 1, num=50), 'showerCutDirection': 'left'},
     #{'name': 'ChainRatioAvgV', 'bins': np.linspace(0, 1, num=50), 'showerCutDirection': 'left'},
-    {'name': 'ChainRatioAvgW', 'bins': np.linspace(0, 1, num=50), 'showerCutDirection': 'left'},
+    #{'name': 'ChainRatioAvgW', 'bins': np.linspace(0, 1, num=50), 'showerCutDirection': 'left'},
     #{'name': 'ChainRSquaredAvgU', 'bins': np.linspace(0, 1, num=50), 'showerCutDirection': 'left'},
     #{'name': 'ChainRSquaredAvgV', 'bins': np.linspace(0, 1, num=50), 'showerCutDirection': 'left'},
     #{'name': 'ChainRSquaredAvgW', 'bins': np.linspace(0, 1, num=50), 'showerCutDirection': 'left'},
@@ -53,13 +53,19 @@ features = (
     #{'name': 'ChainRatioStdW', 'bins': np.linspace(0, 0.8, num=50), 'showerCutDirection': 'right'},
     #{'name': 'ChainRSquaredStdU', 'bins': np.linspace(0, 0.8, num=50), 'showerCutDirection': 'right'},
     #{'name': 'ChainRSquaredStdV', 'bins': np.linspace(0, 0.8, num=50), 'showerCutDirection': 'right'},
-    {'name': 'ChainRSquaredStdW', 'bins': np.linspace(0, 0.8, num=50), 'showerCutDirection': 'right'},
+    #{'name': 'ChainRSquaredStdW', 'bins': np.linspace(0, 0.8, num=50), 'showerCutDirection': 'right'},
     #{'name': 'AngularSpanU', 'bins': np.linspace(0, m.pi, num=50), 'showerCutDirection': 'right'},
     #{'name': 'AngularSpanV', 'bins': np.linspace(0, m.pi, num=50), 'showerCutDirection': 'right'},
-    {'name': 'AngularSpanW', 'bins': np.linspace(0, m.pi, num=50), 'showerCutDirection': 'right'},
+    #{'name': 'AngularSpanW', 'bins': np.linspace(0, m.pi, num=50), 'showerCutDirection': 'right'},
     #{'name': 'LongitudinalSpanU', 'bins': np.linspace(0, 400, num=50), 'showerCutDirection': 'left'},
     #{'name': 'LongitudinalSpanV', 'bins': np.linspace(0, 400, num=50), 'showerCutDirection': 'left'},
-    {'name': 'LongitudinalSpanW', 'bins': np.linspace(0, 600, num=50), 'showerCutDirection': 'left'},
+    #{'name': 'LongitudinalSpanW', 'bins': np.linspace(0, 600, num=50), 'showerCutDirection': 'left'},
+    #{'name': 'PcaMinVarU', 'bins': np.linspace(0, 10, num=50), 'showerCutDirection': 'right'},
+    #{'name': 'PcaMinVarV', 'bins': np.linspace(0, 10, num=50), 'showerCutDirection': 'right'},
+    #{'name': 'PcaMinVarW', 'bins': np.linspace(0, 10, num=50), 'showerCutDirection': 'right'},
+    #{'name': 'PcaMinRatioU', 'bins': np.linspace(0, 0.4, num=50), 'showerCutDirection': 'right'},
+    #{'name': 'PcaMinRatioV', 'bins': np.linspace(0, 0.4, num=50), 'showerCutDirection': 'right'},
+    #{'name': 'PcaMinRatioW', 'bins': np.linspace(0, 0.4, num=50), 'showerCutDirection': 'right'},
 )
 
 featureHistograms = {
@@ -141,7 +147,7 @@ featureValuesArray = dfPfoData[(feature['name'] for feature in features)]
 rMatrix = featureValuesArray.corr()
 rSquaredMatrix = rMatrix * rMatrix
 
-sn.heatmap(rSquaredMatrix, annot=True, annot_kws={"size": 15}, cmap="Blues")
+sn.heatmap(rSquaredMatrix, annot=True, annot_kws={"size": 20}, cmap="Blues")
 plt.xticks(rotation=45, ha="right", rotation_mode="anchor")
 plt.tight_layout()
 plt.savefig("FeatureRSquaredMatrix.svg", format='svg', dpi=1200)

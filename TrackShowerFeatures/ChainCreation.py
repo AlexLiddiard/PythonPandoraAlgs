@@ -1,8 +1,8 @@
 # This module is for track/shower feature #2
 import math
 import numpy as np
-import TrackShowerFeatures.TrackShowerFeature0 as tsf0
-import TrackShowerFeatures.TrackShowerFeature1 as tsf1
+import TrackShowerFeatures.LinearRegression as lr
+import TrackShowerFeatures.HitBinning as hb
 from itertools import count
 from statistics import stdev, mean
 
@@ -162,12 +162,12 @@ def CreatePointChain3(pointListX, pointListY, rectWidth, rectHeight, rectOffsetX
     while (nearbyPoints):
         correlationPointsX = np.array(chainX[-localCorrelationPoints:])
         correlationPointsY = np.array(chainY[-localCorrelationPoints:])
-        a, b, r2 = tsf0.OLS(correlationPointsX, correlationPointsY)
+        a, b, r2 = lr.OLS(correlationPointsX, correlationPointsY)
         if r2 != -1:
             if len(chainX) >= localCorrelationPoints:
                 sumRSquared += r2
                 nRSquared += 1
-            rectRotateSin, rectRotateCos = tsf1.TanToSinCos(b)
+            rectRotateSin, rectRotateCos = hb.TanToSinCos(b)
             # Need to make sure the rectangle search is in the local direction of the chain
             # Rotate first and last correlation points, based on the correlation gradient. Then check if the first point has a greater x component than the last.
             rectMirrorX = 0 < ((correlationPointsX[0] - correlationPointsX[-1]) * rectRotateSin + (correlationPointsY[0] - correlationPointsY[-1]) * rectRotateCos)
@@ -191,14 +191,14 @@ def CreatePointChain3(pointListX, pointListY, rectWidth, rectHeight, rectOffsetX
 def SlidingPearsonRSquared(chainX, chainY, pointsPerSlide):
     chainX, chainY = np.array(chainX), np.array(chainY)
     if len(chainX) <= pointsPerSlide:
-        return tsf0.OLS(chainX, chainY)[2], -1
+        return lr.OLS(chainX, chainY)[2], -1
     else:
         chainRSquareds = []
         n = len(chainX) - pointsPerSlide + 1
         for i in range(n):
             subChainX = chainX[i:i+pointsPerSlide]
             subChainY = chainY[i:i+pointsPerSlide]
-            chainRSquareds.append(tsf0.OLS(subChainX, subChainY)[2])
+            chainRSquareds.append(lr.OLS(subChainX, subChainY)[2])
         return mean(chainRSquareds), stdev(chainRSquareds)
 
 
@@ -255,7 +255,7 @@ def GetChainInfoSimple(driftCoord, wireCoord, squareSideLength, localCorrelation
     return chainCount, avgLengthRatio, avgAvgR2, stdLengthRatio, avgStdR2
 
 
-def GetFeature(pfo, wireViews, rectWidth=10, rectHeight=2.5, rectOffsetX=2.5, rectOffestY=0, squareSideLength=5, localCorrelationPoints=5):
+def GetFeatures(pfo, wireViews, rectWidth=10, rectHeight=2.5, rectOffsetX=2.5, rectOffestY=0, squareSideLength=5, localCorrelationPoints=5):
     # Advanced chain creation
     #chainCount, avgLengthRatio, avgChainRSquareds = GetChainInfoAdvanced(pfo.driftCoordW.tolist(), pfo.wireCoordW.tolist(), rectWidth, rectHeight, rectOffsetX, rectOffestY, squareSideLength, localCorrelationPoints)
     featureDict = {}

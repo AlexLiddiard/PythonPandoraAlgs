@@ -3,13 +3,14 @@ import concurrent.futures as cf
 from tqdm import tqdm
 from glob import glob
 import UpRootFileReader
-import TrackShowerFeatures.TrackShowerFeature0 as tsf0
-import TrackShowerFeatures.TrackShowerFeature1 as tsf1
-import TrackShowerFeatures.TrackShowerFeature2 as tsf2
-import TrackShowerFeatures.TrackShowerFeature3 as tsf3
+import TrackShowerFeatures.LinearRegression as lr
+import TrackShowerFeatures.HitBinning as hb
+import TrackShowerFeatures.ChainCreation as cc
+import TrackShowerFeatures.AngularSpan as asp
+import TrackShowerFeatures.PCAnalysis as pca
 
-myTestArea = "/home/epp/phuznm/Documents/Pandora/"
-rootFileDirectory = myTestArea + "/PandoraCoW"
+myTestArea = "/home/tomalex/Pandora"
+rootFileDirectory = myTestArea + "/PythonPandoraAlgs/ROOT Files"
 outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 wireViews = (True, True, True)
 
@@ -51,10 +52,11 @@ def ProcessFile(filePath):
                 'purityW': pfo.PurityW(),
                 'completenessW': pfo.CompletenessW()
                 })
-            pfoDataDict.update(tsf0.GetFeature(pfo, wireViews))
-            pfoDataDict.update(tsf1.GetFeature(pfo, wireViews))
-            pfoDataDict.update(tsf2.GetFeature(pfo, wireViews))
-            pfoDataDict.update(tsf3.GetFeature(pfo, wireViews))
+            #pfoDataDict.update(lr.GetFeatures(pfo, wireViews))
+            pfoDataDict.update(hb.GetFeatures(pfo, wireViews))
+            #pfoDataDict.update(cc.GetFeatures(pfo, wireViews))
+            #pfoDataDict.update(asp.GetFeatures(pfo, wireViews))
+            #pfoDataDict.update(pca.GetFeatures(pfo, wireViews))
             pfoData.append(pfoDataDict)
     return pd.DataFrame( pfoData)
 

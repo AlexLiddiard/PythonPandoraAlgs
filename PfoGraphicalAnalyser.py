@@ -13,7 +13,8 @@ inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 usePickleFile = True
 pfoFilters = (
     #### PFO selection ####
-    'AngularSpanW > 2',
+    "isShower==1",
+    #'AngularSpanW > 2',
     #'Likelihood > 0.89 and nHitsW > 200 and isShower != 1', # shower-like muons/protons/etc. with many hits
     #'likelihood > 0.89 and absPdgCode==2212' # shower-like protons
     #'likelihood < 0.89 and absPdgCode==11' # track-like electrons
@@ -22,40 +23,44 @@ pfoFilters = (
     #### Pre-filters ####
     #'purityU>=0.5',
     #'purityV>=0.5',
-    #'purityW>=0.5',
+    'purityW>=1',
     #'completenessU>=0.5',
     #'completenessV>=0.5',
-    #'completenessW>=0.5',
+    'completenessW>=1',
     #'(nHitsU>=10 and nHitsV>=10) or (nHitsU>=10 and nHitsW>=10) or (nHitsV>=10 and nHitsW>=10)',
     #'nHitsU + nHitsV + nHitsW >= 100',
-    'nHitsU>=20',
-    'nHitsV>=20',
-    'nHitsW>=20',
-    'minCoordX >= @MicroBooneGeo.RangeX[0] + 10',
-    'maxCoordX <= @MicroBooneGeo.RangeX[1] - 10',
-    'minCoordY >= @MicroBooneGeo.RangeY[0] + 20',
-    'maxCoordY <= @MicroBooneGeo.RangeY[1] - 20',
-    'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
-    'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
+    #'nHitsU>=20',
+    #'nHitsV>=20',
+    'nHitsW>=200',
+    #'minCoordX >= @MicroBooneGeo.RangeX[0] + 10',
+    #'maxCoordX <= @MicroBooneGeo.RangeX[1] - 10',
+    #'minCoordY >= @MicroBooneGeo.RangeY[0] + 20',
+    #'maxCoordY <= @MicroBooneGeo.RangeY[1] - 20',
+    #'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
+    #'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
+
+    'fileName=="Pandora_Events_0f417293-3d54-48f5-8a24-c572dd502bf7.root"',
 )
 additionalInfo = [
-    'BinnedHitStdU',
-    'ChainRatioAvgU',
-    'ChainRSquaredStdU',
-    'AngularSpanU',
-    'BinnedHitStdV',
-    'ChainRatioAvgV',
-    'ChainRSquaredStdV',
-    'AngularSpanV',
-    'BinnedHitStdW',
-    'ChainRatioAvgW',
-    'ChainRSquaredStdW',
-    'AngularSpanW',
-    'Likelihood'
+    #'BinnedHitStdU',
+    #'ChainRatioAvgU',
+    #'ChainRSquaredStdU',
+    #'AngularSpanU',
+    #'BinnedHitStdV',
+    #'ChainRatioAvgV',
+    #'ChainRSquaredStdV',
+    #'AngularSpanV',
+    #'BinnedHitStdW',
+    #'ChainRatioAvgW',
+    #'ChainRSquaredStdW',
+    #'AngularSpanW',
+    #'Likelihood'
 ]
 wireView = "W"
+showTitle = False
 
 plotStyle = {
+    'font.size': 15,
     'legend.fontsize': 'xx-large',
     'figure.figsize': (13,10),
     'axes.labelsize': 'xx-large',
@@ -106,7 +111,7 @@ def GetSquareRegionAxesLimits(xMin, xMax, yMin, yMax):
     yMid = yMin + ySpan
     return xMid - maxSpan, xMid + maxSpan, yMid - maxSpan, yMid + maxSpan
 
-def DisplayPfo(pfo, wireView = "W", additionalInfo = None):
+def DisplayPfo(pfo, wireView = "W", additionalInfo = None, showTitle = True):
     # Setting variables to be plotted.
     if wireView == "U":
         x = pfo.driftCoordU
@@ -183,15 +188,17 @@ def DisplayPfo(pfo, wireView = "W", additionalInfo = None):
         props = {"boxstyle": 'round', "facecolor": 'wheat', "alpha": 0.5}
         ax.text(0.57, 0.98, additionalInfoStr, transform=ax.transAxes, va='top', ha='right', position=(1,1), bbox=props)
 
-
-    plt.title('%s\nEventId = %d, PfoId = %d, Hierarchy = %d\n%s (%s), Purity = %.2f, Completeness = %.2f' %
-              (pfo.fileName,
-               pfo.eventId, pfo.pfoId, pfo.heirarchyTier,
-               trueParticle, 'Track' if isShower==0 else 'Shower', purity, completeness),
-               fontsize=20)
+    if showTitle:
+        plt.title(
+            '%s\nEventId = %d, PfoId = %d, Hierarchy = %d\n%s (%s), Purity = %.2f, Completeness = %.2f' %
+            (pfo.fileName,
+            pfo.eventId, pfo.pfoId, pfo.heirarchyTier,
+            trueParticle, 'Track' if isShower==0 else 'Shower', purity, completeness)
+        )
     plt.xlabel('DriftCoord%s (cm)' % wireView)
     plt.ylabel('WireCoord%s (cm)' % wireView)
     plt.tight_layout()
+    plt.savefig('%s, EventId %d, PfoId %d.svg' % (pfo.fileName, pfo.eventId, pfo.pfoId), format='svg', dpi=1200)
     plt.show()
 
 def RandomPfoView(filePaths):
@@ -212,10 +219,11 @@ def SelectivePfoView(filePaths, dfPfoData, pfoFilters):
     dfPfoData = dfPfoData.query('fileName in @nameToPathDict')
     nPFOsAvailable = len(dfPfoData)
     print("Found %d matching PFOs, %d have calohit data available." % (nPFOs, nPFOsAvailable))
+    dfPfoData = dfPfoData.sample(frac=1).reset_index(drop=True) # Shuffle so that we see different PFOs each time
     for index, pfoData in dfPfoData.iterrows():
         filePath = nameToPathDict[pfoData.fileName]
         pfo = rdr.ReadPfoFromRootFile(filePath, pfoData.eventId, pfoData.pfoId)
-        DisplayPfo(pfo, wireView, pfoData[additionalInfo])
+        DisplayPfo(pfo, wireView, pfoData[additionalInfo], showTitle)
 
 
 def FileNameToFilePath(filePaths):

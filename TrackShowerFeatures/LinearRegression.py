@@ -6,24 +6,25 @@ import scipy.optimize as opt
 # Ordinary Least Squares line fit
 def OLS(xCoords, yCoords):
     n = xCoords.size
-    if n == 0:
+    if n < 2:
         return float("inf"), float("inf"), -1
-
     Sxy = np.sum(xCoords * yCoords)
     Sxx = np.sum(xCoords * xCoords)
     Syy = np.sum(yCoords * yCoords)
     Sx = np.sum(xCoords)
     Sy = np.sum(yCoords)
-
-    tmp1 = n * Sxx - Sx * Sx
-    tmp2 = n * Syy - Sy * Sy
-    tmp3 = n * Sxy - Sx * Sy
-    if tmp1 == 0 or tmp2 == 0:
-        return float("inf"), float("inf"), -1
-    r2 = (tmp3 * tmp3) / (tmp1 * tmp2)
-    b = tmp3 / tmp1
-    a = Sy / n - b * Sx / n
-    return a, b, r2
+    xvar = n * Sxx - Sx * Sx # This is actually xvar * n * n
+    yvar = n * Syy - Sy * Sy # This is actually yvar * n * n
+    cvar = n * Sxy - Sx * Sy # This is actually cvar * n * n
+    if xvar == 0:
+        return float("inf"), xCoords[0], 1
+    elif yvar == 0:
+        return 0, yCoords[0], 1
+    else:
+        b = cvar / xvar
+        a = Sy / n - b * Sx / n
+        r2 = (cvar * cvar) / (xvar * yvar)
+        return a, b, r2
 
 def OLSNoIntercept(xCoords, yCoords):
     Sxy = np.sum(xCoords * yCoords)
@@ -50,6 +51,7 @@ def RSquared(xCoords, yCoords):
         return -1
 
     return (tmp1 * tmp1) / tmp2
+
 
 def LineEqn(x, a, b):
     return a * x + b
@@ -91,7 +93,7 @@ def LineFitWithError(x, y, yErr):
     mErr = math.sqrt(S / delta)
     return c, m, cErr, mErr
 
-def GetFeature(pfo, wireViews):
+def GetFeatures(pfo, wireViews):
     featureDict = {}
     if wireViews[0]:
         a, b, r2 = OLS(pfo.driftCoordU, pfo.wireCoordU)

@@ -1,8 +1,8 @@
 # This module is for track/shower feature #3
 import numpy as np
 import math as m
-import TrackShowerFeatures.TrackShowerFeature0 as tsf0
-import TrackShowerFeatures.TrackShowerFeature1 as tsf1
+import TrackShowerFeatures.LinearRegression as lr
+import TrackShowerFeatures.HitBinning as hb
 #import matplotlib.pyplot as plt
 #from PfoGraphAnalysis import DisplayPfo
 
@@ -11,8 +11,8 @@ def GetTrianglarSpan(driftCoord, wireCoord, vertexDriftCoord, vertexWireCoord, h
         return -1, -1
     transDriftCoord = driftCoord - vertexDriftCoord
     transWireCoord = wireCoord - vertexWireCoord
-    principleAxisGradient = tsf0.OLSNoIntercept(transDriftCoord, transWireCoord)
-    transDriftCoord, transWireCoord = tsf1.RotatePointsClockwise(transDriftCoord, transWireCoord, principleAxisGradient)
+    principleAxisGradient = lr.OLSNoIntercept(transDriftCoord, transWireCoord)
+    transDriftCoord, transWireCoord = hb.RotatePointsClockwise(transDriftCoord, transWireCoord, principleAxisGradient)
 
     transDriftCoordCheck = transDriftCoord > 0
     if 2 * np.sum(transDriftCoordCheck) < len(driftCoord):
@@ -38,7 +38,7 @@ def GetTrianglarSpan(driftCoord, wireCoord, vertexDriftCoord, vertexWireCoord, h
     return openingAngle, distance
 
 
-def GetFeature(pfo, wireViews, hitFraction=0.7):
+def GetFeatures(pfo, wireViews, hitFraction=0.7):
     #DisplayPfo(pfo)
     featureDict = {}
     if wireViews[0]:

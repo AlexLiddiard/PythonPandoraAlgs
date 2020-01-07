@@ -1,7 +1,9 @@
 # This module is for track/shower algorithm #1
 import statistics
 import math
-import TrackShowerFeatures.TrackShowerFeature0 as tsfO
+import numpy as np
+import TrackShowerFeatures.LinearRegression as lr
+import TrackShowerFeatures.PCAnalysis as pca
 
 # This function counts how many numbers fall in a set of bins of a given width.
 # Empty bins are ignored.
@@ -47,8 +49,8 @@ def TanToSinCos(tan):
     return sin, cos
 
 
-def GetRotatedBinStdev(driftCoord, wireCoord, binWidth, minBins):
-    a, b, r = tsfO.OLS(driftCoord, wireCoord)
+def GetRotatedBinStdevOLS(driftCoord, wireCoord, binWidth, minBins):
+    a, b, r = lr.OLS(driftCoord, wireCoord)
 
     # Rotate the coords so that any tracks are roughly parallel to the x axis.
     # Prevents tracks from having hits in very few bins, giving high stdev.
@@ -63,13 +65,25 @@ def GetRotatedBinStdev(driftCoord, wireCoord, binWidth, minBins):
         # Insufficient bins
         return -1
 
+def GetRotatedBinStdevPCA(driftCoord, wireCoord, binWidth, minBins):
+    driftCoordRotated = pca.PcaReduce(driftCoord, wireCoord)[:,0]
+    rotatedBins = GetBinCounts(driftCoordRotated, binWidth)
 
-def GetFeature(pfo, wireViews, binWidth=0.89, minBins=3):
+    # Ensure there are enough bins
+    if len(rotatedBins) >= minBins:
+        # Get stdev of the bin counts
+        return statistics.stdev(rotatedBins)
+    else:
+        # Insufficient bins
+        return -1
+
+
+def GetFeatures(pfo, wireViews, binWidth=1, minBins=3):
     featureDict = {}
     if wireViews[0]:
-        featureDict.update({ "BinnedHitStdU" : GetRotatedBinStdev(pfo.driftCoordU, pfo.wireCoordU, binWidth, minBins)})
+        featureDict.update({ "BinnedHitStdU" : GetRotatedBinStdevPCA(pfo.driftCoordU, pfo.wireCoordU, binWidth, minBins)})
     if wireViews[1]:
-        featureDict.update({ "BinnedHitStdV" : GetRotatedBinStdev(pfo.driftCoordV, pfo.wireCoordV, binWidth, minBins)})
+        featureDict.update({ "BinnedHitStdV" : GetRotatedBinStdevPCA(pfo.driftCoordV, pfo.wireCoordV, binWidth, minBins)})
     if wireViews[2]:
-        featureDict.update({ "BinnedHitStdW" : GetRotatedBinStdev(pfo.driftCoordW, pfo.wireCoordW, binWidth, minBins)})
+        featureDict.update({ "BinnedHitStdW" : GetRotatedBinStdevPCA(pfo.driftCoordW, pfo.wireCoordW, binWidth, minBins)})
     return featureDict
