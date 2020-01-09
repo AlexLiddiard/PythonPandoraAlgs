@@ -52,11 +52,11 @@ def ProcessFile(filePath):
                 'purityW': pfo.PurityW(),
                 'completenessW': pfo.CompletenessW()
                 })
-            #pfoDataDict.update(lr.GetFeatures(pfo, wireViews))
+            pfoDataDict.update(lr.GetFeatures(pfo, wireViews))
             pfoDataDict.update(hb.GetFeatures(pfo, wireViews))
-            #pfoDataDict.update(cc.GetFeatures(pfo, wireViews))
-            #pfoDataDict.update(asp.GetFeatures(pfo, wireViews))
-            #pfoDataDict.update(pca.GetFeatures(pfo, wireViews))
+            pfoDataDict.update(cc.GetFeatures(pfo, wireViews))
+            pfoDataDict.update(asp.GetFeatures(pfo, wireViews))
+            pfoDataDict.update(pca.GetFeatures(pfo, wireViews))
             pfoData.append(pfoDataDict)
     return pd.DataFrame( pfoData)
 

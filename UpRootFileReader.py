@@ -79,6 +79,7 @@ class PfoClass(object):
         self.energyThreeD = pfo.EnergyThreeD
         self.vertex = np.array([pfo.get("Vertex[0]"), pfo.get("Vertex[1]"), pfo.get("Vertex[2]")], dtype = np.double)
         self.nHitsPfoThreeD = len(self.xCoordThreeD)
+        self.parentVertex = None # To be set later
 
     # These change how the PFO is printed to the screen
     def __str__(self):
@@ -169,13 +170,24 @@ def ReadRootFile(filepath):
         if currentEventId == pfo.EventId:
             AddPfoToEvent(eventPfos, PfoBeingRead)
         else:
+            SetAssociatedData(eventPfos)
             events.append(eventPfos)
             eventPfos = [PfoBeingRead]
             currentEventId = pfo.EventId
 
     # The for loop does not append the last event to the array
+    SetAssociatedData(eventPfos)
     events.append(eventPfos)
     return events
+
+# Set any data that is based on hierarchy associations
+def SetAssociatedData(eventPfos):
+    for pfo in eventPfos:
+        if pfo.parentPfoId == -1:
+            continue
+        else:
+            pfo.parentVertex = eventPfos[pfo.parentPfoId].vertex
+
 
 def ReadPfoFromRootFile(filepath, eventId, pfoId):
     file = up.open(filepath)
