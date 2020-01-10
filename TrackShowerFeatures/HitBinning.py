@@ -37,8 +37,7 @@ def GetBinCounts(numbers, binWidth):
 # Rotate a set of points clockwise by angle theta
 # Note the variable: tan = tan(theta) = gradient
 
-def RotatePointsClockwise(xCoords, yCoords, tan):
-    sin, cos = TanToSinCos(tan)
+def RotatePointsClockwise(xCoords, yCoords, sin, cos):
     xCoordsNew = xCoords * cos + yCoords * sin
     yCoordsNew = yCoords * cos - xCoords * sin
     return xCoordsNew, yCoordsNew
@@ -54,7 +53,7 @@ def GetRotatedBinStdevOLS(driftCoord, wireCoord, binWidth, minBins):
 
     # Rotate the coords so that any tracks are roughly parallel to the x axis.
     # Prevents tracks from having hits in very few bins, giving high stdev.
-    driftCoordRotated = RotatePointsClockwise(driftCoord, wireCoord, b)[0]
+    driftCoordRotated = RotatePointsClockwise(driftCoord, wireCoord, *TanToSinCos(b))[0]
     rotatedBins = GetBinCounts(driftCoordRotated, binWidth)
 
     # Ensure there are enough bins
@@ -66,7 +65,7 @@ def GetRotatedBinStdevOLS(driftCoord, wireCoord, binWidth, minBins):
         return -1
 
 def GetRotatedBinStdevPCA(driftCoord, wireCoord, binWidth, minBins):
-    driftCoordRotated = pca.PcaReduce(driftCoord, wireCoord)[:,0]
+    driftCoordRotated = pca.PcaReduce2D(driftCoord, wireCoord)[0]
     rotatedBins = GetBinCounts(driftCoordRotated, binWidth)
 
     # Ensure there are enough bins

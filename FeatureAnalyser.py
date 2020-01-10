@@ -6,6 +6,8 @@ import math as m
 from PfoGraphicalAnalyser import MicroBooneGeo
 from HistoSynthesis import CreateHistogramWire
 from LikelihoodAnalyser import GraphCutoffLine, OptimiseCutoff, PrintPurityEfficiency
+from TrackShowerFeatures.LinearRegression import OLS
+from TrackShowerFeatures.PCAnalysis import Pca
 
 myTestArea = "/home/tomalex/Pandora"
 inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
@@ -38,7 +40,7 @@ features = (
     #{'name': 'RSquaredW', 'bins': np.linspace(0, 1, num=50), 'showerCutDirection': 'left'},
     #{'name': 'BinnedHitStdU', 'bins': np.linspace(0, 12, num=50), 'showerCutDirection': 'right'},
     #{'name': 'BinnedHitStdV', 'bins': np.linspace(0, 12, num=50), 'showerCutDirection': 'right'},
-    {'name': 'BinnedHitStdW', 'bins': np.linspace(0, 12, num=50), 'showerCutDirection': 'right'},
+    #{'name': 'BinnedHitStdW', 'bins': np.linspace(0, 12, num=50), 'showerCutDirection': 'right'},
     #{'name': 'ChainCountU', 'bins': np.linspace(1, 50, num=50), 'showerCutDirection': 'right'},
     #{'name': 'ChainCountV', 'bins': np.linspace(1, 50, num=50), 'showerCutDirection': 'right'},
     #{'name': 'ChainCountW', 'bins': np.linspace(1, 50, num=50), 'showerCutDirection': 'right'},
@@ -54,12 +56,12 @@ features = (
     #{'name': 'ChainRSquaredStdU', 'bins': np.linspace(0, 0.8, num=50), 'showerCutDirection': 'right'},
     #{'name': 'ChainRSquaredStdV', 'bins': np.linspace(0, 0.8, num=50), 'showerCutDirection': 'right'},
     #{'name': 'ChainRSquaredStdW', 'bins': np.linspace(0, 0.8, num=50), 'showerCutDirection': 'right'},
-    #{'name': 'AngularSpanU', 'bins': np.linspace(0, m.pi, num=50), 'showerCutDirection': 'right'},
-    #{'name': 'AngularSpanV', 'bins': np.linspace(0, m.pi, num=50), 'showerCutDirection': 'right'},
-    #{'name': 'AngularSpanW', 'bins': np.linspace(0, m.pi, num=50), 'showerCutDirection': 'right'},
-    #{'name': 'LongitudinalSpanU', 'bins': np.linspace(0, 400, num=50), 'showerCutDirection': 'left'},
-    #{'name': 'LongitudinalSpanV', 'bins': np.linspace(0, 400, num=50), 'showerCutDirection': 'left'},
-    #{'name': 'LongitudinalSpanW', 'bins': np.linspace(0, 600, num=50), 'showerCutDirection': 'left'},
+    {'name': 'AngularSpanU', 'bins': np.linspace(0, m.pi, num=50), 'showerCutDirection': 'right'},
+    {'name': 'AngularSpanV', 'bins': np.linspace(0, m.pi, num=50), 'showerCutDirection': 'right'},
+    {'name': 'AngularSpanW', 'bins': np.linspace(0, m.pi, num=50), 'showerCutDirection': 'right'},
+    {'name': 'LongitudinalSpanU', 'bins': np.linspace(0, 400, num=50), 'showerCutDirection': 'left'},
+    {'name': 'LongitudinalSpanV', 'bins': np.linspace(0, 600, num=50), 'showerCutDirection': 'left'},
+    {'name': 'LongitudinalSpanW', 'bins': np.linspace(0, 600, num=50), 'showerCutDirection': 'left'},
     #{'name': 'PcaMinVarU', 'bins': np.linspace(0, 10, num=50), 'showerCutDirection': 'right'},
     #{'name': 'PcaMinVarV', 'bins': np.linspace(0, 10, num=50), 'showerCutDirection': 'right'},
     #{'name': 'PcaMinVarW', 'bins': np.linspace(0, 10, num=50), 'showerCutDirection': 'right'},
@@ -143,10 +145,10 @@ for feature in features:
         plt.savefig("PurityEfficiencyVs%sCutoff.svg" % feature['name'], format='svg', dpi=1200)
         plt.show()
 
-featureValuesArray = dfPfoData[(feature['name'] for feature in features)]
+featureNames = [feature['name'] for feature in features]
+featureValuesArray = dfPfoData[featureNames].query("!=-1 and ".join(featureNames) + "!=-1") # Avoid -1 values effecting the correlation values (might be a slight selection bias here)
 rMatrix = featureValuesArray.corr()
 rSquaredMatrix = rMatrix * rMatrix
-
 sn.heatmap(rSquaredMatrix, annot=True, annot_kws={"size": 20}, cmap="Blues")
 plt.xticks(rotation=45, ha="right", rotation_mode="anchor")
 plt.tight_layout()
