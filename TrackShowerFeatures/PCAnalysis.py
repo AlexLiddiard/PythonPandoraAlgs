@@ -1,12 +1,20 @@
 from sklearn.decomposition import PCA
 import numpy as np
 import TrackShowerFeatures.HitBinning as hb
+import math as m
 
 def PcaVariance2D(xCoords, yCoords):
     if len(xCoords) < 2:
         return -1, -1
-    eigenvalues, eigenvectors = Pca((xCoords, yCoords), (np.mean(xCoords), np.mean(yCoords)))
+    eigenvalues, eigenvectors = Pca((xCoords, yCoords))
     return eigenvalues[0], eigenvalues[0] / eigenvalues[1]
+
+def PcaVariance3D(xCoords, yCoords, zCoords):
+    if len(xCoords) < 2:
+        return -1, -1
+    eigenvalues, eigenvectors = Pca((xCoords, yCoords, zCoords))
+    axialVariance = m.sqrt(eigenvalues[0] * eigenvalues[0] + eigenvalues[1] * eigenvalues[1])
+    return axialVariance, axialVariance / eigenvalues[2]
 
 def PcaReduce2D(xCoords, yCoords, xIntercept = None, yIntercept = None):
     if len(xCoords) < 2:
@@ -33,14 +41,15 @@ def Pca(coordSets, intercept = None):
 
 def GetFeatures(pfo, wireViews):
     featureDict = {}
+    var3d, ratio3d = PcaVariance3D(pfo.xCoordThreeD, pfo.yCoordThreeD, pfo.zCoordThreeD)
+    featureDict.update({ "PcaVar3d": var3d, "PcaRatio3d": ratio3d})
     if wireViews[0]:
-        minVar, minRatio = PcaVariance2D(pfo.driftCoordU, pfo.wireCoordU)
-        featureDict.update({ "PcaMinVarU" : minVar, "PcaMinRatioU": minRatio})
+        var2d, ratio2d = PcaVariance2D(pfo.driftCoordU, pfo.wireCoordU)
+        featureDict.update({ "PcaVar2dU" : var2d, "PcaRatio2dU": ratio2d})
     if wireViews[1]:
-        minVar, minRatio = PcaVariance2D(pfo.driftCoordV, pfo.wireCoordV)
-        featureDict.update({ "PcaMinVarV" : minVar, "PcaMinRatioV": minRatio})
+        var2d, ratio2d = PcaVariance2D(pfo.driftCoordV, pfo.wireCoordV)
+        featureDict.update({ "PcaVar2dV" : var2d, "PcaRatio2dV": ratio2d})
     if wireViews[2]:
-        minVar, minRatio = PcaVariance2D(pfo.driftCoordW, pfo.wireCoordW)
-        featureDict.update({ "PcaMinVarW" : minVar, "PcaMinRatioW": minRatio})
-
+        var2d, ratio2d = PcaVariance2D(pfo.driftCoordU, pfo.wireCoordU)
+        featureDict.update({ "PcaVar2dW" : var2d, "PcaRatio2dW": ratio2d})
     return featureDict
