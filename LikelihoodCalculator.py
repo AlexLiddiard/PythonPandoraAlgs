@@ -3,7 +3,7 @@ import pandas as pd
 import math as m
 from PfoGraphicalAnalyser import MicroBooneGeo
 
-myTestArea = "/home/tomalex/Pandora"
+myTestArea = "/home/jack/Documents/Pandora"
 inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 

@@ -8,8 +8,9 @@ import TrackShowerFeatures.HitBinning as hb
 import TrackShowerFeatures.ChainCreation as cc
 import TrackShowerFeatures.AngularSpan as asp
 import TrackShowerFeatures.PCAnalysis as pca
+import TrackShowerFeatures.ChargedHitBinning as chb
 
-myTestArea = "/home/tomalex/Pandora"
+myTestArea = "/home/jack/Documents/Pandora"
 rootFileDirectory = myTestArea + "/PythonPandoraAlgs/ROOT Files"
 outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 wireViews = (True, True, True)
@@ -52,13 +53,14 @@ def ProcessFile(filePath):
                 'purityW': pfo.PurityW(),
                 'completenessW': pfo.CompletenessW()
                 })
-            pfoDataDict.update(lr.GetFeatures(pfo, wireViews))
-            pfoDataDict.update(hb.GetFeatures(pfo, wireViews))
-            pfoDataDict.update(cc.GetFeatures(pfo, wireViews))
-            pfoDataDict.update(asp.GetFeatures(pfo, wireViews))
-            pfoDataDict.update(pca.GetFeatures(pfo, wireViews))
+            #pfoDataDict.update(lr.GetFeatures(pfo, wireViews))
+            #pfoDataDict.update(hb.GetFeatures(pfo, wireViews))
+            #pfoDataDict.update(cc.GetFeatures(pfo, wireViews))
+            #pfoDataDict.update(asp.GetFeatures(pfo, wireViews))
+            #pfoDataDict.update(pca.GetFeatures(pfo, wireViews))
+            pfoDataDict.update(chb.GetFeatures(pfo, wireViews))
             pfoData.append(pfoDataDict)
-    return pd.DataFrame( pfoData)
+    return pd.DataFrame(pfoData)
 
 if __name__ == "__main__":
     filePaths =  glob(rootFileDirectory + '/**/*.root', recursive=True)
