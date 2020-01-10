@@ -79,7 +79,7 @@ def GetRotatedBinStdevPCA(driftCoord, wireCoord, binWidth, minBins, energyArray)
         return -1
 
 
-def GetFeatures(pfo, wireViews, binWidth=5, minBins=3):
+def GetFeatures(pfo, wireViews, binWidth=20, minBins=3):
     featureDict = {}
     if wireViews[0]:
         featureDict.update({ "ChargedBinnedHitStdU" : GetRotatedBinStdevPCA(pfo.driftCoordU, pfo.wireCoordU, binWidth, minBins, pfo.energyU)})

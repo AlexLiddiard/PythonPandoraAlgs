@@ -68,9 +68,12 @@ features = (
     #{'name': 'PcaMinRatioU', 'bins': np.linspace(0, 0.4, num=50), 'showerCutDirection': 'right'},
     #{'name': 'PcaMinRatioV', 'bins': np.linspace(0, 0.4, num=50), 'showerCutDirection': 'right'},
     #{'name': 'PcaMinRatioW', 'bins': np.linspace(0, 0.4, num=50), 'showerCutDirection': 'right'},
-    {'name': 'ChargedBinnedHitStdU', 'bins': np.linspace(0, 100, num=50), 'showerCutDirection': 'right'},
-    {'name': 'ChargedBinnedHitStdV', 'bins': np.linspace(0, 100, num=50), 'showerCutDirection': 'right'},
-    {'name': 'ChargedBinnedHitStdW', 'bins': np.linspace(0, 100, num=50), 'showerCutDirection': 'right'},
+    #{'name': 'ChargedBinnedHitStdU', 'bins': np.linspace(0, 100, num=25), 'showerCutDirection': 'right'},
+    #{'name': 'ChargedBinnedHitStdV', 'bins': np.linspace(0, 100, num=25), 'showerCutDirection': 'right'},
+    #{'name': 'ChargedBinnedHitStdW', 'bins': np.linspace(0, 100, num=25), 'showerCutDirection': 'right'},
+    {'name': 'ChargedStdMeanRatioU', 'bins': np.linspace(0, 4, num=100), 'showerCutDirection': 'right'},
+    {'name': 'ChargedStdMeanRatioV', 'bins': np.linspace(0, 4, num=100), 'showerCutDirection': 'right'},
+    {'name': 'ChargedStdMeanRatioW', 'bins': np.linspace(0, 4, num=100), 'showerCutDirection': 'right'},
 )
 
 featureHistograms = {

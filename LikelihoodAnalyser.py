@@ -6,7 +6,7 @@ from PfoGraphicalAnalyser import MicroBooneGeo
 from HistoSynthesis import CreateHistogramWire
 from itertools import count
 
-myTestArea = "/home/tomalex/Pandora"
+myTestArea = "/home/jack/Documents/Pandora"
 inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 trainingFraction = 0.5
 performancePreFilters = (
