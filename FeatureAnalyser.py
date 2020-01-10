@@ -9,7 +9,7 @@ from LikelihoodAnalyser import GraphCutoffLine, OptimiseCutoff, PrintPurityEffic
 from TrackShowerFeatures.LinearRegression import OLS
 from TrackShowerFeatures.PCAnalysis import Pca
 
-myTestArea = "/home/jack/Documents/Pandora"
+myTestArea = "/home/tomalex/Pandora"
 inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 trainingFraction = 0.5
 
@@ -81,11 +81,11 @@ featureHistograms = {
     "filters": (
         ("Showers", "isShower==1", "", True), 
         ("Tracks", "isShower==0", "", True),
-        ("Electrons + Positrons", "absPdgCode==11", "isShower==1", False),
-        ("Photons", "absPdgCode==22",  "isShower==1", False),
-        ("Protons", "absPdgCode==2212", "isShower==0", False),
-        ("Muons", "absPdgCode==13", "isShower==0", False),
-        ("Charged Pions", "absPdgCode==211", "isShower==0", False),
+        ("Electrons + Positrons", "abs(mcPdgCode)==11", "isShower==1", False),
+        ("Photons", "abs(mcPdgCode)==22",  "isShower==1", False),
+        ("Protons", "abs(mcPdgCode)==2212", "isShower==0", False),
+        ("Muons", "abs(mcPdgCode)==13", "isShower==0", False),
+        ("Charged Pions", "abs(mcPdgCode)==211", "isShower==0", False),
     )   
 }
 efficiencyPurityPlots = {

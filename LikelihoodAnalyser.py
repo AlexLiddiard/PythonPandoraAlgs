@@ -6,7 +6,7 @@ from PfoGraphicalAnalyser import MicroBooneGeo
 from HistoSynthesis import CreateHistogramWire
 from itertools import count
 
-myTestArea = "/home/jack/Documents/Pandora"
+myTestArea = "/home/tomalex/Pandora"
 inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 trainingFraction = 0.5
 performancePreFilters = (
@@ -41,8 +41,8 @@ likelihoodHistograms = (
     {
         'filters': (
             ('Showers', 'isShower==1', '', True),
-            ('Electrons + Positrons', 'absPdgCode==11', 'isShower==1', False),
-            ('Photons', 'absPdgCode==22', 'isShower==1', False)
+            ('Electrons + Positrons', 'abs(mcPdgCode)==11', 'isShower==1', False),
+            ('Photons', 'abs(mcPdgCode)==22', 'isShower==1', False)
         ),
         'bins': np.linspace(0, 1, num=25),
         'yAxis': 'log',
@@ -51,9 +51,9 @@ likelihoodHistograms = (
     {
         'filters': (
             ('Tracks', 'isShower==0', '', True),
-            ('Protons', 'absPdgCode==2212', 'isShower==0', False),
-            ('Muons', 'absPdgCode==13', 'isShower==0', False),
-            ('Charged Pions', 'absPdgCode==211', 'isShower==0', False)
+            ('Protons', 'abs(mcPdgCode)==2212', 'isShower==0', False),
+            ('Muons', 'abs(mcPdgCode)==13', 'isShower==0', False),
+            ('Charged Pions', 'abs(mcPdgCode)==211', 'isShower==0', False)
         ),
         'bins': np.linspace(0, 1, num=25),
         'yAxis': 'log',

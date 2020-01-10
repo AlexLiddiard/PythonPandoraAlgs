@@ -3,7 +3,7 @@ import pandas as pd
 import math as m
 from PfoGraphicalAnalyser import MicroBooneGeo
 
-myTestArea = "/home/jack/Documents/Pandora"
+myTestArea = "/home/tomalex/Pandora"
 inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 
@@ -20,7 +20,7 @@ trainingPreFilters = (
     'nHitsU>=50',
     'nHitsV>=50',
     'nHitsW>=50',
-    'absPdgCode != 2112',
+    'abs(mcPdgCode) != 2112',
     'minCoordX >= @MicroBooneGeo.RangeX[0] + 10',
     'maxCoordX <= @MicroBooneGeo.RangeX[1] - 10',
     'minCoordY >= @MicroBooneGeo.RangeY[0] + 20',
