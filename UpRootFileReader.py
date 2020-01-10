@@ -149,13 +149,13 @@ def ReadRootFile(filepath):
 
     for index, pfo in tree.iterrows():
         PfoBeingRead = PfoClass(pfo, os.path.basename(filepath))  # Inputing the variables read from the ROOT file into the class to create the PfoObject.
-        if currentEventId == pfo.EventId:
+        if currentEventId == pfo.eventId:
             AddPfoToEvent(eventPfos, PfoBeingRead)
         else:
             SetAssociatedData(eventPfos)
             events.append(eventPfos)
             eventPfos = [PfoBeingRead]
-            currentEventId = pfo.EventId
+            currentEventId = pfo.eventId
 
     # The for loop does not append the last event to the array
     SetAssociatedData(eventPfos)

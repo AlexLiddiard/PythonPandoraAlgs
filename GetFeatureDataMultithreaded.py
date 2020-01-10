@@ -11,7 +11,7 @@ import TrackShowerFeatures.PCAnalysis as pca
 import TrackShowerFeatures.ChargedHitBinning as chb
 import TrackShowerFeatures.ChargeStdMeanRatio as csmr
 
-myTestArea = "/home/jack/Documents/Pandora"
+myTestArea = "/home/tomalex/Pandora"
 rootFileDirectory = myTestArea + "/PythonPandoraAlgs/ROOT Files"
 outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 wireViews = (True, True, True)
@@ -27,8 +27,8 @@ def ProcessFile(filePath):
                 'fileName': pfo.fileName,
                 'eventId': pfo.eventId,
                 'pfoId': pfo.pfoId,
-                'absPdgCode': abs(pfo.mcPdgCodeW),
-                'isShower': pfo.IsShowerW(),
+                'absPdgCode': abs(pfo.mcPdgCode),
+                'isShower': pfo.IsShower(),
                 'minCoordX': min(pfo.xCoordThreeD),
                 'minCoordY': min(pfo.yCoordThreeD),
                 'minCoordZ': min(pfo.zCoordThreeD),
