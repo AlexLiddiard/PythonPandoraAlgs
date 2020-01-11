@@ -55,6 +55,7 @@ class PfoClass(object):
         self.nHitsPfoU = pfo.nHitsPfoU
         self.nHitsMcpU = pfo.nHitsMcpU
         self.nHitsMatchU = pfo.nHitsMatchU
+        self.vertexU = np.array([pfo.get("vertex[0]"), 0.5 * pfo.get("vertex[2]") - 0.8660254 * pfo.get("vertex[1]")], dtype = np.double)
 
         # V view
         self.driftCoordV = np.array(pfo.driftCoordV, dtype = np.double)
@@ -64,6 +65,7 @@ class PfoClass(object):
         self.nHitsPfoV = pfo.nHitsPfoV
         self.nHitsMcpV = pfo.nHitsMcpV
         self.nHitsMatchV = pfo.nHitsMatchV
+        self.vertexV = np.array([pfo.get("vertex[0]"), 0.5 * pfo.get("vertex[2]") + 0.8660254 * pfo.get("vertex[1]")], dtype = np.double)
 
         # W view
         self.driftCoordW = np.array(pfo.driftCoordW, dtype = np.double)
@@ -73,15 +75,16 @@ class PfoClass(object):
         self.nHitsPfoW = pfo.nHitsPfoW
         self.nHitsMcpW = pfo.nHitsMcpW
         self.nHitsMatchW = pfo.nHitsMatchW
+        self.vertexW = np.array([pfo.get("vertex[0]"), pfo.get("vertex[2]")], dtype = np.double)
 
         # 3D view
-        self.xCoordThreeD = pfo.xCoordThreeD
-        self.yCoordThreeD = pfo.yCoordThreeD
-        self.zCoordThreeD = pfo.zCoordThreeD
-        self.energyThreeD = pfo.energyThreeD
-        self.nHitsPfoThreeD = len(self.xCoordThreeD)
-        self.vertex = np.array([pfo.get("vertex[0]"), pfo.get("vertex[1]"), pfo.get("vertex[2]")], dtype = np.double)
-        self.parentVertex = None # To be set later
+        self.xCoord3D = pfo.xCoordThreeD
+        self.yCoord3D = pfo.yCoordThreeD
+        self.zCoord3D = pfo.zCoordThreeD
+        self.energy3D = pfo.energyThreeD
+        self.nHitsPfo3D = len(self.xCoord3D)
+        self.vertex3D = np.array([pfo.get("vertex[0]"), pfo.get("vertex[1]"), pfo.get("vertex[2]")], dtype = np.double)
+        self.parentVertex3D = None # To be set later
 
     # These change how the PFO is printed to the screen
     def __str__(self):
@@ -168,7 +171,7 @@ def SetAssociatedData(eventPfos):
         if pfo.parentPfoId == -1:
             continue
         else:
-            pfo.parentVertex = eventPfos[pfo.parentPfoId].vertex
+            pfo.parentVertex3D = eventPfos[pfo.parentPfoId].vertex3D
 
 
 def ReadPfoFromRootFile(filepath, eventId, pfoId):

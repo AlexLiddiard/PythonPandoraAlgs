@@ -6,10 +6,8 @@ import math as m
 from PfoGraphicalAnalyser import MicroBooneGeo
 from HistoSynthesis import CreateHistogramWire
 from LikelihoodAnalyser import GraphCutoffLine, OptimiseCutoff, PrintPurityEfficiency
-from TrackShowerFeatures.LinearRegression import OLS
-from TrackShowerFeatures.PCAnalysis import Pca
 
-myTestArea = "/home/tomalex/Pandora"
+myTestArea = "/home/alexliddiard/Desktop/Pandora"
 inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 trainingFraction = 0.5
 
@@ -56,9 +54,10 @@ features = (
     #{'name': 'ChainRSquaredStdU', 'bins': np.linspace(0, 0.8, num=50), 'showerCutDirection': 'right'},
     #{'name': 'ChainRSquaredStdV', 'bins': np.linspace(0, 0.8, num=50), 'showerCutDirection': 'right'},
     #{'name': 'ChainRSquaredStdW', 'bins': np.linspace(0, 0.8, num=50), 'showerCutDirection': 'right'},
-    #{'name': 'AngularSpanU', 'bins': np.linspace(0, m.pi, num=50), 'showerCutDirection': 'right'},
-    #{'name': 'AngularSpanV', 'bins': np.linspace(0, m.pi, num=50), 'showerCutDirection': 'right'},
-    #{'name': 'AngularSpanW', 'bins': np.linspace(0, m.pi, num=50), 'showerCutDirection': 'right'},
+    {'name': 'AngularSpanU', 'bins': np.linspace(0, m.pi, num=50), 'showerCutDirection': 'right'},
+    {'name': 'AngularSpanV', 'bins': np.linspace(0, m.pi, num=50), 'showerCutDirection': 'right'},
+    {'name': 'AngularSpanW', 'bins': np.linspace(0, m.pi, num=50), 'showerCutDirection': 'right'},
+    {'name': 'AngularSpan3D', 'bins': np.linspace(0, m.pi, num=50), 'showerCutDirection': 'right'},
     #{'name': 'LongitudinalSpanU', 'bins': np.linspace(0, 400, num=50), 'showerCutDirection': 'left'},
     #{'name': 'LongitudinalSpanV', 'bins': np.linspace(0, 600, num=50), 'showerCutDirection': 'left'},
     #{'name': 'LongitudinalSpanW', 'bins': np.linspace(0, 600, num=50), 'showerCutDirection': 'left'},
@@ -69,7 +68,7 @@ features = (
     #{'name': 'PcaRatio2dU', 'bins': np.linspace(0, 0.4, num=50), 'showerCutDirection': 'right'},
     #{'name': 'PcaRatio2dV', 'bins': np.linspace(0, 0.4, num=50), 'showerCutDirection': 'right'},
     #{'name': 'PcaRatio2dW', 'bins': np.linspace(0, 0.4, num=50), 'showerCutDirection': 'right'},
-    {'name': 'PcaRatio3d', 'bins': np.linspace(0, 0.4, num=50), 'showerCutDirection': 'right'},
+    {'name': 'PcaRatio3d', 'bins': np.linspace(0, 1, num=50), 'showerCutDirection': 'right'},
     #{'name': 'ChargedBinnedHitStdU', 'bins': np.linspace(0, 100, num=25), 'showerCutDirection': 'right'},
     #{'name': 'ChargedBinnedHitStdV', 'bins': np.linspace(0, 100, num=25), 'showerCutDirection': 'right'},
     #{'name': 'ChargedBinnedHitStdW', 'bins': np.linspace(0, 100, num=25), 'showerCutDirection': 'right'},
