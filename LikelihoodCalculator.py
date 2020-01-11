@@ -76,6 +76,7 @@ featurePdfs = (
     #{'name': 'BraggPeakU', 'bins': np.linspace(0, 1, num=100)},
     #{'name': 'BraggPeakV', 'bins': np.linspace(0, 1, num=100)},
     #{'name': 'BraggPeakW', 'bins': np.linspace(0, 1, num=100)},
+    {'name': 'BraggPeak3D', 'bins': np.linspace(0, 1, num=100)},
 )
 
 delta = 1e-12
