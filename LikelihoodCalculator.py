@@ -3,7 +3,7 @@ import pandas as pd
 import math as m
 from PfoGraphicalAnalyser import MicroBooneGeo
 
-myTestArea = "/home/tomalex/Pandora"
+myTestArea = "/home/jack/Documents/Pandora"
 inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 
@@ -48,13 +48,13 @@ featurePdfs = (
     #{'name': 'ChainRatioStdU', 'bins': np.linspace(0, 0.8, num=50)},
     #{'name': 'ChainRatioStdV', 'bins': np.linspace(0, 0.8, num=50)},
     #{'name': 'ChainRatioStdW', 'bins': np.linspace(0, 0.8, num=50)},
-    #{'name': 'ChainRSquaredStdU', 'bins': np.linspace(0, 0.8, num=50)},
-    #{'name': 'ChainRSquaredStdV', 'bins': np.linspace(0, 0.8, num=50)},
-    #{'name': 'ChainRSquaredStdW', 'bins': np.linspace(0, 0.8, num=50)},
-    {'name': 'AngularSpanU', 'bins': np.linspace(0, m.pi, num=50)},
-    {'name': 'AngularSpanV', 'bins': np.linspace(0, m.pi, num=50)},
-    {'name': 'AngularSpanW', 'bins': np.linspace(0, m.pi, num=50)},
-    {'name': 'AngularSpan3D', 'bins': np.linspace(0, m.pi, num=50)},
+    {'name': 'ChainRSquaredStdU', 'bins': np.linspace(0, 0.8, num=50)},
+    {'name': 'ChainRSquaredStdV', 'bins': np.linspace(0, 0.8, num=50)},
+    {'name': 'ChainRSquaredStdW', 'bins': np.linspace(0, 0.8, num=50)},
+    #{'name': 'AngularSpanU', 'bins': np.linspace(0, m.pi, num=50)},
+    #{'name': 'AngularSpanV', 'bins': np.linspace(0, m.pi, num=50)},
+    #{'name': 'AngularSpanW', 'bins': np.linspace(0, m.pi, num=50)},
+    #{'name': 'AngularSpan3D', 'bins': np.linspace(0, m.pi, num=50)},
     #{'name': 'LongitudinalSpanU', 'bins': np.linspace(0, 400, num=50)},
     #{'name': 'LongitudinalSpanV', 'bins': np.linspace(0, 400, num=50)},
     #{'name': 'LongitudinalSpanW', 'bins': np.linspace(0, 600, num=50)},
@@ -70,9 +70,12 @@ featurePdfs = (
     #{'name': 'ChargedBinnedHitStdU', 'bins': np.linspace(0, 100, num=25)},
     #{'name': 'ChargedBinnedHitStdV', 'bins': np.linspace(0, 100, num=25)},
     #{'name': 'ChargedBinnedHitStdW', 'bins': np.linspace(0, 100, num=25)},
-    {'name': 'ChargedStdMeanRatioU', 'bins': np.linspace(0, 4, num=100)},
-    {'name': 'ChargedStdMeanRatioV', 'bins': np.linspace(0, 4, num=100)},
-    {'name': 'ChargedStdMeanRatioW', 'bins': np.linspace(0, 4, num=100)},
+    #{'name': 'ChargedStdMeanRatioU', 'bins': np.linspace(0, 4, num=100)},
+    #{'name': 'ChargedStdMeanRatioV', 'bins': np.linspace(0, 4, num=100)},
+    #{'name': 'ChargedStdMeanRatioW', 'bins': np.linspace(0, 4, num=100)},
+    #{'name': 'BraggPeakU', 'bins': np.linspace(0, 1, num=100)},
+    #{'name': 'BraggPeakV', 'bins': np.linspace(0, 1, num=100)},
+    #{'name': 'BraggPeakW', 'bins': np.linspace(0, 1, num=100)},
 )
 
 delta = 1e-12

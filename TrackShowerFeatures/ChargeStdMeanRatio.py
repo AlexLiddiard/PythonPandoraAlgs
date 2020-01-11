@@ -10,7 +10,7 @@ def GetPlaneChargeStdMeanRatio(energyArray):
 
 def GetFeatures(pfo, wireViews, binWidth=20, minBins=3):
     featureDict = {}
-    featureDict.update({ "ChargedSTdMeanRatio3D" : GetPlaneChargeStdMeanRatio(pfo.energy3D)})
+    featureDict.update({ "ChargedStdMeanRatio3D" : GetPlaneChargeStdMeanRatio(pfo.energy3D)})
     if wireViews[0]:
         featureDict.update({ "ChargedStdMeanRatioU" : GetPlaneChargeStdMeanRatio(pfo.energyU)})
     if wireViews[1]:

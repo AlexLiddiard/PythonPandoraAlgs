@@ -10,8 +10,9 @@ import TrackShowerFeatures.AngularSpan as asp
 import TrackShowerFeatures.PCAnalysis as pca
 import TrackShowerFeatures.ChargedHitBinning as chb
 import TrackShowerFeatures.ChargeStdMeanRatio as csmr
+import TrackShowerFeatures.BraggPeak as bp
 
-myTestArea = "/home/alexliddiard/Desktop/Pandora"
+myTestArea = "/home/jack/Documents/Pandora"
 rootFileDirectory = myTestArea + "/PythonPandoraAlgs/ROOT Files"
 outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 wireViews = (True, True, True)
@@ -63,6 +64,7 @@ def ProcessFile(filePath):
             pfoDataDict.update(pca.GetFeatures(pfo, wireViews))
             pfoDataDict.update(chb.GetFeatures(pfo, wireViews))
             pfoDataDict.update(csmr.GetFeatures(pfo, wireViews))
+            pfoDataDict.update(bp.GetFeatures(pfo, wireViews))
             pfoData.append(pfoDataDict)
     return pd.DataFrame(pfoData)
 

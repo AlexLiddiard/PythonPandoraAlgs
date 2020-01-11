@@ -7,7 +7,7 @@ from PfoGraphicalAnalyser import MicroBooneGeo
 from HistoSynthesis import CreateHistogramWire
 from LikelihoodAnalyser import GraphCutoffLine, OptimiseCutoff, PrintPurityEfficiency
 
-myTestArea = "/home/alexliddiard/Desktop/Pandora"
+myTestArea = "/home/jack/Documents/Pandora"
 inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 trainingFraction = 0.5
 
@@ -33,7 +33,7 @@ preFilters = (
 )
 
 features = (
-    {'name': 'RSquaredU', 'bins': np.linspace(0, 1, num=50), 'showerCutDirection': 'left'},
+    #{'name': 'RSquaredU', 'bins': np.linspace(0, 1, num=50), 'showerCutDirection': 'left'},
     #{'name': 'RSquaredV', 'bins': np.linspace(0, 1, num=50), 'showerCutDirection': 'left'},
     #{'name': 'RSquaredW', 'bins': np.linspace(0, 1, num=50), 'showerCutDirection': 'left'},
     #{'name': 'BinnedHitStdU', 'bins': np.linspace(0, 12, num=50), 'showerCutDirection': 'right'},
@@ -57,25 +57,29 @@ features = (
     #{'name': 'AngularSpanU', 'bins': np.linspace(0, m.pi, num=50), 'showerCutDirection': 'right'},
     #{'name': 'AngularSpanV', 'bins': np.linspace(0, m.pi, num=50), 'showerCutDirection': 'right'},
     #{'name': 'AngularSpanW', 'bins': np.linspace(0, m.pi, num=50), 'showerCutDirection': 'right'},
-    {'name': 'AngularSpan3D', 'bins': np.linspace(0, m.pi, num=50), 'showerCutDirection': 'right'},
+    #{'name': 'AngularSpan3D', 'bins': np.linspace(0, m.pi, num=50), 'showerCutDirection': 'right'},
     #{'name': 'LongitudinalSpanU', 'bins': np.linspace(0, 400, num=50), 'showerCutDirection': 'left'},
     #{'name': 'LongitudinalSpanV', 'bins': np.linspace(0, 600, num=50), 'showerCutDirection': 'left'},
     #{'name': 'LongitudinalSpanW', 'bins': np.linspace(0, 600, num=50), 'showerCutDirection': 'left'},
-    {'name': 'LongitudinalSpan3D', 'bins': np.linspace(0, 600, num=50), 'showerCutDirection': 'left'},
+    #{'name': 'LongitudinalSpan3D', 'bins': np.linspace(0, 600, num=50), 'showerCutDirection': 'left'},
     #{'name': 'PcaVarU', 'bins': np.linspace(0, 10, num=50), 'showerCutDirection': 'right'},
     #{'name': 'PcaVarV', 'bins': np.linspace(0, 10, num=50), 'showerCutDirection': 'right'},
     #{'name': 'PcaVarW', 'bins': np.linspace(0, 10, num=50), 'showerCutDirection': 'right'},
-    {'name': 'PcaVar3D', 'bins': np.linspace(0, 10, num=50), 'showerCutDirection': 'right'},
+    #{'name': 'PcaVar3D', 'bins': np.linspace(0, 10, num=50), 'showerCutDirection': 'right'},
     #{'name': 'PcaRatioU', 'bins': np.linspace(0, 0.4, num=50), 'showerCutDirection': 'right'},
     #{'name': 'PcaRatioV', 'bins': np.linspace(0, 0.4, num=50), 'showerCutDirection': 'right'},
     #{'name': 'PcaRatioW', 'bins': np.linspace(0, 0.4, num=50), 'showerCutDirection': 'right'},
-    {'name': 'PcaRatio3D', 'bins': np.linspace(0, 1, num=50), 'showerCutDirection': 'right'},
+    #{'name': 'PcaRatio3D', 'bins': np.linspace(0, 1, num=50), 'showerCutDirection': 'right'},
     #{'name': 'ChargedBinnedHitStdU', 'bins': np.linspace(0, 100, num=25), 'showerCutDirection': 'right'},
     #{'name': 'ChargedBinnedHitStdV', 'bins': np.linspace(0, 100, num=25), 'showerCutDirection': 'right'},
     #{'name': 'ChargedBinnedHitStdW', 'bins': np.linspace(0, 100, num=25), 'showerCutDirection': 'right'},
     #{'name': 'ChargedStdMeanRatioU', 'bins': np.linspace(0, 4, num=100), 'showerCutDirection': 'right'},
     #{'name': 'ChargedStdMeanRatioV', 'bins': np.linspace(0, 4, num=100), 'showerCutDirection': 'right'},
     #{'name': 'ChargedStdMeanRatioW', 'bins': np.linspace(0, 4, num=100), 'showerCutDirection': 'right'},
+    #{'name': 'ChargedStdMeanRatio3D', 'bins': np.linspace(0, 4, num=100), 'showerCutDirection': 'right'},
+    {'name': 'BraggPeakU', 'bins': np.linspace(0, 1, num=100), 'showerCutDirection': 'left'},
+    {'name': 'BraggPeakV', 'bins': np.linspace(0, 1, num=100), 'showerCutDirection': 'left'},
+    {'name': 'BraggPeakW', 'bins': np.linspace(0, 1, num=100), 'showerCutDirection': 'left'},
 )
 
 featureHistograms = {
@@ -115,9 +119,9 @@ for feature in features:
         # Printing results for optimal purity and efficiency
         print("Performance results for %s:" % feature['name'])
         print("\nOptimal track cutoff %.3f" % bestTrackCutoff)
-        PrintPurityEfficiency(dfTrackData, dfShowerData, feature['name'], bestTrackCutoff)
+        PrintPurityEfficiency(dfTrackData, dfShowerData, feature['name'], bestTrackCutoff, feature['showerCutDirection'])
         print("\nOptimal shower cutoff %.3f" % bestShowerCutoff)
-        PrintPurityEfficiency(dfTrackData, dfShowerData, feature['name'], bestShowerCutoff)
+        PrintPurityEfficiency(dfTrackData, dfShowerData, feature['name'], bestShowerCutoff, feature['showerCutDirection'])
     if featureHistograms["plot"]:
         # Plot histograms
         feature['filters'] = featureHistograms["filters"]

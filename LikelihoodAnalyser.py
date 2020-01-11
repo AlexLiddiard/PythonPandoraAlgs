@@ -6,7 +6,7 @@ from PfoGraphicalAnalyser import MicroBooneGeo
 from HistoSynthesis import CreateHistogramWire
 from itertools import count
 
-myTestArea = "/home/tomalex/Pandora"
+myTestArea = "/home/jack/Documents/Pandora"
 inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 trainingFraction = 0.5
 performancePreFilters = (
@@ -167,7 +167,7 @@ def OptimiseCutoff(dfTrackData, dfShowerData, variableName, testCutoffs, showerC
         bestShowerCutoff, showerEfficiencies, showerPurities, showerPurityEfficiencies
     )
 
-def PrintPurityEfficiency(dfTrackData, dfShowerData, variableName, cutoff):
+def PrintPurityEfficiency(dfTrackData, dfShowerData, variableName, cutoff, cutoffDirection='right'):
     dfTrackVariable = dfTrackData.query(variableName + "!=-1")[variableName]
     dfShowerVariable =  dfShowerData.query(variableName + "!=-1")[variableName]
     print(
@@ -177,7 +177,7 @@ def PrintPurityEfficiency(dfTrackData, dfShowerData, variableName, cutoff):
         "Shower Efficiency %.3f+-%.3f\n"
         "Shower Purity %.3f+-%.3f\n"
         "Shower Purity * Efficiency %.3f+-%.3f"
-    % PurityEfficiency(dfTrackVariable, dfShowerVariable, cutoff, 'right')
+    % PurityEfficiency(dfTrackVariable, dfShowerVariable, cutoff, cutoffDirection)
 )
 
 if __name__ == "__main__":
