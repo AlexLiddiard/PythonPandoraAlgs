@@ -12,35 +12,35 @@ def GetTrianglarSpan(driftCoord, wireCoord, vertex, hitFraction):
     if len(driftCoord) < 2:
         return -1, -1
     transDriftCoord, transWireCoord = pca.PcaReduce((driftCoord, wireCoord), vertex)
-    hitAnglesFromAxis, openingAngleIndex = CalcAngles(transDriftCoord, transWireCoord, hitFraction)
-    distance = np.amax(np.abs(transDriftCoord[:(openingAngleIndex + 1)]))
+    hitAnglesFromAxis, openingAngleIndex, selectedHitIndices = CalcAngles(transDriftCoord, transWireCoord, hitFraction)
+    hitAnglesFromAxis.sort()
+    distance = np.amax(np.abs(transDriftCoord[selectedHitIndices][:(openingAngleIndex + 1)]))
     openingAngle = 2 * hitAnglesFromAxis[openingAngleIndex]
     return openingAngle, distance
 
 def CalcAngles(transDriftCoord, transWireCoord, hitFraction):
-    transDriftCoordCheck = transDriftCoord > 0
-    if 2 * np.sum(transDriftCoordCheck) < len(transDriftCoord):
-        transDriftCoordCheck = np.invert(transDriftCoordCheck)
-    transDriftCoord = transDriftCoord[transDriftCoordCheck]
-    transWireCoord = transWireCoord[transDriftCoordCheck]
+    selectedHitIndices = transDriftCoord > 0
+    if 2 * np.sum(selectedHitIndices) < len(transDriftCoord):
+        selectedHitIndices = np.invert(selectedHitIndices)
+    transDriftCoord = transDriftCoord[selectedHitIndices]
+    transWireCoord = transWireCoord[selectedHitIndices]
     openingAngleIndex = m.floor(hitFraction * (len(transDriftCoord) - 1))
-    hitAnglesFromAxis = np.arctan2(np.abs(transWireCoord), np.abs(transDriftCoord))
-    return hitAnglesFromAxis, openingAngleIndex
+    hitAnglesFromAxis = np.arctan2(np.abs(transWireCoord), transDriftCoord)
+    return hitAnglesFromAxis, openingAngleIndex, selectedHitIndices
 
 def GetConicSpan(xCoord, yCoord, zCoord, vertex, hitFraction):
     if len(xCoord) < 2:
         return -1, -1
-
     newCoordSets = pca.PcaReduce((xCoord, yCoord, zCoord), vertex)
+
     xCoordCheck = newCoordSets[0] > 0
     if 2 * np.sum(xCoordCheck) < len(xCoordCheck):
         xCoordCheck = np.invert(xCoordCheck)
     newCoordSets = newCoordSets[:,xCoordCheck]
-
     openingAngleIndex = m.floor(hitFraction * (len(newCoordSets[0]) - 1))
     hitAnglesFromAxis = np.arctan2(np.sqrt(np.square(newCoordSets[1]) + np.square(newCoordSets[2])), np.abs(newCoordSets[0]))
+    
     hitAnglesFromAxis.sort()
-
     distance = np.amax(np.abs(newCoordSets[0,:(openingAngleIndex + 1)]))
     openingAngle = 2 * hitAnglesFromAxis[openingAngleIndex]
     return openingAngle, distance
