@@ -3,18 +3,24 @@ import numpy as np
 import TrackShowerFeatures.HitBinning as hb
 import math as m
 
+tolerance = 1e-5
+def ZeroCorrect(values):
+    values[np.abs(values) < tolerance] = 0
+
 def PcaVariance2D(xCoords, yCoords):
-    if len(xCoords) < 2:
+    if len(xCoords) < 3:
         return -1, -1
     eigenvalues, eigenvectors = Pca((xCoords, yCoords))
+    ZeroCorrect(eigenvalues)
     return eigenvalues[0], eigenvalues[0] / eigenvalues[1]
 
 def PcaVariance3D(xCoords, yCoords, zCoords):
-    if len(xCoords) < 2:
+    if len(xCoords) < 3:
         return -1, -1
     eigenvalues, eigenvectors = Pca((xCoords, yCoords, zCoords))
-    axialVariance = m.sqrt(eigenvalues[0] * eigenvalues[0] + eigenvalues[1] * eigenvalues[1])
-    return axialVariance, axialVariance / eigenvalues[2]
+    ZeroCorrect(eigenvalues)
+    axialVariance = m.sqrt(eigenvalues[0] + eigenvalues[1])
+    return axialVariance, axialVariance / m.sqrt(eigenvalues[2])
 
 def PcaReduce2D(xCoords, yCoords, xIntercept = None, yIntercept = None):
     if len(xCoords) < 2:
