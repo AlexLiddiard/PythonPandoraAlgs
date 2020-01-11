@@ -4,6 +4,7 @@ import math
 import numpy as np
 import TrackShowerFeatures.LinearRegression as lr
 import TrackShowerFeatures.PCAnalysis as pca
+import TrackShowerFeatures.AngularSpan as asp
 
 # This function counts how many numbers fall in a set of bins of a given width.
 # Empty bins are ignored.
@@ -65,7 +66,7 @@ def GetRotatedBinStdevOLS(driftCoord, wireCoord, binWidth, minBins):
         return -1
 
 def GetRotatedBinStdevPCA(driftCoord, wireCoord, binWidth, minBins):
-    driftCoordRotated = pca.PcaReduce2D(driftCoord, wireCoord)[0]
+    driftCoordRotated = pca.PcaReduce((driftCoord, wireCoord))[0]
     rotatedBins = GetBinCounts(driftCoordRotated, binWidth)
 
     # Ensure there are enough bins
@@ -76,6 +77,12 @@ def GetRotatedBinStdevPCA(driftCoord, wireCoord, binWidth, minBins):
         # Insufficient bins
         return -1
 
+def GetFilteredVertexDistances(driftCoord, wireCoord, vertex, binWidth, minBins, hitFraction):
+    driftCoordNew, wireCoordNew = pca.PcaReduce((driftCoord, wireCoord), vertex)
+    hitAnglesFromAxis, openingAngleIndex = asp.CalcAngles(driftCoordNew, wireCoordNew, hitFraction)
+    selectedHitIndices = hitAnglesFromAxis <= hitAnglesFromAxis[openingAngleIndex]
+    distances = np.sqrt(np.square(driftCoordNew[selectedHitIndices]) + np.square(wireCoordNew[selectedHitIndices]))
+    return selectedHitIndices, distances
 
 def GetFeatures(pfo, wireViews, binWidth=1, minBins=3):
     featureDict = {}

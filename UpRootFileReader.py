@@ -2,6 +2,7 @@
 import uproot as up
 import numpy as np
 import os
+from PfoGraphicalAnalyser import MicroBooneGeo
 
 # This class defines the data associated with each PFO.
 class PfoClass(object):
@@ -133,6 +134,16 @@ class PfoClass(object):
         return self.Purity(self.nHitsMatchW, self.nHitsMcpW)
     def Completeness(self, nHitsMatch, nHitsMcp):
         return nHitsMatch / nHitsMcp if nHitsMcp > 0 else -1
+
+    def ValidVertex(self):
+        return (
+            self.vertex3D[0] > MicroBooneGeo.RangeX[0] and
+            self.vertex3D[0] < MicroBooneGeo.RangeX[1] and
+            self.vertex3D[1] > MicroBooneGeo.RangeY[0] and
+            self.vertex3D[1] < MicroBooneGeo.RangeY[1] and
+            self.vertex3D[2] > MicroBooneGeo.RangeZ[0] and
+            self.vertex3D[2] < MicroBooneGeo.RangeZ[1]
+        )
 
 # This function inserts a pfo into an event. It also ensures that the list is ordered by the pfo ID.
 def AddPfoToEvent(eventPfos, pfo):
