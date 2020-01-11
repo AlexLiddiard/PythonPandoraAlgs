@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import math as m
-from PfoGraphicalAnalyser import MicroBooneGeo
+from UpRootFileReader import MicroBooneGeo
 
 myTestArea = "/home/jack/Documents/Pandora"
 inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'

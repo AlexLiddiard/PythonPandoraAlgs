@@ -4,7 +4,7 @@ import math as m
 import TrackShowerFeatures.LinearRegression as lr
 import TrackShowerFeatures.HitBinning as hb
 import TrackShowerFeatures.PCAnalysis as pca
-from PfoGraphicalAnalyser import MicroBooneGeo
+from UpRootFileReader import MicroBooneGeo
 #import matplotlib.pyplot as plt
 #from PfoGraphAnalysis import DisplayPfo
 

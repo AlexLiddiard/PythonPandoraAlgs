@@ -77,7 +77,10 @@ def GetRotatedBinStdevPCA(driftCoord, wireCoord, binWidth, minBins):
         # Insufficient bins
         return -1
 
-def GetFilteredVertexDistances(driftCoord, wireCoord, vertex, binWidth, minBins, hitFraction):
+def GetRadialBinStdev(driftCoord, wireCoord, vertex, hitFraction, binWidth, minBins):
+    return
+
+def GetFilteredVertexDistances(driftCoord, wireCoord, vertex, hitFraction):
     driftCoordNew, wireCoordNew = pca.PcaReduce((driftCoord, wireCoord), vertex)
     hitAnglesFromAxis, openingAngleIndex = asp.CalcAngles(driftCoordNew, wireCoordNew, hitFraction)
     selectedHitIndices = hitAnglesFromAxis <= hitAnglesFromAxis[openingAngleIndex]

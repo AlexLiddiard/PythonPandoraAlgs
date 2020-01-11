@@ -2,7 +2,6 @@
 import uproot as up
 import numpy as np
 import os
-from PfoGraphicalAnalyser import MicroBooneGeo
 
 # This class defines the data associated with each PFO.
 class PfoClass(object):
@@ -144,6 +143,37 @@ class PfoClass(object):
             self.vertex3D[2] > MicroBooneGeo.RangeZ[0] and
             self.vertex3D[2] < MicroBooneGeo.RangeZ[1]
         )
+
+# Microboone Geometry stuff
+class MicroBooneGeo:
+    RangeX = (0, 256.35)
+    RangeY = (-116.5, 116.5)
+    RangeZ = (0, 1036.8)
+    WireRangeU = (-96.7, 619.1)
+    WireRangeV = (-96.7, 619.1)
+    DeadZonesW = ((5.8, 6.1),
+                  (24.7, 25),
+                  (25.3, 25.6),
+                  (52.9, 57.7),
+                  (91.3, 96.1),
+                  (100.9, 105.7),
+                  (120.1, 124.9),
+                  (226.3, 226.6),
+                  (226.9, 227.2),
+                  (244.9, 249.7),
+                  (288.1, 292.9),
+                  (345.7, 350.5),
+                  (398.5, 403.3),
+                  (412.9, 417.7),
+                  (477.7, 478),
+                  (669.4, 669.7),
+                  (700.9, 720.1),
+                  (720.4, 724.6),
+                  (724.9, 739.3),
+                  (787.6, 787.9),
+                  (806.5, 811.3),
+                  (820.9, 825.7),
+                  (873.7, 878.5))
 
 # This function inserts a pfo into an event. It also ensures that the list is ordered by the pfo ID.
 def AddPfoToEvent(eventPfos, pfo):

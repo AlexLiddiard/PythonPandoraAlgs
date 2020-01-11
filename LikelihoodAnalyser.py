@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import math as m
-from PfoGraphicalAnalyser import MicroBooneGeo
+from UpRootFileReader import MicroBooneGeo
 from HistoSynthesis import CreateHistogramWire
 from itertools import count
 
