@@ -58,14 +58,14 @@ def GetFeatures(pfo, wireViews):
     PcaReduce((pfo.driftCoordW, pfo.wireCoordW))
     featureDict = {}
     var3d, ratio3d = PcaVariance3D(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D)
-    featureDict.update({ "PcaVar3d": var3d, "PcaRatio3d": ratio3d})
+    featureDict.update({ "PcaVar3D": var3d, "PcaRatio3D": ratio3d})
     if wireViews[0]:
         var2d, ratio2d = PcaVariance2D(pfo.driftCoordU, pfo.wireCoordU)
-        featureDict.update({ "PcaVar2dU" : var2d, "PcaRatio2dU": ratio2d})
+        featureDict.update({ "PcaVarU" : var2d, "PcaRatioU": ratio2d})
     if wireViews[1]:
         var2d, ratio2d = PcaVariance2D(pfo.driftCoordV, pfo.wireCoordV)
-        featureDict.update({ "PcaVar2dV" : var2d, "PcaRatio2dV": ratio2d})
+        featureDict.update({ "PcaVarV" : var2d, "PcaRatioV": ratio2d})
     if wireViews[2]:
         var2d, ratio2d = PcaVariance2D(pfo.driftCoordW, pfo.wireCoordW)
-        featureDict.update({ "PcaVar2dW" : var2d, "PcaRatio2dW": ratio2d})
+        featureDict.update({ "PcaVarW" : var2d, "PcaRatioW": ratio2d})
     return featureDict
