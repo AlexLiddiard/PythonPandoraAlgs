@@ -3,7 +3,7 @@ import pandas as pd
 import math as m
 from UpRootFileReader import MicroBooneGeo
 
-myTestArea = "/home/alexliddiard/Desktop/Pandora/"
+myTestArea = "/home/tomalex/Pandora/"
 inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 
@@ -48,6 +48,10 @@ features = (
     #{'name': 'BinnedHitStdU', 'pdfBins': np.linspace(0, 12, num=50)},
     #{'name': 'BinnedHitStdV', 'pdfBins': np.linspace(0, 12, num=50)},
     #{'name': 'BinnedHitStdW', 'pdfBins': np.linspace(0, 12, num=50)},
+    #{'name': 'RadialBinStdU', 'pdfBins': np.linspace(0, 12, num=50)},
+    #{'name': 'RadialBinStdV', 'pdfBins': np.linspace(0, 12, num=50)},
+    #{'name': 'RadialBinStdW', 'pdfBins': np.linspace(0, 12, num=50),},
+    #{'name': 'RadialBinStd3D', 'pdfBins': np.linspace(0, 12, num=50)},
     #{'name': 'ChainCountU', 'pdfBins': np.linspace(1, 50, num=50)},
     #{'name': 'ChainCountV', 'pdfBins': np.linspace(1, 50, num=50)},
     #{'name': 'ChainCountW', 'pdfBins': np.linspace(1, 50, num=50)},
@@ -89,6 +93,7 @@ features = (
     #{'name': 'BraggPeakV', 'pdfBins': np.linspace(0, 1, num=100)},
     #{'name': 'BraggPeakW', 'pdfBins': np.linspace(0, 1, num=100)},
     {'name': 'BraggPeak3D', 'pdfBins': np.linspace(0, 1, num=100)},
+    {'name': 'Moliere3D', 'pdfBins': np.linspace(0, 0.0002, num=100)}
 )
 
 delta = 1e-12

@@ -11,8 +11,9 @@ import TrackShowerFeatures.PCAnalysis as pca
 import TrackShowerFeatures.ChargedHitBinning as chb
 import TrackShowerFeatures.ChargeStdMeanRatio as csmr
 import TrackShowerFeatures.BraggPeak as bp
+import TrackShowerFeatures.MoliereRadius as mr
 
-myTestArea = "/home/alexliddiard/Desktop/Pandora/"
+myTestArea = "/home/tomalex/Pandora/"
 rootFileDirectory = myTestArea + "/PythonPandoraAlgs/ROOT Files"
 outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 calculateViews = {
@@ -73,6 +74,7 @@ def ProcessFile(filePath):
             pfoDataDict.update(chb.GetFeatures(pfo, calculateViews))
             pfoDataDict.update(csmr.GetFeatures(pfo, calculateViews))
             pfoDataDict.update(bp.GetFeatures(pfo, calculateViews))
+            pfoDataDict.update(mr.GetFeatures(pfo, calculateViews))
             pfoData.append(pfoDataDict)
     return pd.DataFrame(pfoData)
 
