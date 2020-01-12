@@ -12,34 +12,26 @@ def PcaVariance2D(xCoords, yCoords):
     if len(xCoords) < 3:
         return -1, -1
     eigenvalues, eigenvectors = Pca((xCoords, yCoords))
-    ZeroCorrect(eigenvalues)
     return eigenvalues[0], eigenvalues[0] / eigenvalues[1]
 
 def PcaVariance3D(xCoords, yCoords, zCoords):
     if len(xCoords) < 3:
         return -1, -1
     eigenvalues, eigenvectors = Pca((xCoords, yCoords, zCoords))
-    ZeroCorrect(eigenvalues)
     axialVariance = m.sqrt(eigenvalues[0] + eigenvalues[1])
     return axialVariance, axialVariance / m.sqrt(eigenvalues[2])
 
-def PcaReduce2D(xCoords, yCoords, xIntercept = None, yIntercept = None):
-    if len(xCoords) < 2:
-        return xCoords, yCoords
-    if xIntercept == None or yIntercept == None:
-        xIntercept = np.mean(xCoords)
-        yIntercept = np.mean(yCoords)
-    eigenvalues, eigenvectors = Pca((xCoords, yCoords), (xIntercept, yIntercept))
-    return hb.RotatePointsClockwise(xCoords, yCoords, *eigenvectors[0])
-
 def PcaReduce(coordSets, intercept = None):
-    if len(coordSets[0]) < 2:
+    if len(coordSets[0]) == 0:
         return coordSets
     if type(intercept) == type(None):
         intercept = np.mean(coordSets, axis=1)
-    eigenvalues, eigenvectors = Pca(coordSets, intercept)
     intercept = np.reshape(intercept, (-1, 1))
-    return np.flip(eigenvectors.transpose(), 0) @ (coordSets - intercept)
+    if len(coordSets[0]) == 1:
+        return coordSets - intercept
+    eigenvalues, eigenvectors = Pca(coordSets, intercept)
+    reducedCoordSets = np.flip(eigenvectors.transpose(), 0) @ (coordSets - intercept)
+    return reducedCoordSets
 
 def Pca(coordSets, intercept = None):
     if type(intercept) == type(None):
@@ -51,8 +43,9 @@ def Pca(coordSets, intercept = None):
         for j in range(i, dimensions):
             pcamatrix[i, j] = pcamatrix[j, i] = np.sum((coordSets[i] - intercept[i]) * (coordSets[j] - intercept[j])) / (ncoords - 1)
     eigenvalues, eigenvectors = np.linalg.eig(pcamatrix)
+    ZeroCorrect(eigenvalues)
     order = eigenvalues.argsort()
-    return eigenvalues[order], eigenvectors[:,order]
+    return np.real(eigenvalues[order]), np.real(eigenvectors[:,order]) # numpy can sometimes return a complex matrix for no apparent reason!
 
 def GetFeatures(pfo, wireViews):
     PcaReduce((pfo.driftCoordW, pfo.wireCoordW))

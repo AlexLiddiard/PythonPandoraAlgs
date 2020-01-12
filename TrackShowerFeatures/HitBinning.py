@@ -76,35 +76,43 @@ def GetRotatedBinStdevPCA(driftCoord, wireCoord, binWidth, minBins):
         # Insufficient bins
         return -1
 
-def GetRadialBinStdev(driftCoord, wireCoord, vertex, hitFraction, binWidth, minBins):    
-    distances, selectedHitIndices = GetFilteredVertexDistances(driftCoord, wireCoord, vertex, hitFraction)
+def GetRadialBinStdev(coordSets, vertex, hitFraction, binWidth, minBins):  
+    distances, hitsInside = GetFilteredVertexDistances(coordSets, vertex, hitFraction)
     binCounts = GetBinCounts(distances, binWidth)
     if len(binCounts) < minBins:
         return -1
     return np.std(binCounts)
 
-def GetFilteredVertexDistances(driftCoord, wireCoord, vertex, hitFraction):
-    driftCoordNew, wireCoordNew = pca.PcaReduce((driftCoord, wireCoord), vertex)
-    hitAnglesFromAxis, openingAngleIndex, selectedHitIndices = asp.CalcAngles(driftCoordNew, wireCoordNew, hitFraction)
-    selectedHitIndices = hitAnglesFromAxis <= hitAnglesFromAxis[openingAngleIndex]
-    distances = np.sqrt(np.square(driftCoordNew[selectedHitIndices]) + np.square(wireCoordNew[selectedHitIndices]))
-    return distances, selectedHitIndices
+def GetFilteredVertexDistances(coordSets, vertex, hitFraction):
+    if len(coordSets[0]) == 0:
+        return np.array([]), np.array([])
+    coordSetsNew = pca.PcaReduce(coordSets, vertex)
+    hitAnglesFromAxis, halfOpeningAngle = asp.CalcAngles(coordSetsNew, hitFraction)
+    hitsInside = (hitAnglesFromAxis >= 0) & (hitAnglesFromAxis <= halfOpeningAngle)
+    try:
+        distances = np.linalg.norm(coordSetsNew[:,hitsInside], axis=0)
+    except:
+        print(coordSetsNew)
+    return distances, hitsInside
 
-def GetFeatures(pfo, wireViews, binWidth=1, minBins=3, hitFraction=0.8):
+def GetFeatures(pfo, wireViews, binWidth=1, minBins=3, hitFraction=1):
     featureDict = {}
+    featureDict.update({ 
+            "RadialBinStd3D": GetRadialBinStdev((pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D), pfo.vertex3D, hitFraction, binWidth, minBins)
+    })
     if wireViews[0]:
         featureDict.update({ 
             "BinnedHitStdU": GetRotatedBinStdevPCA(pfo.driftCoordU, pfo.wireCoordU, binWidth, minBins),
-            "RadialBinStdU": GetRadialBinStdev(pfo.driftCoordU, pfo.wireCoordU, pfo.vertexU, hitFraction, binWidth, minBins)
+            "RadialBinStdU": GetRadialBinStdev((pfo.driftCoordU, pfo.wireCoordU), pfo.vertexU, hitFraction, binWidth, minBins)
         })
     if wireViews[1]:
         featureDict.update({
             "BinnedHitStdV": GetRotatedBinStdevPCA(pfo.driftCoordV, pfo.wireCoordV, binWidth, minBins),
-            "RadialBinStdV": GetRadialBinStdev(pfo.driftCoordV, pfo.wireCoordV, pfo.vertexV, hitFraction, binWidth, minBins)
+            "RadialBinStdV": GetRadialBinStdev((pfo.driftCoordV, pfo.wireCoordV), pfo.vertexV, hitFraction, binWidth, minBins)
         })
     if wireViews[2]:
         featureDict.update({
             "BinnedHitStdW": GetRotatedBinStdevPCA(pfo.driftCoordW, pfo.wireCoordW, binWidth, minBins),
-            "RadialBinStdW": GetRadialBinStdev(pfo.driftCoordW, pfo.wireCoordW, pfo.vertexW, hitFraction, binWidth, minBins)
+            "RadialBinStdW": GetRadialBinStdev((pfo.driftCoordW, pfo.wireCoordW), pfo.vertexW, hitFraction, binWidth, minBins)
         })
     return featureDict

@@ -12,7 +12,7 @@ import TrackShowerFeatures.ChargedHitBinning as chb
 import TrackShowerFeatures.ChargeStdMeanRatio as csmr
 import TrackShowerFeatures.BraggPeak as bp
 
-myTestArea = "/home/jack/Documents/Pandora"
+myTestArea = "/home/tomalex/Pandora"
 rootFileDirectory = myTestArea + "/PythonPandoraAlgs/ROOT Files"
 outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 wireViews = (True, True, True)
@@ -22,7 +22,7 @@ def ProcessFile(filePath):
     pfoData = []
     for eventPfos in events:
         for pfo in eventPfos:
-            if abs(pfo.mcPdgCode) in (0, 14, 12) or pfo.nHitsPfo3D == 0 :
+            if abs(pfo.mcPdgCode) in (0, 14, 12) or pfo.nHitsPfo3D == 0:
                 continue
             pfoDataDict = {
                 'fileName': pfo.fileName,

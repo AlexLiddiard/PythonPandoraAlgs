@@ -8,60 +8,46 @@ from UpRootFileReader import MicroBooneGeo
 #import matplotlib.pyplot as plt
 #from PfoGraphAnalysis import DisplayPfo
 
-def GetTrianglarSpan(driftCoord, wireCoord, vertex, hitFraction):
-    if len(driftCoord) < 2:
+def CalcAngles(coordSetsReduced, hitFraction):
+    lCoord = coordSetsReduced[0]
+    tCoords = coordSetsReduced[1:]
+    if len(lCoord) == 0:
+        return np.array([]), -1
+    if (lCoord > 0).sum() < len(lCoord) / 2:
+        lCoord *= -1 # Flip the longitudinal coords so the majority are positive
+    if (lCoord > 0).sum() == 0: # Rarely there is an array of (0, 0, 0)s, and it will fail without this check
+        return np.array([]), -1
+    hitAnglesFromAxis = np.arctan2(np.linalg.norm(tCoords, axis=0), lCoord)
+    halfOpeningAngle = np.percentile(hitAnglesFromAxis[lCoord > 0], hitFraction * 100)
+    return hitAnglesFromAxis, halfOpeningAngle
+
+def GetConicSpan(coordSets, vertex, hitFraction):
+    if len(coordSets[0]) == 0:
         return -1, -1
-    transDriftCoord, transWireCoord = pca.PcaReduce((driftCoord, wireCoord), vertex)
-    hitAnglesFromAxis, openingAngleIndex, selectedHitIndices = CalcAngles(transDriftCoord, transWireCoord, hitFraction)
-    hitAnglesFromAxis.sort()
-    distance = np.amax(np.abs(transDriftCoord[selectedHitIndices][:(openingAngleIndex + 1)]))
-    openingAngle = 2 * hitAnglesFromAxis[openingAngleIndex]
-    return openingAngle, distance
-
-def CalcAngles(transDriftCoord, transWireCoord, hitFraction):
-    selectedHitIndices = transDriftCoord > 0
-    if 2 * np.sum(selectedHitIndices) < len(transDriftCoord):
-        selectedHitIndices = np.invert(selectedHitIndices)
-    transDriftCoord = transDriftCoord[selectedHitIndices]
-    transWireCoord = transWireCoord[selectedHitIndices]
-    openingAngleIndex = m.floor(hitFraction * (len(transDriftCoord) - 1))
-    hitAnglesFromAxis = np.arctan2(np.abs(transWireCoord), transDriftCoord)
-    return hitAnglesFromAxis, openingAngleIndex, selectedHitIndices
-
-def GetConicSpan(xCoord, yCoord, zCoord, vertex, hitFraction):
-    if len(xCoord) < 2:
+    coordSetsReduced = pca.PcaReduce(coordSets, vertex)
+    hitAnglesFromAxis, halfOpeningAngle = CalcAngles(coordSetsReduced, hitFraction)
+    if halfOpeningAngle == -1:
         return -1, -1
-    newCoordSets = pca.PcaReduce((xCoord, yCoord, zCoord), vertex)
-
-    xCoordCheck = newCoordSets[0] > 0
-    if 2 * np.sum(xCoordCheck) < len(xCoordCheck):
-        xCoordCheck = np.invert(xCoordCheck)
-    newCoordSets = newCoordSets[:,xCoordCheck]
-    openingAngleIndex = m.floor(hitFraction * (len(newCoordSets[0]) - 1))
-    hitAnglesFromAxis = np.arctan2(np.sqrt(np.square(newCoordSets[1]) + np.square(newCoordSets[2])), np.abs(newCoordSets[0]))
-    
-    hitAnglesFromAxis.sort()
-    distance = np.amax(np.abs(newCoordSets[0,:(openingAngleIndex + 1)]))
-    openingAngle = 2 * hitAnglesFromAxis[openingAngleIndex]
-    return openingAngle, distance
-
+    hitsInside = (hitAnglesFromAxis >= 0) & (hitAnglesFromAxis <= halfOpeningAngle)
+    distance = np.amax(np.abs(coordSetsReduced[0,hitsInside]))
+    return halfOpeningAngle * 2, distance
 
 def GetFeatures(pfo, wireViews, hitFraction=0.7):
     featureDict = {}
     openingAngle, distance = -1, -1
     if pfo.ValidVertex():
-        openingAngle, distance = GetConicSpan(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, pfo.vertex3D, hitFraction)
+        openingAngle, distance = GetConicSpan((pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D), pfo.vertex3D, hitFraction)
     featureDict.update({ "AngularSpan3D": openingAngle, "LongitudinalSpan3D": distance })
     if wireViews[0]:
         if pfo.ValidVertex():
-            openingAngle, distance = GetTrianglarSpan(pfo.driftCoordU, pfo.wireCoordU, pfo.vertexU, hitFraction)
+            openingAngle, distance = GetConicSpan((pfo.driftCoordU, pfo.wireCoordU), pfo.vertexU, hitFraction)
         featureDict.update({ "AngularSpanU": openingAngle, "LongitudinalSpanU": distance })
     if wireViews[1]:
         if pfo.ValidVertex():
-            openingAngle, distance = GetTrianglarSpan(pfo.driftCoordV, pfo.wireCoordV, pfo.vertexV, hitFraction)
+            openingAngle, distance = GetConicSpan((pfo.driftCoordV, pfo.wireCoordV), pfo.vertexV, hitFraction)
         featureDict.update({ "AngularSpanV": openingAngle, "LongitudinalSpanV": distance })
     if wireViews[2]:
         if pfo.ValidVertex():
-            openingAngle, distance = GetTrianglarSpan(pfo.driftCoordW, pfo.wireCoordW, pfo.vertexW, hitFraction)
+            openingAngle, distance = GetConicSpan((pfo.driftCoordW, pfo.wireCoordW), pfo.vertexW, hitFraction)
         featureDict.update({ "AngularSpanW": openingAngle, "LongitudinalSpanW": distance })
     return featureDict

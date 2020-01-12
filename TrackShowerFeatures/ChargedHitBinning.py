@@ -12,26 +12,24 @@ def GetBinCharge(xCoordsArray, chargeArray, binWidth):
     if len(xCoordsArray) == 0:
         return []
 
-    caloHitsArray = np.column_stack((xCoordsArray, chargeArray))
-    caloHitsArray = caloHitsArray[xCoordsArray.argsort()]
+    sort = xCoordsArray.argsort()
     # The upper bound used for checking if a number falls in the current bin
-    upperBound = caloHitsArray[0][0] + binWidth
+    upperBound = xCoordsArray[sort[0]] + binWidth
     # The charge in each bin
     binCharges = []
-
-    charge = 0
-    for x in caloHitsArray:
-        if x[0] < upperBound:
+    chargeSum = 0
+    for xCoord, charge in zip(xCoordsArray[sort], chargeArray[sort]):
+        if xCoord < upperBound:
             # The number falls into the current bin
-            charge += x[1]
+            chargeSum += charge
         else:
-            if charge > 0:
+            if chargeSum > 0:
                 # Only consider non-empty bins
-                binCharges.append(charge)
+                binCharges.append(chargeSum)
             # Find the bin that this number falls into
-            while x[0] > upperBound:
+            while xCoord > upperBound:
                 upperBound += binWidth
-            charge = x[1]
+            chargeSum = charge
     return binCharges
 
 
@@ -67,19 +65,17 @@ def GetRotatedBinStdevOLS(driftCoord, wireCoord, binWidth, minBins, energyArray)
         return -1
 
 def GetRotatedBinStdevPCA(driftCoord, wireCoord, binWidth, minBins, energyArray):
-    driftCoordRotated = pca.PcaReduce2D(driftCoord, wireCoord)[0]
-    rotatedBins = GetBinCharge(driftCoordRotated, energyArray, binWidth)
+    lCoord, tCoord = pca.PcaReduce((driftCoord, wireCoord))
+    rotatedBins = GetBinCharge(lCoord, energyArray, binWidth)
 
     # Ensure there are enough bins
-    if len(rotatedBins) >= minBins:
-        # Get stdev of the bin counts
-        return statistics.stdev(rotatedBins)/np.mean(energyArray)
-    else:
-        # Insufficient bins
+    if len(rotatedBins) < minBins:
         return -1
+    # Get stdev of the bin counts
+    return statistics.stdev(rotatedBins)/np.mean(energyArray)
 
 
-def GetFeatures(pfo, wireViews, binWidth=20, minBins=3):
+def GetFeatures(pfo, wireViews, binWidth=2, minBins=3):
     featureDict = {}
     if wireViews[0]:
         featureDict.update({ "ChargedBinnedHitStdU" : GetRotatedBinStdevPCA(pfo.driftCoordU, pfo.wireCoordU, binWidth, minBins, pfo.energyU)})
