@@ -32,22 +32,23 @@ def GetConicSpan(coordSets, vertex, hitFraction):
     distance = np.amax(np.abs(coordSetsReduced[0,hitsInside]))
     return halfOpeningAngle * 2, distance
 
-def GetFeatures(pfo, wireViews, hitFraction=0.7):
+def GetFeatures(pfo, calculateViews, hitFraction=0.7):
     featureDict = {}
     openingAngle, distance = -1, -1
-    if pfo.ValidVertex():
-        openingAngle, distance = GetConicSpan((pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D), pfo.vertex3D, hitFraction)
-    featureDict.update({ "AngularSpan3D": openingAngle, "LongitudinalSpan3D": distance })
-    if wireViews[0]:
+    if calculateViews["U"]:
         if pfo.ValidVertex():
             openingAngle, distance = GetConicSpan((pfo.driftCoordU, pfo.wireCoordU), pfo.vertexU, hitFraction)
         featureDict.update({ "AngularSpanU": openingAngle, "LongitudinalSpanU": distance })
-    if wireViews[1]:
+    if calculateViews["V"]:
         if pfo.ValidVertex():
             openingAngle, distance = GetConicSpan((pfo.driftCoordV, pfo.wireCoordV), pfo.vertexV, hitFraction)
         featureDict.update({ "AngularSpanV": openingAngle, "LongitudinalSpanV": distance })
-    if wireViews[2]:
+    if calculateViews["W"]:
         if pfo.ValidVertex():
             openingAngle, distance = GetConicSpan((pfo.driftCoordW, pfo.wireCoordW), pfo.vertexW, hitFraction)
         featureDict.update({ "AngularSpanW": openingAngle, "LongitudinalSpanW": distance })
+    if calculateViews["3D"]:
+        if pfo.ValidVertex():
+            openingAngle, distance = GetConicSpan((pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D), pfo.vertex3D, hitFraction)
+        featureDict.update({ "AngularSpan3D": openingAngle, "LongitudinalSpan3D": distance })
     return featureDict

@@ -7,30 +7,41 @@ from UpRootFileReader import MicroBooneGeo
 from HistoSynthesis import CreateHistogramWire
 from LikelihoodAnalyser import GraphCutoffLine, OptimiseCutoff, PrintPurityEfficiency
 
-myTestArea = "/home/tomalex/Pandora"
+myTestArea = "/home/alexliddiard/Desktop/Pandora/"
 inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 trainingFraction = 0.5
-
-preFilters = (
-    #'purityU>=0.8',
-    #'purityV>=0.8',
-    #'purityW>=0.8',
-    #'completenessU>=0.8',
-    #'completenessV>=0.8',
-    #'completenessW>=0.8',
-    #'absPdgCode != 2112',
-    #'(nHitsU>=10 and nHitsV>=10) or (nHitsU>=10 and nHitsW>=10) or (nHitsV>=10 and nHitsW>=10)',
-    #'nHitsU + nHitsV + nHitsW >= 100',
-    #'nHitsU>=20',
-    #'nHitsV>=20',
-    'nHitsW>=20',
-    'minCoordX >= @MicroBooneGeo.RangeX[0] + 10',
-    'maxCoordX <= @MicroBooneGeo.RangeX[1] - 10',
-    'minCoordY >= @MicroBooneGeo.RangeY[0] + 20',
-    'maxCoordY <= @MicroBooneGeo.RangeY[1] - 20',
-    'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
-    'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
-)
+preFilters = {
+    "general": (
+        'abs(mcPdgCode) != 2112',
+        'minCoordX >= @MicroBooneGeo.RangeX[0] + 10',
+        'maxCoordX <= @MicroBooneGeo.RangeX[1] - 10',
+        'minCoordY >= @MicroBooneGeo.RangeY[0] + 20',
+        'maxCoordY <= @MicroBooneGeo.RangeY[1] - 20',
+        'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
+        'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
+    ),
+    "U": (
+        #'purityU>=0.8',
+        #'completenessU>=0.8',
+        'nHitsU>=20',
+    ),
+    "V": (
+        #'purityV>=0.8',
+        #'completenessV>=0.8',
+        'nHitsV>=20',
+    ),
+    "W": (
+        #'purityW>=0.8',
+        #'completenessW>=0.8',
+        'nHitsW>=20',
+    ),
+    "3D":
+    (
+        #'purityU>=0.8 and purityV>=0.8 and purityW>=0.8',
+        #'completenessU>=0.8 and completenessV>=0.8 and completenessW>=0.8',
+        'nHits3D>=20',
+    )
+}
 
 features = (
     #{'name': 'RSquaredU', 'bins': np.linspace(0, 1, num=50), 'showerCutDirection': 'left'},
@@ -104,16 +115,50 @@ efficiencyPurityPlots = {
     "nTestValues": 1000
 }
 
+def GetFeatureView(featureName):
+    return "3D" if featureName.endswith("3D") else featureName[-1]
+
 # Load the pickle file.
 dfPfoData = pd.read_pickle(inputPickleFile)
 # Apply pre-filters.
-dfPfoData = dfPfoData.query(' and '.join(preFilters))
-dfTrackData = dfPfoData.query("isShower==0")
-dfShowerData = dfPfoData.query("isShower==1")
-print("Testing feature variables using %d tracks and %d showers." % (len(dfTrackData), len(dfShowerData)))
+preFilters["general"] = ' and '.join(preFilters["general"])
+preFilters["U"] = ' and '.join(preFilters["U"])
+preFilters["V"] = ' and '.join(preFilters["V"])
+preFilters["W"] = ' and '.join(preFilters["W"])
+preFilters["3D"] = ' and '.join(preFilters["3D"])
+
+dfPfoData = {"general": dfPfoData.query(preFilters["general"])}
+dfPfoData["shower"] = {"general": dfPfoData["general"].query("isShower==1")}
+dfPfoData["shower"]["U"] = dfPfoData["shower"]["general"].query(preFilters["U"])
+dfPfoData["shower"]["V"] = dfPfoData["shower"]["general"].query(preFilters["V"])
+dfPfoData["shower"]["W"] = dfPfoData["shower"]["general"].query(preFilters["W"])
+dfPfoData["shower"]["3D"] = dfPfoData["shower"]["general"].query(preFilters["3D"])
+dfPfoData["track"] = {"general": dfPfoData["general"].query("isShower==0")}
+dfPfoData["track"]["U"] = dfPfoData["track"]["general"].query(preFilters["U"])
+dfPfoData["track"]["V"] = dfPfoData["track"]["general"].query(preFilters["V"])
+dfPfoData["track"]["W"] = dfPfoData["track"]["general"].query(preFilters["W"])
+dfPfoData["track"]["3D"] = dfPfoData["track"]["general"].query(preFilters["3D"])
+
+print((
+    "Analysing features using the following samples:\n" +
+    "General: %s tracks, %s showers\n" +
+    "U View: %s tracks, %s showers\n" +
+    "V View: %s tracks, %s showers\n" +
+    "W View: %s tracks, %s showers\n" +
+    "3D View: %s tracks, %s showers\n") %
+    (
+        len(dfPfoData["track"]["general"]), len(dfPfoData["shower"]["general"]),
+        len(dfPfoData["track"]["U"]), len(dfPfoData["shower"]["U"]),
+        len(dfPfoData["track"]["V"]), len(dfPfoData["shower"]["V"]),
+        len(dfPfoData["track"]["W"]), len(dfPfoData["shower"]["W"]),
+        len(dfPfoData["track"]["3D"]), len(dfPfoData["shower"]["3D"]),
+    )
+)
 
 for feature in features:
     if efficiencyPurityPlots["plot"]:
+        dfTrackData = dfPfoData["track"][GetFeatureView(feature["name"])]
+        dfShowerData = dfPfoData["shower"][GetFeatureView(feature["name"])]
         # Get optimal purity and efficiency
         testValues = np.linspace(feature["bins"][0], feature["bins"][-1], efficiencyPurityPlots["nTestValues"])
         (
@@ -131,7 +176,7 @@ for feature in features:
         # Plot histograms
         feature['filters'] = featureHistograms["filters"]
         feature['yAxis'] = 'log'
-        fig, ax = CreateHistogramWire(dfPfoData, feature)
+        fig, ax = CreateHistogramWire(pd.concat((dfTrackData, dfShowerData)), feature)
         if efficiencyPurityPlots["plot"]:
             GraphCutoffLine(ax, bestShowerCutoff, True, feature['showerCutDirection'] == 'left')
         plt.savefig('%s distribution for %s' % (feature['name'], ', '.join((filter[0] for filter in feature['filters'])) + '.svg'), format='svg', dpi=1200)
@@ -163,8 +208,10 @@ for feature in features:
         plt.show()
 
 featureNames = [feature['name'] for feature in features]
-featureValuesArray = dfPfoData[featureNames].query("!=-1 and ".join(featureNames) + "!=-1") # Avoid -1 values effecting the correlation values (might be a slight selection bias here)
-rMatrix = featureValuesArray.corr()
+dfPfoDataCorr = dfPfoData["general"]
+for feature in features:
+    dfPfoDataCorr = dfPfoDataCorr.query(feature["name"] + " != -1 and " + preFilters[GetFeatureView(feature["name"])]) # Avoid -1 values effecting the correlation values (might be a slight selection bias here)
+rMatrix = dfPfoDataCorr[featureNames].corr()
 rSquaredMatrix = rMatrix * rMatrix
 sn.heatmap(rSquaredMatrix, annot=True, annot_kws={"size": 20}, cmap="Blues")
 plt.xticks(rotation=45, ha="right", rotation_mode="anchor")

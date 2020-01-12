@@ -93,15 +93,15 @@ def LineFitWithError(x, y, yErr):
     mErr = math.sqrt(S / delta)
     return c, m, cErr, mErr
 
-def GetFeatures(pfo, wireViews):
+def GetFeatures(pfo, calculateViews):
     featureDict = {}
-    if wireViews[0]:
+    if calculateViews["U"]:
         a, b, r2 = OLS(pfo.driftCoordU, pfo.wireCoordU)
         featureDict.update({ "RSquaredU" : r2 })
-    if wireViews[1]:
+    if calculateViews["V"]:
         a, b, r2 = OLS(pfo.driftCoordV, pfo.wireCoordV)
         featureDict.update({ "RSquaredV" : r2 })
-    if wireViews[2]:
+    if calculateViews["W"]:
         a, b, r2 = OLS(pfo.driftCoordW, pfo.wireCoordW)
         featureDict.update({ "RSquaredW" : r2 })
     return featureDict

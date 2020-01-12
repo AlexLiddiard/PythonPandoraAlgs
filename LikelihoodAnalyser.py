@@ -6,7 +6,7 @@ from UpRootFileReader import MicroBooneGeo
 from HistoSynthesis import CreateHistogramWire
 from itertools import count
 
-myTestArea = "/home/jack/Documents/Pandora"
+myTestArea = "/home/alexliddiard/Desktop/Pandora/"
 inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 trainingFraction = 0.5
 performancePreFilters = (

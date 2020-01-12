@@ -32,23 +32,24 @@ def BraggPeak3D(xCoords, yCoords, zCoords, vertex, chargeArray, fraction):
 
 
 
-def GetFeatures(pfo, wireViews, fraction = 0.1):
+def GetFeatures(pfo, calculateViews, fraction = 0.1):
     featureDict = {}
     braggPeak = -1
-    if pfo.ValidVertex():
-        braggPeak = BraggPeak3D(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, pfo.vertex3D, pfo.energy3D, fraction)
-    featureDict.update({"BraggPeak3D": braggPeak})
-    if wireViews[0]:
+    if calculateViews["U"]:
         if pfo.ValidVertex():
             braggPeak =  BraggPeak(pfo.driftCoordU, pfo.wireCoordU, pfo.vertexU, pfo.energyU, fraction)
         featureDict.update({ "BraggPeakU" : braggPeak})
-    if wireViews[1]:
+    if calculateViews["V"]:
         if pfo.ValidVertex():
             braggPeak =  BraggPeak(pfo.driftCoordV, pfo.wireCoordV, pfo.vertexV, pfo.energyV, fraction)
         featureDict.update({ "BraggPeakV" : braggPeak})
-    if wireViews[2]:
+    if calculateViews["W"]:
         if pfo.ValidVertex():
             braggPeak =  BraggPeak(pfo.driftCoordW, pfo.wireCoordW, pfo.vertexW, pfo.energyW, fraction)
         featureDict.update({ "BraggPeakW" : braggPeak})
+    if calculateViews["3D"]:
+        if pfo.ValidVertex():
+            braggPeak = BraggPeak3D(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, pfo.vertex3D, pfo.energy3D, fraction)
+        featureDict.update({"BraggPeak3D": braggPeak})
     return featureDict
 

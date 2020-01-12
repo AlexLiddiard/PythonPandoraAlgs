@@ -12,10 +12,15 @@ import TrackShowerFeatures.ChargedHitBinning as chb
 import TrackShowerFeatures.ChargeStdMeanRatio as csmr
 import TrackShowerFeatures.BraggPeak as bp
 
-myTestArea = "/home/tomalex/Pandora"
+myTestArea = "/home/alexliddiard/Desktop/Pandora/"
 rootFileDirectory = myTestArea + "/PythonPandoraAlgs/ROOT Files"
 outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
-wireViews = (True, True, True)
+calculateViews = {
+    "U": True,
+    "V": True,
+    "W": True,
+    "3D": True
+}
 
 def ProcessFile(filePath):
     events = UpRootFileReader.ReadRootFile(filePath)
@@ -39,32 +44,35 @@ def ProcessFile(filePath):
                 'maxCoordY': max(pfo.yCoord3D),
                 'maxCoordZ': max(pfo.zCoord3D)
             }
-            if wireViews[0]:
+            if calculateViews["U"]:
                 pfoDataDict.update({
                 'nHitsU': pfo.nHitsPfoU,
                 'purityU': pfo.PurityU(),
                 'completenessU': pfo.CompletenessU()
                 })
-            if wireViews[1]:
+            if calculateViews["V"]:
                 pfoDataDict.update({
                 'nHitsV': pfo.nHitsPfoV,
                 'purityV': pfo.PurityV(),
                 'completenessV': pfo.CompletenessV()
                 })
-            if wireViews[2]:
+            if calculateViews["W"]:
                 pfoDataDict.update({
                 'nHitsW': pfo.nHitsPfoW,
                 'purityW': pfo.PurityW(),
                 'completenessW': pfo.CompletenessW()
                 })
-            pfoDataDict.update(lr.GetFeatures(pfo, wireViews))
-            pfoDataDict.update(hb.GetFeatures(pfo, wireViews))
-            pfoDataDict.update(cc.GetFeatures(pfo, wireViews))
-            pfoDataDict.update(asp.GetFeatures(pfo, wireViews))
-            pfoDataDict.update(pca.GetFeatures(pfo, wireViews))
-            pfoDataDict.update(chb.GetFeatures(pfo, wireViews))
-            pfoDataDict.update(csmr.GetFeatures(pfo, wireViews))
-            pfoDataDict.update(bp.GetFeatures(pfo, wireViews))
+            if calculateViews["3D"]:
+                pfoDataDict.update({'nHits3D': pfo.nHitsPfo3D})
+            
+            pfoDataDict.update(lr.GetFeatures(pfo, calculateViews))
+            pfoDataDict.update(hb.GetFeatures(pfo, calculateViews))
+            pfoDataDict.update(cc.GetFeatures(pfo, calculateViews))
+            pfoDataDict.update(asp.GetFeatures(pfo, calculateViews))
+            pfoDataDict.update(pca.GetFeatures(pfo, calculateViews))
+            pfoDataDict.update(chb.GetFeatures(pfo, calculateViews))
+            pfoDataDict.update(csmr.GetFeatures(pfo, calculateViews))
+            pfoDataDict.update(bp.GetFeatures(pfo, calculateViews))
             pfoData.append(pfoDataDict)
     return pd.DataFrame(pfoData)
 

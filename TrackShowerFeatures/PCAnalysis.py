@@ -47,18 +47,19 @@ def Pca(coordSets, intercept = None):
     order = eigenvalues.argsort()
     return np.real(eigenvalues[order]), np.real(eigenvectors[:,order]) # numpy can sometimes return a complex matrix for no apparent reason!
 
-def GetFeatures(pfo, wireViews):
+def GetFeatures(pfo, calculateViews):
     PcaReduce((pfo.driftCoordW, pfo.wireCoordW))
     featureDict = {}
-    var3d, ratio3d = PcaVariance3D(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D)
-    featureDict.update({ "PcaVar3D": var3d, "PcaRatio3D": ratio3d})
-    if wireViews[0]:
+    if calculateViews["U"]:
         var2d, ratio2d = PcaVariance2D(pfo.driftCoordU, pfo.wireCoordU)
         featureDict.update({ "PcaVarU" : var2d, "PcaRatioU": ratio2d})
-    if wireViews[1]:
+    if calculateViews["V"]:
         var2d, ratio2d = PcaVariance2D(pfo.driftCoordV, pfo.wireCoordV)
         featureDict.update({ "PcaVarV" : var2d, "PcaRatioV": ratio2d})
-    if wireViews[2]:
+    if calculateViews["W"]:
         var2d, ratio2d = PcaVariance2D(pfo.driftCoordW, pfo.wireCoordW)
         featureDict.update({ "PcaVarW" : var2d, "PcaRatioW": ratio2d})
+    if calculateViews["3D"]:
+        var3d, ratio3d = PcaVariance3D(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D)
+        featureDict.update({ "PcaVar3D": var3d, "PcaRatio3D": ratio3d})
     return featureDict

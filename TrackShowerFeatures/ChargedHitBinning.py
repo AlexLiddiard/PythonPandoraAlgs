@@ -75,12 +75,12 @@ def GetRotatedBinStdevPCA(driftCoord, wireCoord, binWidth, minBins, energyArray)
     return statistics.stdev(rotatedBins)/np.mean(energyArray)
 
 
-def GetFeatures(pfo, wireViews, binWidth=2, minBins=3):
+def GetFeatures(pfo, calculateViews, binWidth=2, minBins=3):
     featureDict = {}
-    if wireViews[0]:
+    if calculateViews["U"]:
         featureDict.update({ "ChargedBinnedHitStdU" : GetRotatedBinStdevPCA(pfo.driftCoordU, pfo.wireCoordU, binWidth, minBins, pfo.energyU)})
-    if wireViews[1]:
+    if calculateViews["V"]:
         featureDict.update({ "ChargedBinnedHitStdV" : GetRotatedBinStdevPCA(pfo.driftCoordV, pfo.wireCoordV, binWidth, minBins, pfo.energyV)})
-    if wireViews[2]:
+    if calculateViews["W"]:
         featureDict.update({ "ChargedBinnedHitStdW" : GetRotatedBinStdevPCA(pfo.driftCoordW, pfo.wireCoordW, binWidth, minBins, pfo.energyW)})
     return featureDict

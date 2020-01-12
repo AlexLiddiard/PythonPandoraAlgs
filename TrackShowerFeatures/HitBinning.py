@@ -95,24 +95,25 @@ def GetFilteredVertexDistances(coordSets, vertex, hitFraction):
         print(coordSetsNew)
     return distances, hitsInside
 
-def GetFeatures(pfo, wireViews, binWidth=1, minBins=3, hitFraction=1):
+def GetFeatures(pfo, calculateViews, binWidth=1, minBins=3, hitFraction=1):
     featureDict = {}
-    featureDict.update({ 
-            "RadialBinStd3D": GetRadialBinStdev((pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D), pfo.vertex3D, hitFraction, binWidth, minBins)
-    })
-    if wireViews[0]:
+    if calculateViews["U"]:
         featureDict.update({ 
             "BinnedHitStdU": GetRotatedBinStdevPCA(pfo.driftCoordU, pfo.wireCoordU, binWidth, minBins),
             "RadialBinStdU": GetRadialBinStdev((pfo.driftCoordU, pfo.wireCoordU), pfo.vertexU, hitFraction, binWidth, minBins)
         })
-    if wireViews[1]:
+    if calculateViews["V"]:
         featureDict.update({
             "BinnedHitStdV": GetRotatedBinStdevPCA(pfo.driftCoordV, pfo.wireCoordV, binWidth, minBins),
             "RadialBinStdV": GetRadialBinStdev((pfo.driftCoordV, pfo.wireCoordV), pfo.vertexV, hitFraction, binWidth, minBins)
         })
-    if wireViews[2]:
+    if calculateViews["W"]:
         featureDict.update({
             "BinnedHitStdW": GetRotatedBinStdevPCA(pfo.driftCoordW, pfo.wireCoordW, binWidth, minBins),
             "RadialBinStdW": GetRadialBinStdev((pfo.driftCoordW, pfo.wireCoordW), pfo.vertexW, hitFraction, binWidth, minBins)
+        })
+    if calculateViews["3D"]:
+        featureDict.update({ 
+            "RadialBinStd3D": GetRadialBinStdev((pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D), pfo.vertex3D, hitFraction, binWidth, minBins)
         })
     return featureDict
