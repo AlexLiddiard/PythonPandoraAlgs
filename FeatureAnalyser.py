@@ -7,7 +7,7 @@ from UpRootFileReader import MicroBooneGeo
 from HistoSynthesis import CreateHistogramWire
 from LikelihoodAnalyser import GraphCutoffLine, OptimiseCutoff, PrintPurityEfficiency
 
-myTestArea = "/home/tomalex/Pandora/"
+myTestArea = "/home/jack/Documents/Pandora/"
 inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 trainingFraction = 0.5
 preFilters = {
@@ -96,7 +96,11 @@ features = (
     #{'name': 'BraggPeakV', 'bins': np.linspace(0, 1, num=100), 'showerCutDirection': 'left'},
     #{'name': 'BraggPeakW', 'bins': np.linspace(0, 1, num=100), 'showerCutDirection': 'left'},
     #{'name': 'BraggPeak3D', 'bins': np.linspace(0, 1, num=100), 'showerCutDirection': 'left'},
-    {'name': 'Moliere3D', 'bins': np.linspace(0, 0.0002, num=100), 'showerCutDirection': 'right'},
+    #{'name': 'Moliere3D', 'bins': np.linspace(0, 0.0002, num=100), 'showerCutDirection': 'right'},
+    {'name': 'BDTU', 'bins': np.linspace(-0.5, 0.5, num = 40), 'showerCutDirection': 'left'},
+    {'name': 'BDTV', 'bins': np.linspace(-0.5, 0.5, num = 40), 'showerCutDirection': 'left'},
+    {'name': 'BDTW', 'bins': np.linspace(-0.5, 0.5, num = 40), 'showerCutDirection': 'left'},
+    {'name': 'BDT3D', 'bins': np.linspace(-0.5, 0.5, num = 40), 'showerCutDirection': 'left'},
 )
 
 featureHistograms = {
