@@ -6,28 +6,45 @@ from UpRootFileReader import MicroBooneGeo
 from HistoSynthesis import CreateHistogramWire
 from itertools import count
 
-myTestArea = "/home/alexliddiard/Desktop/Pandora/"
+myTestArea = "/home/tomalex/Pandora/"
 inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
+
 trainingFraction = 0.5
-performancePreFilters = (
-    #'purityU>=0.5',
-    #'purityV>=0.5',
-    #'purityW>=0.5',
-    #'completenessU>=0.5',
-    #'completenessV>=0.5',
-    #'completenessW>=0.5',
-    #'(nHitsU>=10 and nHitsV>=10) or (nHitsU>=10 and nHitsW>=10) or (nHitsV>=10 and nHitsW>=10)',
-    #'nHitsU + nHitsV + nHitsW >= 100',
-    'nHitsU>=20',
-    'nHitsV>=20',
-    'nHitsW>=20',
-    'minCoordX >= @MicroBooneGeo.RangeX[0] + 10',
-    'maxCoordX <= @MicroBooneGeo.RangeX[1] - 10',
-    'minCoordY >= @MicroBooneGeo.RangeY[0] + 20',
-    'maxCoordY <= @MicroBooneGeo.RangeY[1] - 20',
-    'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
-    'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
-)
+performancePreFilters = {
+    "general": (
+        'abs(mcPdgCode) != 2112',
+        'minCoordX >= @MicroBooneGeo.RangeX[0] + 10',
+        'maxCoordX <= @MicroBooneGeo.RangeX[1] - 10',
+        'minCoordY >= @MicroBooneGeo.RangeY[0] + 20',
+        'maxCoordY <= @MicroBooneGeo.RangeY[1] - 20',
+        'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
+        'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
+        #'nHitsU>=30 and nHitsV >= 30 and nHitsW>=20 and nHits3D>=30'
+        #"nHitsU + nHitsV + nHitsW >= 100"
+    ),
+    "U": (
+        #'purityU>=0.8',
+        #'completenessU>=0.8',
+        'nHitsU>=100',
+    ),
+    "V": (
+        #'purityV>=0.8',
+        #'completenessV>=0.8',
+        'nHitsV>=100',
+    ),
+    "W": (
+        #'purityW>=0.8',
+        #'completenessW>=0.8',
+        'nHitsW>=100',
+    ),
+    "3D":
+    (
+        #'purityU>=0.8 and purityV>=0.8 and purityW>=0.8',
+        #'completenessU>=0.8 and completenessV>=0.8 and completenessW>=0.8',
+        'nHits3D>=100',
+    )
+}
+
 likelihoodHistograms = (
     {
         'filters': (
@@ -182,16 +199,55 @@ def PrintPurityEfficiency(dfTrackData, dfShowerData, variableName, cutoff, cutof
 
 if __name__ == "__main__":
     # Load the pickle file.
-    dfPfoData = pd.read_pickle(inputPickleFile) #note tha
+    dfPfoData = pd.read_pickle(inputPickleFile)
     nPfoData = len(dfPfoData)
 
-    # Get training PFOs.
-    dfPerfPfoData = dfPfoData[:m.floor(nPfoData * trainingFraction)] # note: the likelihood calculator already shuffles the PFOs
-    # Apply training pre-filters.
-    dfPerfPfoData = dfPerfPfoData.query(' and '.join(performancePreFilters))
-    dfPerfShowerData = dfPerfPfoData.query("isShower==1")
-    dfPerfTrackData = dfPerfPfoData.query("isShower==0")
+    # Get performance PFOs.
+    performancePreFilters["general"] = ' and '.join(performancePreFilters["general"])
+    performancePreFilters["U"] = ' and '.join(performancePreFilters["U"])
+    performancePreFilters["V"] = ' and '.join(performancePreFilters["V"])
+    performancePreFilters["W"] = ' and '.join(performancePreFilters["W"])
+    performancePreFilters["3D"] = ' and '.join(performancePreFilters["3D"])
+
+    viewsUsed = {
+    "U": "ptU" in dfPfoData,
+    "V": "ptV" in dfPfoData,
+    "W": "ptW" in dfPfoData,
+    "3D": "pt3D" in dfPfoData
+    }
+
+    dfPerfPfoData = dfPfoData[m.floor(nPfoData * trainingFraction):].query(performancePreFilters["general"]) # note: the likelihood calculator already shuffles the PFOs
+    
+    viewFilters = []
+    for key in viewsUsed.keys():
+        if viewsUsed[key]:
+            viewFilters.append(performancePreFilters[key])
+    performanceFilter = "(" + ") or (".join(viewFilters) + ")"
+    dfPerfPfoData = dfPerfPfoData.query(performanceFilter)
+    dfPerfPfoData = dfPerfPfoData.reset_index(drop=True)
     nPerfPfoData = len(dfPerfPfoData)
+
+    pfoCheck = {
+        "U": dfPerfPfoData.eval(performancePreFilters["U"]),
+        "V": dfPerfPfoData.eval(performancePreFilters["V"]),
+        "W": dfPerfPfoData.eval(performancePreFilters["W"]),
+        "3D": dfPerfPfoData.eval(performancePreFilters["3D"])
+    }
+
+    print("Preparing likelihood values.")
+    likelihoods = np.zeros(nPerfPfoData)
+    for index, Pfo in dfPerfPfoData.iterrows():
+        pt = 1
+        ps = 1
+        for key in viewsUsed.keys():
+            if viewsUsed[key] and  pfoCheck[key][index]:
+                pt *= Pfo["pt" + key]
+                ps *= Pfo["ps" + key]
+        likelihoods[index] = ps / (pt + ps)
+    dfPerfPfoData["Likelihood"] = likelihoods
+
+    dfPerfTrackData = dfPerfPfoData.query("isShower==0")
+    dfPerfShowerData = dfPerfPfoData.query("isShower==1")
     nPerfShowerData = len(dfPerfShowerData)
     nPerfTrackData = len(dfPerfTrackData)
     print("Testing likelihood using %d tracks and %d showers." % (nPerfTrackData, nPerfShowerData))
