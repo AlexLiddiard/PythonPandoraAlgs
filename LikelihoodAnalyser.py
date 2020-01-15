@@ -114,8 +114,8 @@ def GraphCutoffLine(ax, cutoff, arrows=False, flipArrows=False):
 
 
 def OptimiseCutoff(dfTrackData, dfShowerData, variableName, testCutoffs, showerCutDirection):
-    dfTrackVariable = dfTrackData.query(variableName + "!=-1")[variableName]
-    dfShowerVariable =  dfShowerData.query(variableName + "!=-1")[variableName]
+    dfTrackVariable = dfTrackData[variableName]
+    dfShowerVariable =  dfShowerData[variableName]
     trackEfficiencies = []
     trackPurities = []
     showerEfficiencies = []
@@ -150,8 +150,8 @@ def OptimiseCutoff(dfTrackData, dfShowerData, variableName, testCutoffs, showerC
     )
 
 def PrintPurityEfficiency(dfTrackData, dfShowerData, variableName, cutoff, cutoffDirection='right'):
-    dfTrackVariable = dfTrackData.query(variableName + "!=-1")[variableName]
-    dfShowerVariable =  dfShowerData.query(variableName + "!=-1")[variableName]
+    dfTrackVariable = dfTrackData[variableName]
+    dfShowerVariable =  dfShowerData[variableName]
     print(
         "Track Efficiency %.3f+-%.3f\n"
         "Track Purity %.3f+-%.3f\n"

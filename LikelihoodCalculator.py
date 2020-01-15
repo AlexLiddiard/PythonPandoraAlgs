@@ -50,7 +50,7 @@ performancePreFilters = {
         'maxCoordY <= @MicroBooneGeo.RangeY[1] - 20',
         'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
         'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
-        #'nHitsU>=30 and nHitsV >= 30 and nHitsW>=20 and nHits3D>=30'
+        'nHitsU>=20 and nHitsV >= 20 and nHitsW>=20 and nHits3D>=30'
         #"nHitsU + nHitsV + nHitsW >= 100"
     ),
     "U": (
@@ -90,18 +90,18 @@ features = (
     #{'name': 'ChainCountU', 'pdfBins': np.linspace(1, 50, num=50)},
     #{'name': 'ChainCountV', 'pdfBins': np.linspace(1, 50, num=50)},
     #{'name': 'ChainCountW', 'pdfBins': np.linspace(1, 50, num=50)},
-    {'name': 'ChainRatioAvgU', 'pdfBins': np.linspace(0, 1, num=50)},
-    {'name': 'ChainRatioAvgV', 'pdfBins': np.linspace(0, 1, num=50)},
-    {'name': 'ChainRatioAvgW', 'pdfBins': np.linspace(0, 1, num=50)},
+    ##{'name': 'ChainRatioAvgU', 'pdfBins': np.linspace(0, 1, num=50)},
+    ##{'name': 'ChainRatioAvgV', 'pdfBins': np.linspace(0, 1, num=50)},
+    ##{'name': 'ChainRatioAvgW', 'pdfBins': np.linspace(0, 1, num=50)},
     #{'name': 'ChainRSquaredAvgU', 'pdfBins': np.linspace(0, 1, num=50)},
     #{'name': 'ChainRSquaredAvgV', 'pdfBins': np.linspace(0, 1, num=50)},
     #{'name': 'ChainRSquaredAvgW', 'pdfBins': np.linspace(0, 1, num=50)},
     #{'name': 'ChainRatioStdU', 'pdfBins': np.linspace(0, 0.8, num=50)},
     #{'name': 'ChainRatioStdV', 'pdfBins': np.linspace(0, 0.8, num=50)},
     #{'name': 'ChainRatioStdW', 'pdfBins': np.linspace(0, 0.8, num=50)},
-    {'name': 'ChainRSquaredStdU', 'pdfBins': np.linspace(0, 0.8, num=50)},
-    {'name': 'ChainRSquaredStdV', 'pdfBins': np.linspace(0, 0.8, num=50)},
-    {'name': 'ChainRSquaredStdW', 'pdfBins': np.linspace(0, 0.8, num=50)},
+    ##{'name': 'ChainRSquaredStdU', 'pdfBins': np.linspace(0, 0.8, num=50)},
+    ##{'name': 'ChainRSquaredStdV', 'pdfBins': np.linspace(0, 0.8, num=50)},
+    ##{'name': 'ChainRSquaredStdW', 'pdfBins': np.linspace(0, 0.8, num=50)},
     #{'name': 'AngularSpanU', 'pdfBins': np.linspace(0, m.pi, num=50)},
     #{'name': 'AngularSpanV', 'pdfBins': np.linspace(0, m.pi, num=50)},
     #{'name': 'AngularSpanW', 'pdfBins': np.linspace(0, m.pi, num=50)},
@@ -215,7 +215,6 @@ if __name__ == "__main__":
     showerPrior = nShowersPrior / (nShowersPrior + nTracksPrior)
     trackPrior = nTracksPrior / (nShowersPrior + nTracksPrior)
 
-    #Calculate histogram bins, obtain likelihood from them
     print((
         "Training likelihood using the following samples:\n" +
         "Priors: %s tracks, %s showers\n" +
@@ -231,8 +230,9 @@ if __name__ == "__main__":
             len(dfTrainingPfoData["track"]["3D"]), len(dfTrainingPfoData["shower"]["3D"]),
         )
     )
-    print("Priors: showers %.3f, tracks %.3f" % (dfPfoData["showerPrior"][0], dfPfoData["trackPrior"][0]))
+    print("Priors: showers %.3f, tracks %.3f" % (showerPrior, trackPrior))
 
+    #Calculate histogram bins, obtain likelihood from them
     print("Calculating probabilities")
     probabilities = {
         "track": {

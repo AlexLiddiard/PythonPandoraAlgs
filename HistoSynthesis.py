@@ -15,9 +15,6 @@ plt.rcParams.update(plotStyle)
 # Histogram Creator Programme
 
 def CreateHistogram(df, histogram):
-
-    df = df.query(histogram['name'] + '!=-1')
-
     fig, subplots = plt.subplots(1, len(histogram['filters']), sharey=True, figsize=(20, 7.5))
 
     for ax, (filter, name) in zip(subplots, histogram['filters']):
@@ -39,9 +36,6 @@ def CreateHistogram(df, histogram):
     plt.show()
 
 def CreateHistogramWire(df, histogram):
-
-    df = df.query(histogram['name'] + '!=-1')
-
     fig, ax = plt.subplots(figsize=(10, 7.5))
     fig.tight_layout()
     ax.set_xlabel(histogram['name'])
