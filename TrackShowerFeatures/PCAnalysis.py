@@ -1,6 +1,5 @@
 from sklearn.decomposition import PCA
 import numpy as np
-import TrackShowerFeatures.HitBinning as hb
 import math as m
 import matplotlib.pyplot as plt
 
