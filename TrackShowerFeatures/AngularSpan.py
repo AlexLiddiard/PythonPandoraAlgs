@@ -2,7 +2,6 @@
 import numpy as np
 import math as m
 import TrackShowerFeatures.LinearRegression as lr
-import TrackShowerFeatures.HitBinning as hb
 import TrackShowerFeatures.PCAnalysis as pca
 from UpRootFileReader import MicroBooneGeo
 #import matplotlib.pyplot as plt
@@ -26,7 +25,7 @@ def GetConicSpan(coordSets, vertex, hitFraction):
         return m.nan, m.nan
     coordSetsReduced = pca.PcaReduce(coordSets, vertex)
     hitAnglesFromAxis, halfOpeningAngle = CalcAngles(coordSetsReduced, hitFraction)
-    if halfOpeningAngle == -1:
+    if m.isnan(halfOpeningAngle):
         return m.nan, m.nan
     hitsInside = (hitAnglesFromAxis >= 0) & (hitAnglesFromAxis <= halfOpeningAngle)
     distance = np.amax(np.abs(coordSetsReduced[0,hitsInside]))
