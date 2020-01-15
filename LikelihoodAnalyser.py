@@ -5,45 +5,10 @@ import math as m
 from UpRootFileReader import MicroBooneGeo
 from HistoSynthesis import CreateHistogramWire
 from itertools import count
+import LikelihoodCalculator as lc
 
 myTestArea = "/home/tomalex/Pandora/"
 inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
-
-trainingFraction = 0.5
-performancePreFilters = {
-    "general": (
-        'abs(mcPdgCode) != 2112',
-        'minCoordX >= @MicroBooneGeo.RangeX[0] + 10',
-        'maxCoordX <= @MicroBooneGeo.RangeX[1] - 10',
-        'minCoordY >= @MicroBooneGeo.RangeY[0] + 20',
-        'maxCoordY <= @MicroBooneGeo.RangeY[1] - 20',
-        'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
-        'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
-        #'nHitsU>=30 and nHitsV >= 30 and nHitsW>=20 and nHits3D>=30'
-        #"nHitsU + nHitsV + nHitsW >= 100"
-    ),
-    "U": (
-        #'purityU>=0.8',
-        #'completenessU>=0.8',
-        'nHitsU>=100',
-    ),
-    "V": (
-        #'purityV>=0.8',
-        #'completenessV>=0.8',
-        'nHitsV>=100',
-    ),
-    "W": (
-        #'purityW>=0.8',
-        #'completenessW>=0.8',
-        'nHitsW>=100',
-    ),
-    "3D":
-    (
-        #'purityU>=0.8 and purityV>=0.8 and purityW>=0.8',
-        #'completenessU>=0.8 and completenessV>=0.8 and completenessW>=0.8',
-        'nHits3D>=100',
-    )
-}
 
 likelihoodHistograms = (
     {
@@ -198,76 +163,24 @@ def PrintPurityEfficiency(dfTrackData, dfShowerData, variableName, cutoff, cutof
 )
 
 if __name__ == "__main__":
-    # Load the pickle file.
-    dfPfoData = pd.read_pickle(inputPickleFile)
-    nPfoData = len(dfPfoData)
-
-    # Get performance PFOs.
-    performancePreFilters["general"] = ' and '.join(performancePreFilters["general"])
-    performancePreFilters["U"] = ' and '.join(performancePreFilters["U"])
-    performancePreFilters["V"] = ' and '.join(performancePreFilters["V"])
-    performancePreFilters["W"] = ' and '.join(performancePreFilters["W"])
-    performancePreFilters["3D"] = ' and '.join(performancePreFilters["3D"])
-
-    viewsUsed = {
-    "U": "ptU" in dfPfoData,
-    "V": "ptV" in dfPfoData,
-    "W": "ptW" in dfPfoData,
-    "3D": "pt3D" in dfPfoData
-    }
-
-    dfPerfPfoData = dfPfoData[m.floor(nPfoData * trainingFraction):].query(performancePreFilters["general"]) # note: the likelihood calculator already shuffles the PFOs
-    
-    viewFilters = []
-    for key in viewsUsed.keys():
-        if viewsUsed[key]:
-            viewFilters.append(performancePreFilters[key])
-    performanceFilter = "(" + ") or (".join(viewFilters) + ")"
-    dfPerfPfoData = dfPerfPfoData.query(performanceFilter)
-    dfPerfPfoData = dfPerfPfoData.reset_index(drop=True)
-    nPerfPfoData = len(dfPerfPfoData)
-
-    pfoCheck = {
-        "U": dfPerfPfoData.eval(performancePreFilters["U"]),
-        "V": dfPerfPfoData.eval(performancePreFilters["V"]),
-        "W": dfPerfPfoData.eval(performancePreFilters["W"]),
-        "3D": dfPerfPfoData.eval(performancePreFilters["3D"])
-    }
-
-    print("Preparing likelihood values.")
-    likelihoods = np.zeros(nPerfPfoData)
-    for index, Pfo in dfPerfPfoData.iterrows():
-        pt = 1
-        ps = 1
-        for key in viewsUsed.keys():
-            if viewsUsed[key] and  pfoCheck[key][index]:
-                pt *= Pfo["pt" + key]
-                ps *= Pfo["ps" + key]
-        likelihoods[index] = ps / (pt + ps)
-    dfPerfPfoData["Likelihood"] = likelihoods
-
-    dfPerfTrackData = dfPerfPfoData.query("isShower==0")
-    dfPerfShowerData = dfPerfPfoData.query("isShower==1")
-    nPerfShowerData = len(dfPerfShowerData)
-    nPerfTrackData = len(dfPerfTrackData)
-    print("Testing likelihood using %d tracks and %d showers." % (nPerfTrackData, nPerfShowerData))
+    print("Testing likelihood using %d tracks and %d showers." % (lc.nPerfTrackData, lc.nPerfShowerData))
 
     # Get optimal purity and efficiency
     (
         bestTrackCutoff, trackEfficiencies, trackPurities, trackPurityEfficiencies, 
         bestShowerCutoff, showerEfficiencies, showerPurities, showerPurityEfficiencies
-    ) = OptimiseCutoff(dfPerfTrackData, dfPerfShowerData, 'Likelihood', purityEfficiencyCutoffGraph['testValues'], 'right')
+    ) = OptimiseCutoff(lc.dfPerfTrackData, lc.dfPerfShowerData, 'Likelihood', purityEfficiencyCutoffGraph['testValues'], 'right')
 
     # Printing results for optimal purity and efficiency
     print("\nOptimal track cutoff %.3f" % bestTrackCutoff)
-    PrintPurityEfficiency(dfPerfTrackData, dfPerfShowerData, 'Likelihood', bestTrackCutoff)
+    PrintPurityEfficiency(lc.dfPerfTrackData, lc.dfPerfShowerData, 'Likelihood', bestTrackCutoff)
     print("\nOptimal shower cutoff %.3f" % bestShowerCutoff)
-    PrintPurityEfficiency(dfPerfTrackData, dfPerfShowerData, 'Likelihood', bestShowerCutoff)
+    PrintPurityEfficiency(lc.dfPerfTrackData, lc.dfPerfShowerData, 'Likelihood', bestShowerCutoff)
 
     # Make likelihood histograms.
     for histogram in likelihoodHistograms:
         histogram['name'] = 'Likelihood'
-        fig, ax = CreateHistogramWire(dfPerfPfoData, histogram)
+        fig, ax = CreateHistogramWire(lc.dfPerfPfoData, histogram)
         cutoff = histogram.get('cutoff', '')
         if cutoff == 'shower':
             GraphCutoffLine(ax, bestShowerCutoff, ("Track", "Shower"))
@@ -319,8 +232,8 @@ if __name__ == "__main__":
     binWidth = purityEfficiencyNhitsGraph['bins'][1] - purityEfficiencyNhitsGraph['bins'][0]
 
     for nHitsBinMin in purityEfficiencyNhitsGraph['bins'][:-1]:
-        likelihoodShowersInBin = dfPerfPfoData.query("isShower==1 and (nHitsU + nHitsV + nHitsW) >=@nHitsBinMin and (nHitsU + nHitsV + nHitsW) <@nHitsBinMin+@binWidth")['Likelihood']
-        likelihoodTracksInBin = dfPerfPfoData.query("isShower==0 and (nHitsU + nHitsV + nHitsW) >=@nHitsBinMin and (nHitsU + nHitsV + nHitsW) <@nHitsBinMin+@binWidth")['Likelihood']
+        likelihoodShowersInBin = lc.dfPerfShowerData.query("(nHitsU + nHitsV + nHitsW) >=@nHitsBinMin and (nHitsU + nHitsV + nHitsW) <@nHitsBinMin+@binWidth")['Likelihood']
+        likelihoodTracksInBin = lc.dfPerfTrackData.query("(nHitsU + nHitsV + nHitsW) >=@nHitsBinMin and (nHitsU + nHitsV + nHitsW) <@nHitsBinMin+@binWidth")['Likelihood']
         (
             trackEfficiency, trackEfficiencyError, trackPurity, trackPurityError, trackPurityEfficiency, trackPurityEfficiencyError, 
             showerEfficiency, showerEfficiencyError, showerPurity, showerPurityError, showerPurityEfficiency, showerPurityEfficiencyError

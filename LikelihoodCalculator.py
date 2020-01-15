@@ -41,6 +41,41 @@ trainingPreFilters = {
     )
 }
 
+performancePreFilters = {
+    "general": (
+        'abs(mcPdgCode) != 2112',
+        'minCoordX >= @MicroBooneGeo.RangeX[0] + 10',
+        'maxCoordX <= @MicroBooneGeo.RangeX[1] - 10',
+        'minCoordY >= @MicroBooneGeo.RangeY[0] + 20',
+        'maxCoordY <= @MicroBooneGeo.RangeY[1] - 20',
+        'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
+        'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
+        #'nHitsU>=30 and nHitsV >= 30 and nHitsW>=20 and nHits3D>=30'
+        #"nHitsU + nHitsV + nHitsW >= 100"
+    ),
+    "U": (
+        #'purityU>=0.8',
+        #'completenessU>=0.8',
+        'nHitsU>=100',
+    ),
+    "V": (
+        #'purityV>=0.8',
+        #'completenessV>=0.8',
+        'nHitsV>=100',
+    ),
+    "W": (
+        #'purityW>=0.8',
+        #'completenessW>=0.8',
+        'nHitsW>=100',
+    ),
+    "3D":
+    (
+        #'purityU>=0.8 and purityV>=0.8 and purityW>=0.8',
+        #'completenessU>=0.8 and completenessV>=0.8 and completenessW>=0.8',
+        'nHits3D>=100',
+    )
+}
+
 features = (
     #{'name': 'RSquaredU', 'pdfBins': np.linspace(0, 1, num=50)},
     #{'name': 'RSquaredV', 'pdfBins': np.linspace(0, 1, num=50)},
@@ -111,20 +146,35 @@ def GetViewFeatures(features, view):
 '''Separate true tracks from true showers. Then plot histograms for feature
 values. Convert these histograms in to PDFs using scipy. Plot overlapping
 histograms for track and shower types.'''
+
+print("Loading samples")
 # Load the pickle file.
 dfPfoData = pd.read_pickle(inputPickleFile)
 nPfoData = len(dfPfoData)
 
-# Get training PFOs.
-dfTrainingPfoData = dfPfoData[:m.floor(nPfoData * trainingFraction)]
-
-# Apply training pre-filters.
+# Get training pre-filters, determine views used.
 trainingPreFilters["general"] = ' and '.join(trainingPreFilters["general"])
 trainingPreFilters["U"] = ' and '.join(trainingPreFilters["U"])
 trainingPreFilters["V"] = ' and '.join(trainingPreFilters["V"])
 trainingPreFilters["W"] = ' and '.join(trainingPreFilters["W"])
 trainingPreFilters["3D"] = ' and '.join(trainingPreFilters["3D"])
 
+viewsUsed = {
+    "U": len(GetViewFeatures(features, "U")) > 0,
+    "V": len(GetViewFeatures(features, "V")) > 0,
+    "W": len(GetViewFeatures(features, "W")) > 0,
+    "3D": len(GetViewFeatures(features, "3D")) > 0
+}
+
+# Get performance pre-filters.
+performancePreFilters["general"] = ' and '.join(performancePreFilters["general"])
+performancePreFilters["U"] = ' and '.join(performancePreFilters["U"])
+performancePreFilters["V"] = ' and '.join(performancePreFilters["V"])
+performancePreFilters["W"] = ' and '.join(performancePreFilters["W"])
+performancePreFilters["3D"] = ' and '.join(performancePreFilters["3D"])
+
+# Get training PFOs
+dfTrainingPfoData = dfPfoData[:m.floor(nPfoData * trainingFraction)]
 dfTrainingPfoData = {"general": dfTrainingPfoData.query(trainingPreFilters["general"])}
 dfTrainingPfoData["shower"] = {"general": dfTrainingPfoData["general"].query("isShower==1")}
 dfTrainingPfoData["shower"]["U"] = dfTrainingPfoData["shower"]["general"].query(trainingPreFilters["U"])
@@ -137,81 +187,97 @@ dfTrainingPfoData["track"]["V"] = dfTrainingPfoData["track"]["general"].query(tr
 dfTrainingPfoData["track"]["W"] = dfTrainingPfoData["track"]["general"].query(trainingPreFilters["W"])
 dfTrainingPfoData["track"]["3D"] = dfTrainingPfoData["track"]["general"].query(trainingPreFilters["3D"])
 
-viewsUsed = {
-    "U": len(GetViewFeatures(features, "U")) > 0,
-    "V": len(GetViewFeatures(features, "V")) > 0,
-    "W": len(GetViewFeatures(features, "W")) > 0,
-    "3D": len(GetViewFeatures(features, "3D")) > 0
-}
-
-# Calculate priors
-priorViewFilters = []
+# Get performance PFOs
+dfPerfPfoData = dfPfoData[m.floor(nPfoData * trainingFraction):].query(performancePreFilters["general"]) # note: the likelihood calculator already shuffles the PFOs
+viewFilters = []
 for key in viewsUsed.keys():
     if viewsUsed[key]:
-        priorViewFilters.append(trainingPreFilters[key])
-priorFilter = "(" + ") or (".join(priorViewFilters) + ")"
-nTracksPrior = len(dfTrainingPfoData["track"]["general"].query(priorFilter))
-nShowersPrior = len(dfTrainingPfoData["shower"]["general"].query(priorFilter))
+        viewFilters.append(performancePreFilters[key])
+performanceFilter = "(" + ") or (".join(viewFilters) + ")"
+dfPerfPfoData = dfPerfPfoData.query(performanceFilter)
+dfPerfPfoData = dfPerfPfoData.reset_index(drop=True)
+dfPerfTrackData = dfPerfPfoData.query("isShower==0")
+dfPerfShowerData = dfPerfPfoData.query("isShower==1")
+nPerfPfoData = len(dfPerfPfoData)
+nPerfShowerData = len(dfPerfShowerData)
+nPerfTrackData = len(dfPerfTrackData)
 
-dfPfoData["showerPrior"] = nShowersPrior / (nShowersPrior + nTracksPrior)
-dfPfoData["trackPrior"] = nTracksPrior / (nShowersPrior + nTracksPrior)
+if __name__ == "__main__":
+    # Calculate priors
+    priorViewFilters = []
+    for key in viewsUsed.keys():
+        if viewsUsed[key]:
+            priorViewFilters.append(trainingPreFilters[key])
+    priorFilter = "(" + ") or (".join(priorViewFilters) + ")"
+    nTracksPrior = len(dfTrainingPfoData["track"]["general"].query(priorFilter))
+    nShowersPrior = len(dfTrainingPfoData["shower"]["general"].query(priorFilter))
 
-#Calculate histogram bins, obtain likelihood from them
-print((
-    "Training likelihood using the following samples:\n" +
-    "Priors: %s tracks, %s showers\n" +
-    "U View: %s tracks, %s showers\n" +
-    "V View: %s tracks, %s showers\n" +
-    "W View: %s tracks, %s showers\n" +
-    "3D View: %s tracks, %s showers\n") %
-    (
-        nTracksPrior, nShowersPrior,
-        len(dfTrainingPfoData["track"]["U"]), len(dfTrainingPfoData["shower"]["U"]),
-        len(dfTrainingPfoData["track"]["V"]), len(dfTrainingPfoData["shower"]["V"]),
-        len(dfTrainingPfoData["track"]["W"]), len(dfTrainingPfoData["shower"]["W"]),
-        len(dfTrainingPfoData["track"]["3D"]), len(dfTrainingPfoData["shower"]["3D"]),
+    showerPrior = nShowersPrior / (nShowersPrior + nTracksPrior)
+    trackPrior = nTracksPrior / (nShowersPrior + nTracksPrior)
+
+    #Calculate histogram bins, obtain likelihood from them
+    print((
+        "Training likelihood using the following samples:\n" +
+        "Priors: %s tracks, %s showers\n" +
+        "U View: %s tracks, %s showers\n" +
+        "V View: %s tracks, %s showers\n" +
+        "W View: %s tracks, %s showers\n" +
+        "3D View: %s tracks, %s showers\n") %
+        (
+            nTracksPrior, nShowersPrior,
+            len(dfTrainingPfoData["track"]["U"]), len(dfTrainingPfoData["shower"]["U"]),
+            len(dfTrainingPfoData["track"]["V"]), len(dfTrainingPfoData["shower"]["V"]),
+            len(dfTrainingPfoData["track"]["W"]), len(dfTrainingPfoData["shower"]["W"]),
+            len(dfTrainingPfoData["track"]["3D"]), len(dfTrainingPfoData["shower"]["3D"]),
+        )
     )
-)
-print("Priors: showers %.3f, tracks %.3f" % (dfPfoData["showerPrior"][0], dfPfoData["trackPrior"][0]))
+    print("Priors: showers %.3f, tracks %.3f" % (dfPfoData["showerPrior"][0], dfPfoData["trackPrior"][0]))
 
-probabilities = {
-    "track": {
-        "U": np.repeat(1., nPfoData),
-        "V": np.repeat(1., nPfoData),
-        "W": np.repeat(1., nPfoData),
-        "3D": np.repeat(1., nPfoData)
-    },
-    "shower": {
-        "U": np.repeat(1., nPfoData),
-        "V": np.repeat(1., nPfoData),
-        "W": np.repeat(1., nPfoData),
-        "3D": np.repeat(1., nPfoData)
+    print("Calculating probabilities")
+    probabilities = {
+        "track": {
+            "U": np.repeat(1., nPfoData),
+            "V": np.repeat(1., nPfoData),
+            "W": np.repeat(1., nPfoData),
+            "3D": np.repeat(1., nPfoData)
+        },
+        "shower": {
+            "U": np.repeat(1., nPfoData),
+            "V": np.repeat(1., nPfoData),
+            "W": np.repeat(1., nPfoData),
+            "3D": np.repeat(1., nPfoData)
+        }
     }
-}
+    for feature in features:
+        showerHist, binEdges = np.histogram(dfTrainingPfoData["shower"][GetFeatureView(feature['name'])][feature['name']], bins=feature['pdfBins'], density=True)
+        trackHist, binEdges = np.histogram(dfTrainingPfoData["track"][GetFeatureView(feature['name'])][feature['name']], bins=feature['pdfBins'], density=True)
+        showerHist = np.concatenate(([1], showerHist, [1])) # values that fall outside the histogram range will not be used for calculating likelihood
+        showerHist[showerHist==0] = delta # Avoid nan-valued likelihoods by replacing zero probability densities with a tiny positive number
+        trackHist[trackHist==0] = delta
+        trackHist = np.concatenate(([1], trackHist, [1]))
+        featureValues = dfPfoData[feature['name']]
+        histIndices = np.digitize(featureValues, feature['pdfBins'])
+        probabilities["track"][GetFeatureView(feature['name'])] *= trackHist[histIndices]
+        probabilities["shower"][GetFeatureView(feature['name'])] *= showerHist[histIndices]
 
-for feature in features:
-    showerHist, binEdges = np.histogram(dfTrainingPfoData["shower"][GetFeatureView(feature['name'])][feature['name']], bins=feature['pdfBins'], density=True)
-    trackHist, binEdges = np.histogram(dfTrainingPfoData["track"][GetFeatureView(feature['name'])][feature['name']], bins=feature['pdfBins'], density=True)
-    showerHist = np.concatenate(([1], showerHist, [1])) # values that fall outside the histogram range will not be used for calculating likelihood
-    showerHist[showerHist==0] = delta # Avoid nan-valued likelihoods by replacing zero probability densities with a tiny positive number
-    trackHist[trackHist==0] = delta
-    trackHist = np.concatenate(([1], trackHist, [1]))
-    featureValues = dfPfoData[feature['name']]
-    histIndices = np.digitize(featureValues, feature['pdfBins'])
-    probabilities["track"][GetFeatureView(feature['name'])] *= trackHist[histIndices]
-    probabilities["shower"][GetFeatureView(feature['name'])] *= showerHist[histIndices]
+    pfoCheck = {
+        "U": dfPfoData.eval(performancePreFilters["U"]),
+        "V": dfPfoData.eval(performancePreFilters["V"]),
+        "W": dfPfoData.eval(performancePreFilters["W"]),
+        "3D": dfPfoData.eval(performancePreFilters["3D"])
+    }
 
-if len(GetViewFeatures(features, "U")) > 0:
-    dfPfoData["ptU"] = probabilities["track"]["U"]
-    dfPfoData["psU"] = probabilities["shower"]["U"]
-if len(GetViewFeatures(features, "V")) > 0:
-    dfPfoData["ptV"] = probabilities["track"]["V"]
-    dfPfoData["psV"] = probabilities["shower"]["V"]
-if len(GetViewFeatures(features, "W")) > 0:
-    dfPfoData["ptW"] = probabilities["track"]["W"]
-    dfPfoData["psW"] = probabilities["shower"]["W"]
-if len(GetViewFeatures(features, "3D")) > 0:
-    dfPfoData["pt3D"] = probabilities["track"]["3D"]
-    dfPfoData["ps3D"] = probabilities["shower"]["3D"]
-dfPfoData.to_pickle(outputPickleFile)
-print("Finished!")
+    print("Calculating likelihood values.")
+    likelihoods = np.zeros(nPfoData)
+    for i in range(0, nPfoData):
+        pt = trackPrior
+        ps = showerPrior
+        for key in viewsUsed.keys():
+            if viewsUsed[key] and  pfoCheck[key][i]:
+                pt *= probabilities["track"][key][i]
+                ps *= probabilities["shower"][key][i]
+        likelihoods[i] = ps / (pt + ps)
+
+    dfPfoData["Likelihood"] = likelihoods
+    dfPfoData.to_pickle(outputPickleFile)
+    print("Finished!")
