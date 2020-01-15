@@ -1,10 +1,11 @@
 import statistics
 import numpy as np
+import math as m
 
 def GetPlaneChargeStdMeanRatio(energyArray):
     
     if len(energyArray) < 2:
-        return -1
+        return m.nan
 
     return np.std(energyArray)/np.mean(energyArray)
 

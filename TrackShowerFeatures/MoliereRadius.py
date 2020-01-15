@@ -1,4 +1,4 @@
-import math
+import math as m
 import numpy as np
 import TrackShowerFeatures.PCAnalysis as pca
 
@@ -19,7 +19,7 @@ def MoliereRadius(xCoord, yCoord, zCoord, vertex, chargeArray, fraction):
 
 def GetFeatures(pfo, calculateViews, fraction = 0.4):
     featureDict = {}
-    moliere = -1
+    moliere = m.nan
     if  calculateViews["3D"]:
         if pfo.ValidVertex():
             moliere =  MoliereRadius(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, pfo.vertex3D, pfo.energy3D, fraction)

@@ -10,13 +10,13 @@ def ZeroCorrect(values):
 
 def PcaVariance2D(xCoords, yCoords):
     if len(xCoords) < 3:
-        return -1, -1
+        return m.nan, m.nan
     eigenvalues, eigenvectors = Pca((xCoords, yCoords))
     return eigenvalues[0], eigenvalues[0] / eigenvalues[1]
 
 def PcaVariance3D(xCoords, yCoords, zCoords):
     if len(xCoords) < 3:
-        return -1, -1
+        return m.nan, m.nan
     eigenvalues, eigenvectors = Pca((xCoords, yCoords, zCoords))
     axialVariance = m.sqrt(eigenvalues[0] + eigenvalues[1])
     return axialVariance, axialVariance / m.sqrt(eigenvalues[2])

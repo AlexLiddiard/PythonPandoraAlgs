@@ -1,5 +1,5 @@
 # This module is for track/shower algorithm #0
-import math
+import math as m
 import numpy as np
 import scipy.optimize as opt
 
@@ -7,7 +7,7 @@ import scipy.optimize as opt
 def OLS(xCoords, yCoords):
     n = xCoords.size
     if n < 2:
-        return float("inf"), float("inf"), -1
+        return m.inf, m.inf, m.nan
     Sxy = np.sum(xCoords * yCoords)
     Sxx = np.sum(xCoords * xCoords)
     Syy = np.sum(yCoords * yCoords)
@@ -17,7 +17,7 @@ def OLS(xCoords, yCoords):
     yvar = n * Syy - Sy * Sy # This is actually yvar * n * n
     cvar = n * Sxy - Sx * Sy # This is actually cvar * n * n
     if xvar == 0:
-        return float("inf"), xCoords[0], 1
+        return m.inf, xCoords[0], 1
     elif yvar == 0:
         return 0, yCoords[0], 1
     else:
@@ -30,14 +30,14 @@ def OLSNoIntercept(xCoords, yCoords):
     Sxy = np.sum(xCoords * yCoords)
     Sxx = np.sum(xCoords * xCoords)
     if Sxx == 0:
-        return float("inf")
+        return m.inf
     b = Sxy / Sxx
     return b
 
 def RSquared(xCoords, yCoords):
     n = xCoords.size
     if n == 0:
-        return -1
+        return m.nan
 
     Sxy = np.sum(xCoords * yCoords)
     Sxx = np.sum(xCoords * xCoords)
@@ -48,7 +48,7 @@ def RSquared(xCoords, yCoords):
     tmp1 = n * Sxy - Sx * Sy
     tmp2 = (n * Syy - Sy * Sy) * (n * Sxx - Sx * Sx)
     if tmp2 == 0:
-        return -1
+        return m.nan
 
     return (tmp1 * tmp1) / tmp2
 
@@ -76,8 +76,8 @@ def LineFitScipy(x, y, yErr):
     popt, pcov = opt.curve_fit(LineEqn, x, y, p0, sigma=yErr)
     yfit = LineEqn(x, *popt)
     gradOpt = popt[0]
-    gradErr = math.sqrt(pcov[0,0])
-    angleErr = abs(math.atan(gradOpt + gradErr) - math.atan(gradOpt))
+    gradErr = m.sqrt(pcov[0,0])
+    angleErr = abs(m.atan(gradOpt + gradErr) - m.atan(gradOpt))
     return angleErr, RSquaredNew(y, yfit)
 
 def LineFitWithError(x, y, yErr):
@@ -89,8 +89,8 @@ def LineFitWithError(x, y, yErr):
     delta = S * Sxx - Sx * Sx
     c = (Sxx * Sy - Sx * Sxy) / delta
     m = (S * Sxy - Sx * Sy) / delta
-    cErr = math.sqrt(Sxx / delta)
-    mErr = math.sqrt(S / delta)
+    cErr = m.sqrt(Sxx / delta)
+    mErr = m.sqrt(S / delta)
     return c, m, cErr, mErr
 
 def GetFeatures(pfo, calculateViews):
