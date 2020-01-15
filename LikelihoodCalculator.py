@@ -3,7 +3,7 @@ import pandas as pd
 import math as m
 from UpRootFileReader import MicroBooneGeo
 
-myTestArea = "/home/tomalex/Pandora/"
+myTestArea = "/home/jack/Documents/Pandora/"
 inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 
@@ -50,29 +50,29 @@ performancePreFilters = {
         'maxCoordY <= @MicroBooneGeo.RangeY[1] - 20',
         'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
         'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
-        'nHitsU>=20 and nHitsV >= 20 and nHitsW>=20 and nHits3D>=30'
+        'nHitsU>=20 and nHitsV >= 20 and nHitsW>=20 and nHits3D>=20'
         #"nHitsU + nHitsV + nHitsW >= 100"
     ),
     "U": (
         #'purityU>=0.8',
         #'completenessU>=0.8',
-        'nHitsU>=100',
+        'nHitsU>=20',
     ),
     "V": (
         #'purityV>=0.8',
         #'completenessV>=0.8',
-        'nHitsV>=100',
+        'nHitsV>=20',
     ),
     "W": (
         #'purityW>=0.8',
         #'completenessW>=0.8',
-        'nHitsW>=100',
+        'nHitsW>=20',
     ),
     "3D":
     (
         #'purityU>=0.8 and purityV>=0.8 and purityW>=0.8',
         #'completenessU>=0.8 and completenessV>=0.8 and completenessW>=0.8',
-        'nHits3D>=100',
+        'nHits3D>=20',
     )
 }
 
@@ -117,7 +117,7 @@ features = (
     #{'name': 'PcaRatioU', 'pdfBins': np.linspace(0, 0.4, num=50)},
     #{'name': 'PcaRatioV', 'pdfBins': np.linspace(0, 0.4, num=50)},
     #{'name': 'PcaRatioW', 'pdfBins': np.linspace(0, 0.4, num=50)},
-    {'name': 'PcaRatio3D', 'pdfBins': np.linspace(0, 0.4, num=50)},
+    #{'name': 'PcaRatio3D', 'pdfBins': np.linspace(0, 0.4, num=50)},
     #{'name': 'ChargedBinnedHitStdU', 'pdfBins': np.linspace(0, 100, num=25)},
     #{'name': 'ChargedBinnedHitStdV', 'pdfBins': np.linspace(0, 100, num=25)},
     #{'name': 'ChargedBinnedHitStdW', 'pdfBins': np.linspace(0, 100, num=25)},
@@ -127,8 +127,12 @@ features = (
     #{'name': 'BraggPeakU', 'pdfBins': np.linspace(0, 1, num=100)},
     #{'name': 'BraggPeakV', 'pdfBins': np.linspace(0, 1, num=100)},
     #{'name': 'BraggPeakW', 'pdfBins': np.linspace(0, 1, num=100)},
-    {'name': 'BraggPeak3D', 'pdfBins': np.linspace(0, 1, num=100)},
-    {'name': 'Moliere3D', 'pdfBins': np.linspace(0, 0.0002, num=100)}
+    #{'name': 'BraggPeak3D', 'pdfBins': np.linspace(0, 1, num=100)},
+    #{'name': 'Moliere3D', 'pdfBins': np.linspace(0, 0.0002, num=100)},
+    {'name': 'BDTU', 'pdfBins': np.linspace(-10, 15, num = 50)},
+    {'name': 'BDTV', 'pdfBins': np.linspace(-10, 15, num = 50)},
+    {'name': 'BDTW', 'pdfBins': np.linspace(-10, 15, num = 50)},
+    {'name': 'BDT3D', 'pdfBins': np.linspace(-10, 15, num = 50)},
 )
 
 delta = 1e-12

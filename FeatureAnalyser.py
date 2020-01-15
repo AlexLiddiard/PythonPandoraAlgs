@@ -7,7 +7,7 @@ from UpRootFileReader import MicroBooneGeo
 from HistoSynthesis import CreateHistogramWire
 from LikelihoodAnalyser import GraphCutoffLine, OptimiseCutoff, PrintPurityEfficiency
 
-myTestArea = "/home/tomalex/Pandora/"
+myTestArea = "/home/jack/Documents/Pandora/"
 inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 trainingFraction = 0.5
 preFilters = {
@@ -44,7 +44,7 @@ preFilters = {
 }
 
 features = (
-    {'name': 'RSquaredU', 'bins': np.linspace(0, 1, num=50), 'showerCutDirection': 'left'},
+    #{'name': 'RSquaredU', 'bins': np.linspace(0, 1, num=50), 'showerCutDirection': 'left'},
     #{'name': 'RSquaredV', 'bins': np.linspace(0, 1, num=50), 'showerCutDirection': 'left'},
     #{'name': 'RSquaredW', 'bins': np.linspace(0, 1, num=50), 'showerCutDirection': 'left'},
     #{'name': 'BinnedHitStdU', 'bins': np.linspace(0, 12, num=50), 'showerCutDirection': 'right'},
@@ -97,10 +97,11 @@ features = (
     #{'name': 'BraggPeakW', 'bins': np.linspace(0, 1, num=100), 'showerCutDirection': 'left'},
     #{'name': 'BraggPeak3D', 'bins': np.linspace(0, 1, num=100), 'showerCutDirection': 'left'},
     #{'name': 'Moliere3D', 'bins': np.linspace(0, 0.0002, num=100), 'showerCutDirection': 'right'},
-    #{'name': 'BDTU', 'bins': np.linspace(-0.5, 0.5, num = 40), 'showerCutDirection': 'left'},
-    #{'name': 'BDTV', 'bins': np.linspace(-0.5, 0.5, num = 40), 'showerCutDirection': 'left'},
-    #{'name': 'BDTW', 'bins': np.linspace(-0.5, 0.5, num = 40), 'showerCutDirection': 'left'},
-    #{'name': 'BDT3D', 'bins': np.linspace(-0.5, 0.5, num = 40), 'showerCutDirection': 'left'},
+    {'name': 'BDTU', 'bins': np.linspace(-10, 15, num = 200), 'showerCutDirection': 'left'},
+    {'name': 'BDTV', 'bins': np.linspace(-10, 15, num = 200), 'showerCutDirection': 'left'},
+    {'name': 'BDTW', 'bins': np.linspace(-10, 15, num = 200), 'showerCutDirection': 'left'},
+    {'name': 'BDT3D', 'bins': np.linspace(-10, 15, num = 200), 'showerCutDirection': 'left'},
+    {'name': 'TheBigOne', 'bins': np.linspace(-10, 15, num = 200), 'showerCutDirection': 'left'},
 )
 
 featureHistograms = {
@@ -121,7 +122,12 @@ efficiencyPurityPlots = {
 }
 
 def GetFeatureView(featureName):
-    return "3D" if featureName.endswith("3D") else featureName[-1]
+    if featureName.endswith("3D"):
+        return "3D"
+    if featureName[-1] in ["U", "V", "W"]:
+        return featureName[-1]
+    else:
+        return "intersection"
 
 # Load the pickle file.
 dfPfoData = pd.read_pickle(inputPickleFile)
@@ -131,6 +137,10 @@ preFilters["U"] = ' and '.join(preFilters["U"])
 preFilters["V"] = ' and '.join(preFilters["V"])
 preFilters["W"] = ' and '.join(preFilters["W"])
 preFilters["3D"] = ' and '.join(preFilters["3D"])
+viewFilters = [preFilters[x] for x in ["U", "V", "W", "3D"]]
+preFilters["union"] = "(" + ") or (".join(viewFilters) + ")"
+preFilters["intersection"] = "(" + ") and (".join(viewFilters) + ")"
+
 
 dfPfoData = {"general": dfPfoData.query(preFilters["general"])}
 dfPfoData["shower"] = {"general": dfPfoData["general"].query("isShower==1")}
@@ -138,11 +148,15 @@ dfPfoData["shower"]["U"] = dfPfoData["shower"]["general"].query(preFilters["U"])
 dfPfoData["shower"]["V"] = dfPfoData["shower"]["general"].query(preFilters["V"])
 dfPfoData["shower"]["W"] = dfPfoData["shower"]["general"].query(preFilters["W"])
 dfPfoData["shower"]["3D"] = dfPfoData["shower"]["general"].query(preFilters["3D"])
+dfPfoData["shower"]["union"] = dfPfoData["shower"]["general"].query(preFilters["union"])
+dfPfoData["shower"]["intersection"] = dfPfoData["shower"]["general"].query(preFilters["intersection"])
 dfPfoData["track"] = {"general": dfPfoData["general"].query("isShower==0")}
 dfPfoData["track"]["U"] = dfPfoData["track"]["general"].query(preFilters["U"])
 dfPfoData["track"]["V"] = dfPfoData["track"]["general"].query(preFilters["V"])
 dfPfoData["track"]["W"] = dfPfoData["track"]["general"].query(preFilters["W"])
 dfPfoData["track"]["3D"] = dfPfoData["track"]["general"].query(preFilters["3D"])
+dfPfoData["track"]["union"] = dfPfoData["track"]["general"].query(preFilters["union"])
+dfPfoData["track"]["intersection"] = dfPfoData["track"]["general"].query(preFilters["intersection"])
 
 print((
     "Analysing features using the following samples:\n" +
