@@ -12,29 +12,29 @@ def CalcAngles(coordSetsReduced, hitFraction):
     lCoord = coordSetsReduced[0]
     tCoords = coordSetsReduced[1:]
     if len(lCoord) == 0:
-        return np.array([]), -1
+        return np.array([]), m.nan
     if (lCoord > 0).sum() < len(lCoord) / 2:
         lCoord *= -1 # Flip the longitudinal coords so the majority are positive
     if (lCoord > 0).sum() == 0: # Rarely there is an array of (0, 0, 0)s, and it will fail without this check
-        return np.array([]), -1
+        return np.array([]), m.nan
     hitAnglesFromAxis = np.arctan2(np.linalg.norm(tCoords, axis=0), lCoord)
     halfOpeningAngle = np.percentile(hitAnglesFromAxis[lCoord > 0], hitFraction * 100)
     return hitAnglesFromAxis, halfOpeningAngle
 
 def GetConicSpan(coordSets, vertex, hitFraction):
     if len(coordSets[0]) == 0:
-        return -1, -1
+        return m.nan, m.nan
     coordSetsReduced = pca.PcaReduce(coordSets, vertex)
     hitAnglesFromAxis, halfOpeningAngle = CalcAngles(coordSetsReduced, hitFraction)
     if halfOpeningAngle == -1:
-        return -1, -1
+        return m.nan, m.nan
     hitsInside = (hitAnglesFromAxis >= 0) & (hitAnglesFromAxis <= halfOpeningAngle)
     distance = np.amax(np.abs(coordSetsReduced[0,hitsInside]))
     return halfOpeningAngle * 2, distance
 
 def GetFeatures(pfo, calculateViews, hitFraction=0.7):
     featureDict = {}
-    openingAngle, distance = -1, -1
+    openingAngle, distance = m.nan, m.nan
     if calculateViews["U"]:
         if pfo.ValidVertex():
             openingAngle, distance = GetConicSpan((pfo.driftCoordU, pfo.wireCoordU), pfo.vertexU, hitFraction)

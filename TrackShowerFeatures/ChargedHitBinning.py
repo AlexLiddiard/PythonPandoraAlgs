@@ -1,6 +1,6 @@
 # This module is for track/shower algorithm #4
 import statistics
-import math
+import math as m
 import numpy as np
 import TrackShowerFeatures.LinearRegression as lr
 import TrackShowerFeatures.PCAnalysis as pca
@@ -43,7 +43,7 @@ def RotatePointsClockwise(xCoords, yCoords, tan):
     return xCoordsNew, yCoordsNew
 
 def TanToSinCos(tan):
-    cos = 1 / math.sqrt(1 + tan * tan)
+    cos = 1 / m.sqrt(1 + tan * tan)
     sin = tan * cos
     return sin, cos
 
@@ -62,7 +62,7 @@ def GetRotatedBinStdevOLS(driftCoord, wireCoord, binWidth, minBins, energyArray)
         return statistics.stdev(rotatedBins)
     else:
         # Insufficient bins
-        return -1
+        return m.nan
 
 def GetRotatedBinStdevPCA(driftCoord, wireCoord, binWidth, minBins, energyArray):
     lCoord, tCoord = pca.PcaReduce((driftCoord, wireCoord))
@@ -70,7 +70,7 @@ def GetRotatedBinStdevPCA(driftCoord, wireCoord, binWidth, minBins, energyArray)
 
     # Ensure there are enough bins
     if len(rotatedBins) < minBins:
-        return -1
+        return m.nan
     # Get stdev of the bin counts
     return statistics.stdev(rotatedBins)/np.mean(energyArray)
 

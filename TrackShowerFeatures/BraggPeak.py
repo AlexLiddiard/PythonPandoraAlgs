@@ -1,23 +1,23 @@
-import math
+import math as m
 import numpy as np
 
 def BraggPeak(xCoords, wireCoords, vertex, chargeArray, fraction):
     if len(xCoords) == 0:
-        return -1
+        return m.nan
     xCoordsNew = xCoords - vertex[0]
     wireCoordsNew = wireCoords - vertex[1]
     magnitudes = np.sqrt(np.square(xCoordsNew) + np.square(wireCoordsNew))
     order = magnitudes.argsort()
     orderedChargeArray = chargeArray[order]
     
-    frac = math.floor(fraction*len(orderedChargeArray) - 1)
+    frac = m.floor(fraction*len(orderedChargeArray) - 1)
     braggArray = orderedChargeArray[-frac:]
     
     return np.sum(braggArray)/np.sum(chargeArray)
 
 def BraggPeak3D(xCoords, yCoords, zCoords, vertex, chargeArray, fraction):
     if len(xCoords) == 0:
-        return -1
+        return m.nan
     xCoordsNew = xCoords - vertex[0]
     yCoordsNew = yCoords - vertex[1]
     zCoordsNew = zCoords - vertex[2]
@@ -25,7 +25,7 @@ def BraggPeak3D(xCoords, yCoords, zCoords, vertex, chargeArray, fraction):
     order = magnitudes.argsort()
     orderedChargeArray = chargeArray[order]
 
-    frac = math.floor(fraction*len(orderedChargeArray) - 1)
+    frac = m.floor(fraction*len(orderedChargeArray) - 1)
     braggArray = orderedChargeArray[-frac:]
 
     return np.sum(braggArray)/np.sum(chargeArray)
@@ -34,7 +34,7 @@ def BraggPeak3D(xCoords, yCoords, zCoords, vertex, chargeArray, fraction):
 
 def GetFeatures(pfo, calculateViews, fraction = 0.1):
     featureDict = {}
-    braggPeak = -1
+    braggPeak = m.nan
     if calculateViews["U"]:
         if pfo.ValidVertex():
             braggPeak =  BraggPeak(pfo.driftCoordU, pfo.wireCoordU, pfo.vertexU, pfo.energyU, fraction)

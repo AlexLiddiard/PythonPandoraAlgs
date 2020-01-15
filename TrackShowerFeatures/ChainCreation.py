@@ -1,5 +1,5 @@
 # This module is for track/shower feature #2
-import math
+import math as m
 import numpy as np
 import TrackShowerFeatures.LinearRegression as lr
 import TrackShowerFeatures.HitBinning as hb
@@ -10,7 +10,7 @@ from statistics import stdev, mean
 # It's quite slow
 def NearestPoint(pointX, pointY, pointListX, pointListY):
     nearestPointIndex = 0
-    shortestDistance2 = float("inf")
+    shortestDistance2 = m.inf
     for i in range(0, len(pointListX)):
         tmp = Distance2(pointX, pointY, pointListX[i], pointListY[i])
         if tmp < shortestDistance2:
@@ -41,8 +41,8 @@ def NearestPointInRectangleAdvanced(pointX, pointY, pointListX, pointListY,
     yLow += pointYnew
     yHigh += pointYnew
 
-    nearestPointIndex = -1
-    shortestDistance2 = float("inf")
+    nearestPointIndex = m.nan
+    shortestDistance2 = m.inf
     for i, x, y in zip(count(), pointListX, pointListY):
         yNew = y * rectRotateCos - x * rectRotateSin
         if yNew < yLow:
@@ -71,8 +71,8 @@ def NearestPointInRectangleSimple(pointX, pointY, pointListX, pointListY, rectWi
     xHigh = pointX + rectWidth / 2
     yLow = pointY - rectHeight / 2
     yHigh = pointY + rectHeight / 2
-    nearestPointIndex = -1
-    shortestDistance2 = float("inf")
+    nearestPointIndex = m.nan
+    shortestDistance2 = m.inf
     for i in range(0, len(pointListX)):
         xTest = pointListX[i]
         yTest = pointListY[i]
@@ -122,7 +122,7 @@ def CreatePointChain1(pointListX, pointListY, maxSeparation2):
             currentY = pointListY.pop(nearestPointIndex)
             chainX.append(currentX)
             chainY.append(currentY)
-            chainLength += math.sqrt(distance2)
+            chainLength += m.sqrt(distance2)
         else:
             nearbyPoints = False
     return chainX, chainY, chainLength
@@ -138,15 +138,15 @@ def CreatePointChain2(pointListX, pointListY, rectWidth, rectHeight):
     nearbyPoints = True
     while (nearbyPoints):
         nearestPointIndex, distance2 = NearestPointInRectangleSimple(currentX, currentY, pointListX, pointListY, rectWidth, rectHeight)
-        if nearestPointIndex >= 0:
+        if not m.isnan(nearestPointIndex):
             currentX = pointListX.pop(nearestPointIndex)
             currentY = pointListY.pop(nearestPointIndex)
             chainX.append(currentX)
             chainY.append(currentY)
-            chainLength += math.sqrt(distance2)
+            chainLength += m.sqrt(distance2)
         else:
             nearbyPoints = False
-    return chainX, chainY, chainLength, math.sqrt(Distance2(chainX[0], chainY[0], chainX[-1], chainY[-1]))
+    return chainX, chainY, chainLength, m.sqrt(Distance2(chainX[0], chainY[0], chainX[-1], chainY[-1]))
 
 # Same as above, but with an intelligent placement of the square based on local correlation
 # Less efficient than previous version
@@ -163,7 +163,7 @@ def CreatePointChain3(pointListX, pointListY, rectWidth, rectHeight, rectOffsetX
         correlationPointsX = np.array(chainX[-localCorrelationPoints:])
         correlationPointsY = np.array(chainY[-localCorrelationPoints:])
         a, b, r2 = lr.OLS(correlationPointsX, correlationPointsY)
-        if r2 != -1:
+        if not m.isnan(r2):
             if len(chainX) >= localCorrelationPoints:
                 sumRSquared += r2
                 nRSquared += 1
@@ -174,24 +174,24 @@ def CreatePointChain3(pointListX, pointListY, rectWidth, rectHeight, rectOffsetX
             nextPointIndex, distance2 = NearestPointInRectangleAdvanced(currentX, currentY, pointListX, pointListY, rectWidth, rectHeight, rectOffsetX, rectOffestY, rectMirrorX, False, b)
         else:
             nextPointIndex, distance2 = NearestPointInRectangleSimple(currentX, currentY, pointListX, pointListY, squareSideLength, squareSideLength)
-        if nextPointIndex >= 0:
+        if not m.isnan(nextPointIndex):
             currentX = pointListX.pop(nextPointIndex)
             currentY = pointListY.pop(nextPointIndex)
             chainX.append(currentX)
             chainY.append(currentY)
-            chainLength += math.sqrt(distance2)
+            chainLength += m.sqrt(distance2)
         else:
             nearbyPoints = False
 
-    avgRSquared = sumRSquared / nRSquared if nRSquared > 0 else -1
-    return chainX, chainY, chainLength, math.sqrt(Distance2(chainX[0], chainY[0], chainX[-1], chainY[-1])), avgRSquared
+    avgRSquared = sumRSquared / nRSquared if nRSquared > 0 else m.nan
+    return chainX, chainY, chainLength, m.sqrt(Distance2(chainX[0], chainY[0], chainX[-1], chainY[-1])), avgRSquared
 
 
 
 def SlidingPearsonRSquared(chainX, chainY, pointsPerSlide):
     chainX, chainY = np.array(chainX), np.array(chainY)
     if len(chainX) <= pointsPerSlide:
-        return lr.OLS(chainX, chainY)[2], -1
+        return lr.OLS(chainX, chainY)[2], m.nan
     else:
         chainRSquareds = []
         n = len(chainX) - pointsPerSlide + 1
@@ -209,7 +209,7 @@ def GetChainInfoAdvanced(driftCoord, wireCoord, rectWidth, rectHeight, rectOffse
 
     while driftCoord:    # While pfo hit list is not empty
         chainX, chainY, chainLength, chainDisplacement, avgR2 = CreatePointChain3(driftCoord, wireCoord, rectWidth, rectHeight, rectOffsetX, rectOffestY, squareSideLength, localCorrelationPoints)
-        if avgR2 != -1:
+        if not m.isnan(avgR2):
             lengthRatios.append(chainDisplacement / chainLength)
             avgR2s.append(avgR2)
         chainCount += 1
@@ -218,25 +218,25 @@ def GetChainInfoAdvanced(driftCoord, wireCoord, rectWidth, rectHeight, rectOffse
         avgAvgR2 = mean(avgR2s)
         stdLengthRatio = stdev(lengthRatios)
     else:
-        avgLengthRatio = -1
-        avgAvgR2 = -1
+        avgLengthRatio = m.nan
+        avgAvgR2 = m.nan
     return chainCount, avgLengthRatio, avgAvgR2, stdLengthRatio
 
 def GetChainInfoSimple(driftCoord, wireCoord, squareSideLength, localCorrelationPoints):
     chainCount = 0
-    avgAvgR2 = -1
-    avgStdR2 = -1
-    avgLengthRatio = -1
-    stdLengthRatio = -1
+    avgAvgR2 = m.nan
+    avgStdR2 = m.nan
+    avgLengthRatio = m.nan
+    stdLengthRatio = m.nan
     lengthRatios = []
     avgR2s = []
     stdR2s = []
     while driftCoord:    # While pfo hit list is not empty
         chainX, chainY, chainLength, chainDisplacement = CreatePointChain2(driftCoord, wireCoord, squareSideLength, squareSideLength)
         avgR2, stdR2 = SlidingPearsonRSquared(chainX, chainY, localCorrelationPoints)
-        if avgR2 != -1:
+        if not m.isnan(avgR2):
             avgR2s.append(avgR2)
-        if stdR2 != -1:
+        if not m.isnan(stdR2):
             stdR2s.append(stdR2)
         if chainLength != 0:
             lengthRatios.append(chainDisplacement / chainLength)
