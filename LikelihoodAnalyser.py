@@ -5,10 +5,8 @@ import math as m
 from UpRootFileReader import MicroBooneGeo
 from HistoSynthesis import CreateHistogramWire
 from itertools import count
+import DataSampler as ds
 import LikelihoodCalculator as lc
-
-myTestArea = "/home/tomalex/Pandora/"
-inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 
 likelihoodHistograms = (
     {
@@ -163,24 +161,25 @@ def PrintPurityEfficiency(dfTrackData, dfShowerData, variableName, cutoff, cutof
 )
 
 if __name__ == "__main__":
-    print("Testing likelihood using %d tracks and %d showers." % (lc.nPerfTrackData, lc.nPerfShowerData))
+    ds.GetPerformancePfoData(viewsUsed=lc.viewsUsed)
 
+    print("Testing likelihood using %d tracks and %d showers." % (ds.nPerfPfoData["track"], ds.nPerfPfoData["shower"]))
     # Get optimal purity and efficiency
     (
         bestTrackCutoff, trackEfficiencies, trackPurities, trackPurityEfficiencies, 
         bestShowerCutoff, showerEfficiencies, showerPurities, showerPurityEfficiencies
-    ) = OptimiseCutoff(lc.dfPerfTrackData, lc.dfPerfShowerData, 'Likelihood', purityEfficiencyCutoffGraph['testValues'], 'right')
+    ) = OptimiseCutoff(ds.dfPerfPfoData["track"], ds.dfPerfPfoData["shower"], 'Likelihood', purityEfficiencyCutoffGraph['testValues'], 'right')
 
     # Printing results for optimal purity and efficiency
     print("\nOptimal track cutoff %.3f" % bestTrackCutoff)
-    PrintPurityEfficiency(lc.dfPerfTrackData, lc.dfPerfShowerData, 'Likelihood', bestTrackCutoff)
+    PrintPurityEfficiency(ds.dfPerfPfoData["track"], ds.dfPerfPfoData["shower"], 'Likelihood', bestTrackCutoff)
     print("\nOptimal shower cutoff %.3f" % bestShowerCutoff)
-    PrintPurityEfficiency(lc.dfPerfTrackData, lc.dfPerfShowerData, 'Likelihood', bestShowerCutoff)
+    PrintPurityEfficiency(ds.dfPerfPfoData["track"], ds.dfPerfPfoData["shower"], 'Likelihood', bestShowerCutoff)
 
     # Make likelihood histograms.
     for histogram in likelihoodHistograms:
         histogram['name'] = 'Likelihood'
-        fig, ax = CreateHistogramWire(lc.dfPerfPfoData, histogram)
+        fig, ax = CreateHistogramWire(ds.dfPerfPfoData["general"], histogram)
         cutoff = histogram.get('cutoff', '')
         if cutoff == 'shower':
             GraphCutoffLine(ax, bestShowerCutoff, ("Track", "Shower"))
@@ -232,8 +231,8 @@ if __name__ == "__main__":
     binWidth = purityEfficiencyNhitsGraph['bins'][1] - purityEfficiencyNhitsGraph['bins'][0]
 
     for nHitsBinMin in purityEfficiencyNhitsGraph['bins'][:-1]:
-        likelihoodShowersInBin = lc.dfPerfShowerData.query("(nHitsU + nHitsV + nHitsW) >=@nHitsBinMin and (nHitsU + nHitsV + nHitsW) <@nHitsBinMin+@binWidth")['Likelihood']
-        likelihoodTracksInBin = lc.dfPerfTrackData.query("(nHitsU + nHitsV + nHitsW) >=@nHitsBinMin and (nHitsU + nHitsV + nHitsW) <@nHitsBinMin+@binWidth")['Likelihood']
+        likelihoodShowersInBin = ds.dfPerfPfoData["shower"].query("(nHitsU + nHitsV + nHitsW) >=@nHitsBinMin and (nHitsU + nHitsV + nHitsW) <@nHitsBinMin+@binWidth")['Likelihood']
+        likelihoodTracksInBin = ds.dfPerfPfoData["track"].query("(nHitsU + nHitsV + nHitsW) >=@nHitsBinMin and (nHitsU + nHitsV + nHitsW) <@nHitsBinMin+@binWidth")['Likelihood']
         (
             trackEfficiency, trackEfficiencyError, trackPurity, trackPurityError, trackPurityEfficiency, trackPurityEfficiencyError, 
             showerEfficiency, showerEfficiencyError, showerPurity, showerPurityError, showerPurityEfficiency, showerPurityEfficiencyError

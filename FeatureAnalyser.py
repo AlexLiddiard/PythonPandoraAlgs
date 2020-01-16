@@ -6,42 +6,7 @@ import math as m
 from UpRootFileReader import MicroBooneGeo
 from HistoSynthesis import CreateHistogramWire
 from LikelihoodAnalyser import GraphCutoffLine, OptimiseCutoff, PrintPurityEfficiency
-
-myTestArea = "/home/jack/Documents/Pandora/"
-inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
-trainingFraction = 0.5
-preFilters = {
-    "general": (
-        'abs(mcPdgCode) != 2112',
-        'minCoordX >= @MicroBooneGeo.RangeX[0] + 10',
-        'maxCoordX <= @MicroBooneGeo.RangeX[1] - 10',
-        'minCoordY >= @MicroBooneGeo.RangeY[0] + 20',
-        'maxCoordY <= @MicroBooneGeo.RangeY[1] - 20',
-        'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
-        'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
-    ),
-    "U": (
-        #'purityU>=0.8',
-        #'completenessU>=0.8',
-        'nHitsU>=20',
-    ),
-    "V": (
-        #'purityV>=0.8',
-        #'completenessV>=0.8',
-        'nHitsV>=20',
-    ),
-    "W": (
-        #'purityW>=0.8',
-        #'completenessW>=0.8',
-        'nHitsW>=20',
-    ),
-    "3D":
-    (
-        #'purityU>=0.8 and purityV>=0.8 and purityW>=0.8',
-        #'completenessU>=0.8 and completenessV>=0.8 and completenessW>=0.8',
-        'nHits3D>=20',
-    )
-}
+import DataSampler as ds
 
 features = (
     #{'name': 'RSquaredU', 'bins': np.linspace(0, 1, num=50), 'showerCutDirection': 'left'},
@@ -101,7 +66,7 @@ features = (
     {'name': 'BDTV', 'bins': np.linspace(-10, 15, num = 200), 'showerCutDirection': 'left'},
     {'name': 'BDTW', 'bins': np.linspace(-10, 15, num = 200), 'showerCutDirection': 'left'},
     {'name': 'BDT3D', 'bins': np.linspace(-10, 15, num = 200), 'showerCutDirection': 'left'},
-    {'name': 'TheBigOne', 'bins': np.linspace(-10, 15, num = 200), 'showerCutDirection': 'left'},
+    {'name': 'BDTMulti', 'bins': np.linspace(-10, 15, num = 200), 'showerCutDirection': 'left'},
 )
 
 featureHistograms = {
@@ -130,33 +95,7 @@ def GetFeatureView(featureName):
         return "intersection"
 
 # Load the pickle file.
-dfPfoData = pd.read_pickle(inputPickleFile)
-# Apply pre-filters.
-preFilters["general"] = ' and '.join(preFilters["general"])
-preFilters["U"] = ' and '.join(preFilters["U"])
-preFilters["V"] = ' and '.join(preFilters["V"])
-preFilters["W"] = ' and '.join(preFilters["W"])
-preFilters["3D"] = ' and '.join(preFilters["3D"])
-viewFilters = [preFilters[x] for x in ["U", "V", "W", "3D"]]
-preFilters["union"] = "(" + ") or (".join(viewFilters) + ")"
-preFilters["intersection"] = "(" + ") and (".join(viewFilters) + ")"
-
-
-dfPfoData = {"general": dfPfoData.query(preFilters["general"])}
-dfPfoData["shower"] = {"general": dfPfoData["general"].query("isShower==1")}
-dfPfoData["shower"]["U"] = dfPfoData["shower"]["general"].query(preFilters["U"])
-dfPfoData["shower"]["V"] = dfPfoData["shower"]["general"].query(preFilters["V"])
-dfPfoData["shower"]["W"] = dfPfoData["shower"]["general"].query(preFilters["W"])
-dfPfoData["shower"]["3D"] = dfPfoData["shower"]["general"].query(preFilters["3D"])
-dfPfoData["shower"]["union"] = dfPfoData["shower"]["general"].query(preFilters["union"])
-dfPfoData["shower"]["intersection"] = dfPfoData["shower"]["general"].query(preFilters["intersection"])
-dfPfoData["track"] = {"general": dfPfoData["general"].query("isShower==0")}
-dfPfoData["track"]["U"] = dfPfoData["track"]["general"].query(preFilters["U"])
-dfPfoData["track"]["V"] = dfPfoData["track"]["general"].query(preFilters["V"])
-dfPfoData["track"]["W"] = dfPfoData["track"]["general"].query(preFilters["W"])
-dfPfoData["track"]["3D"] = dfPfoData["track"]["general"].query(preFilters["3D"])
-dfPfoData["track"]["union"] = dfPfoData["track"]["general"].query(preFilters["union"])
-dfPfoData["track"]["intersection"] = dfPfoData["track"]["general"].query(preFilters["intersection"])
+ds.GetTrainingPfoData(ds.performancePreFilters, 1)
 
 print((
     "Analysing features using the following samples:\n" +
@@ -166,18 +105,18 @@ print((
     "W View: %s tracks, %s showers\n" +
     "3D View: %s tracks, %s showers\n") %
     (
-        len(dfPfoData["track"]["general"]), len(dfPfoData["shower"]["general"]),
-        len(dfPfoData["track"]["U"]), len(dfPfoData["shower"]["U"]),
-        len(dfPfoData["track"]["V"]), len(dfPfoData["shower"]["V"]),
-        len(dfPfoData["track"]["W"]), len(dfPfoData["shower"]["W"]),
-        len(dfPfoData["track"]["3D"]), len(dfPfoData["shower"]["3D"]),
+        len(ds.dfTrainingPfoData["track"]["general"]), len(ds.dfTrainingPfoData["shower"]["general"]),
+        len(ds.dfTrainingPfoData["track"]["U"]), len(ds.dfTrainingPfoData["shower"]["U"]),
+        len(ds.dfTrainingPfoData["track"]["V"]), len(ds.dfTrainingPfoData["shower"]["V"]),
+        len(ds.dfTrainingPfoData["track"]["W"]), len(ds.dfTrainingPfoData["shower"]["W"]),
+        len(ds.dfTrainingPfoData["track"]["3D"]), len(ds.dfTrainingPfoData["shower"]["3D"]),
     )
 )
 
 for feature in features:
     if efficiencyPurityPlots["plot"]:
-        dfTrackData = dfPfoData["track"][GetFeatureView(feature["name"])]
-        dfShowerData = dfPfoData["shower"][GetFeatureView(feature["name"])]
+        dfTrackData = ds.dfTrainingPfoData["track"][GetFeatureView(feature["name"])]
+        dfShowerData = ds.dfTrainingPfoData["shower"][GetFeatureView(feature["name"])]
         # Get optimal purity and efficiency
         testValues = np.linspace(feature["bins"][0], feature["bins"][-1], efficiencyPurityPlots["nTestValues"])
         (
@@ -226,11 +165,10 @@ for feature in features:
         plt.savefig("PurityEfficiencyVs%sCutoff.svg" % feature['name'], format='svg', dpi=1200)
         plt.show()
 
-featureNames = [feature['name'] for feature in features]
-dfPfoDataCorr = dfPfoData["general"]
-for feature in features:
-    dfPfoDataCorr = dfPfoDataCorr.query(preFilters[GetFeatureView(feature["name"])])
-rMatrix = dfPfoDataCorr[featureNames].corr()
+dataCorrFilters = [ds.performancePreFilters[x] for x in ds.GetViewsUsed(features)]
+featureNames = [feature["name"]]
+dfPfoDataCorr = ds.dfTrainingPfoData["general"].query("(" + ") and (".join(dataCorrFilters) + ")")
+rMatrix = ds.dfTrainingPfoData["general"][[feature["name"] for feature in features]].corr()
 rSquaredMatrix = rMatrix * rMatrix
 sn.heatmap(rSquaredMatrix, annot=True, annot_kws={"size": 20}, cmap="Blues")
 plt.xticks(rotation=45, ha="right", rotation_mode="anchor")
