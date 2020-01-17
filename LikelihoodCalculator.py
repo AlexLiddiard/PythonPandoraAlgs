@@ -65,43 +65,26 @@ features = (
 )
 
 delta = 1e-12
-viewsUsed = ds.GetViewsUsed(features)
 
 if __name__ == "__main__":
     # Get data samples
-    ds.GetTrainingPfoData()
-    ds.GetPerformancePfoData(viewsUsed=viewsUsed)
+    viewsUsed = ds.GetViewsUsed(features)
+    ds.GetTrainingPfoData(viewsUsed=viewsUsed)
+    ds.GetPerfPfoData(viewsUsed=viewsUsed)
 
     # Calculate priors
-    priorViewFilters = []
-    for key in viewsUsed:
-        priorViewFilters.append(ds.trainingPreFilters[key])
-    priorFilter = "(" + ") or (".join(priorViewFilters) + ")"
-    nTracksPrior = len(ds.dfTrainingPfoData["track"]["general"].query(priorFilter))
-    nShowersPrior = len(ds.dfTrainingPfoData["shower"]["general"].query(priorFilter))
-
+    nTracksPrior = len(ds.dfTrainingPfoData["track"]["union"])
+    nShowersPrior = len(ds.dfTrainingPfoData["shower"]["union"])
     showerPrior = nShowersPrior / (nShowersPrior + nTracksPrior)
     trackPrior = nTracksPrior / (nShowersPrior + nTracksPrior)
 
-    print((
-        "Training likelihood using the following samples:\n" +
-        "Priors: %s tracks, %s showers\n" +
-        "U View: %s tracks, %s showers\n" +
-        "V View: %s tracks, %s showers\n" +
-        "W View: %s tracks, %s showers\n" +
-        "3D View: %s tracks, %s showers\n") %
-        (
-            nTracksPrior, nShowersPrior,
-            len(ds.dfTrainingPfoData["track"]["U"]), len(ds.dfTrainingPfoData["shower"]["U"]),
-            len(ds.dfTrainingPfoData["track"]["V"]), len(ds.dfTrainingPfoData["shower"]["V"]),
-            len(ds.dfTrainingPfoData["track"]["W"]), len(ds.dfTrainingPfoData["shower"]["W"]),
-            len(ds.dfTrainingPfoData["track"]["3D"]), len(ds.dfTrainingPfoData["shower"]["3D"]),
-        )
-    )
-    print("Priors: showers %.3f, tracks %.3f" % (showerPrior, trackPrior))
-
-    #Calculate histogram bins, obtain likelihood from them
-    print("Calculating probabilities")
+    print("Training likelihood using the following samples:")
+    for view in ds.dfTrainingPfoData["track"]:
+        print("%s: %s tracks, %s showers" % (view, len(ds.dfTrainingPfoData["track"][view]), len(ds.dfTrainingPfoData["shower"][view])))
+    
+    #Calculate histogram bins, obtain probabilities from them
+    print("\nPriors: showers %.3f, tracks %.3f" % (showerPrior, trackPrior))
+    print("Calculating likelihood values")
     probabilities = {
         "track": {},
         "shower": {}
@@ -114,7 +97,7 @@ if __name__ == "__main__":
         showerHist[showerHist==0] = delta # Avoid nan-valued likelihoods by replacing zero probability densities with a tiny positive number
         trackHist[trackHist==0] = delta
         trackHist = np.concatenate(([1], trackHist, [1]))
-        featureValues = ds.dfPfoData[feature['name']]
+        featureValues = ds.dfAllPfoData[feature['name']]
         histIndices = np.digitize(featureValues, feature['pdfBins'])
         if featureView not in probabilities["track"]:
             probabilities["track"][featureView] = 1
@@ -122,18 +105,18 @@ if __name__ == "__main__":
         probabilities["track"][featureView] *= trackHist[histIndices]
         probabilities["shower"][featureView] *= showerHist[histIndices]
 
+    # Obtain likelihood values, using only probabilities from views that the PFO satisfied the filters.
     pfoCheck = {}
     for key in viewsUsed:
-        pfoCheck[key] = ds.dfPfoData.eval(ds.performancePreFilters[key])
-
-    print("Calculating likelihood values.")
-    ps = np.ones(ds.nPfoData)
-    pt = np.ones(ds.nPfoData)
+        pfoCheck[key] = ds.dfAllPfoData.eval(ds.performancePreFilters[key])
+    ps = np.ones(len(ds.dfAllPfoData))
+    pt = np.ones(len(ds.dfAllPfoData))
     for key in viewsUsed:
         ps *= (1 + pfoCheck[key] * (probabilities["shower"][key] - 1))
         pt *= (1 + pfoCheck[key] * (probabilities["track"][key] - 1))
     likelihoods = ps / (ps + pt)
 
-    ds.dfPfoData["Likelihood"] = likelihoods
+    # Save the results
+    ds.dfAllPfoData["Likelihood"] = likelihoods
     ds.SavePickleFile()
     print("Finished!")

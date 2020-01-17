@@ -2,7 +2,7 @@ import pandas as pd
 import math as m
 from UpRootFileReader import MicroBooneGeo
 
-myTestArea = "/home/jack/Documents/Pandora/"
+myTestArea = "/home/tomalex/Pandora/"
 inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 
@@ -75,87 +75,57 @@ performancePreFilters = {
     )
 }
 
-# Get training pre-filters, determine views used.
-trainingPreFilters["general"] = ' and '.join(trainingPreFilters["general"])
-trainingPreFilters["U"] = ' and '.join(trainingPreFilters["U"])
-trainingPreFilters["V"] = ' and '.join(trainingPreFilters["V"])
-trainingPreFilters["W"] = ' and '.join(trainingPreFilters["W"])
-trainingPreFilters["3D"] = ' and '.join(trainingPreFilters["3D"])
-viewFilters = [trainingPreFilters[x] for x in ["U", "V", "W", "3D"]]
-trainingPreFilters["union"] = "(" + ") or (".join(viewFilters) + ")"
-trainingPreFilters["intersection"] = "(" + ") and (".join(viewFilters) + ")"
+def ProcessFilters(filters):
+    for key in filters:
+        filters[key] = ' and '.join(filters[key])
+    viewFilters = [filters[x] for x in ["U", "V", "W", "3D"]]
+    filters["union"] = "(" + ") or (".join(viewFilters) + ")"
+    filters["intersection"] = "(" + ") and (".join(viewFilters) + ")"
 
-# Get performance pre-filters.
-performancePreFilters["general"] = ' and '.join(performancePreFilters["general"])
-performancePreFilters["U"] = ' and '.join(performancePreFilters["U"])
-performancePreFilters["V"] = ' and '.join(performancePreFilters["V"])
-performancePreFilters["W"] = ' and '.join(performancePreFilters["W"])
-performancePreFilters["3D"] = ' and '.join(performancePreFilters["3D"])
-viewFilters = [performancePreFilters[x] for x in ["U", "V", "W", "3D"]]
-performancePreFilters["union"] = "(" + ") or (".join(viewFilters) + ")"
-performancePreFilters["intersection"] = "(" + ") and (".join(viewFilters) + ")"
-
-dfPfoData = None
-nPfoData = 0
+dfAllPfoData = None
 # Load pickle file
 def LoadPickleFile():
-    global dfPfoData
-    global nPfoData
+    global dfAllPfoData
     print("Loading pickle file")
-    dfPfoData = pd.read_pickle(inputPickleFile)
-    nPfoData = len(dfPfoData)
+    dfAllPfoData = pd.read_pickle(inputPickleFile)
 
 def SavePickleFile():
     print("Saving pickle file")
-    dfPfoData.to_pickle(outputPickleFile)
+    dfAllPfoData.to_pickle(outputPickleFile)
 
-# Get PFOs
+def GetFilteredDataframes(df, filters):
+    dfs = {}
+    for key in filters:
+        dfs[key] = df.query(filters[key]).copy()
+    dfs["union"] = df.query("(" + ") or (".join(filters.values()) + ")").copy()
+    dfs["intersection"] = df.query("(" + ") and (".join(filters.values()) + ")").copy()
+    return dfs
+
+def GetFilteredPfoData(filters, viewsUsed=("U", "V", "W", "3D"), portion=(0, 1)):
+    if dfAllPfoData is None:
+        LoadPickleFile()
+    usedViewFilters = {key:filters[key] for key in viewsUsed}
+    filteredPfoData = {}
+    filteredPfoData["all"] = {"unfiltered":dfAllPfoData[m.floor(len(dfAllPfoData) * portion[0]):m.floor(len(dfAllPfoData) * portion[1])].copy()}
+    filteredPfoData["all"]["general"] = filteredPfoData["all"]["unfiltered"].query(filters["general"]).copy()
+    filteredPfoData["all"].update(GetFilteredDataframes(filteredPfoData["all"]["general"], usedViewFilters))
+    filteredPfoData["shower"] = {"general": filteredPfoData["all"]["general"].query("isShower==1").copy()}
+    filteredPfoData["shower"].update(GetFilteredDataframes(filteredPfoData["shower"]["general"], usedViewFilters))
+    filteredPfoData["track"] = {"general": filteredPfoData["all"]["general"].query("isShower==0").copy()}
+    filteredPfoData["track"].update(GetFilteredDataframes(filteredPfoData["track"]["general"], usedViewFilters))
+    return filteredPfoData
+
 dfTrainingPfoData = None
-def GetTrainingPfoData(preFilters=trainingPreFilters, trainingFraction=trainingFraction):
+def GetTrainingPfoData(viewsUsed=("U", "V", "W", "3D")):
     global dfTrainingPfoData
-    if dfPfoData is None:
-        LoadPickleFile()
     print("Getting training PFOs")
-    dfTrainingPfoData = dfPfoData[:m.floor(nPfoData * trainingFraction)]
-    dfTrainingPfoData = {"general": dfTrainingPfoData.query(preFilters["general"])}
-    dfTrainingPfoData["shower"] = {"general": dfTrainingPfoData["general"].query("isShower==1")}
-    dfTrainingPfoData["shower"]["U"] = dfTrainingPfoData["shower"]["general"].query(preFilters["U"])
-    dfTrainingPfoData["shower"]["V"] = dfTrainingPfoData["shower"]["general"].query(preFilters["V"])
-    dfTrainingPfoData["shower"]["W"] = dfTrainingPfoData["shower"]["general"].query(preFilters["W"])
-    dfTrainingPfoData["shower"]["3D"] = dfTrainingPfoData["shower"]["general"].query(preFilters["3D"])
-    dfTrainingPfoData["shower"]["union"] = dfTrainingPfoData["shower"]["general"].query(preFilters["union"])
-    dfTrainingPfoData["shower"]["intersection"] = dfTrainingPfoData["shower"]["general"].query(preFilters["intersection"])
-    dfTrainingPfoData["track"] = {"general": dfTrainingPfoData["general"].query("isShower==0")}
-    dfTrainingPfoData["track"]["U"] = dfTrainingPfoData["track"]["general"].query(preFilters["U"])
-    dfTrainingPfoData["track"]["V"] = dfTrainingPfoData["track"]["general"].query(preFilters["V"])
-    dfTrainingPfoData["track"]["W"] = dfTrainingPfoData["track"]["general"].query(preFilters["W"])
-    dfTrainingPfoData["track"]["3D"] = dfTrainingPfoData["track"]["general"].query(preFilters["3D"])
-    dfTrainingPfoData["track"]["union"] = dfTrainingPfoData["track"]["general"].query(preFilters["union"])
-    dfTrainingPfoData["track"]["intersection"] = dfTrainingPfoData["track"]["general"].query(preFilters["intersection"])
+    dfTrainingPfoData = GetFilteredPfoData(filters=trainingPreFilters, viewsUsed=viewsUsed, portion=(0, trainingFraction))
 
-# Get performance PFOs
 dfPerfPfoData = None
-nPerfPfoData = None
-def GetPerformancePfoData(preFilters=performancePreFilters, viewsUsed=["U", "V", "W", "3D"], trainingFraction = trainingFraction):
+def GetPerfPfoData(viewsUsed=("U", "V", "W", "3D")):
     global dfPerfPfoData
-    global nPerfPfoData
-    if dfPfoData is None:
-        LoadPickleFile()
     print("Getting performance PFOs")
-    dfPerfPfoData = dfPfoData[m.floor(nPfoData * trainingFraction):].query(preFilters["general"])
-    viewFilters = []
-    for key in viewsUsed:
-        viewFilters.append(preFilters[key])
-    performanceFilter = "(" + ") or (".join(viewFilters) + ")"
-    dfPerfPfoData = {"general": dfPerfPfoData.query(performanceFilter).reset_index(drop=True)}
-    dfPerfPfoData["shower"] = dfPerfPfoData["general"].query("isShower==1")
-    dfPerfPfoData["track"] = dfPerfPfoData["general"].query("isShower==0")
-    nPerfPfoData = {
-        "general": len(dfPerfPfoData["general"]),
-        "shower": len(dfPerfPfoData["shower"]),
-        "track": len(dfPerfPfoData["track"])
-    }
-
+    dfPerfPfoData = GetFilteredPfoData(filters=performancePreFilters, viewsUsed=viewsUsed, portion=(trainingFraction, 1))
 
 def GetFeatureView(featureName):
     if featureName.endswith("3D"):
@@ -176,3 +146,7 @@ def GetViewsUsed(features):
     for feature in features:
         viewsUsed.append(GetFeatureView(feature["name"]))
     return list(dict.fromkeys(viewsUsed))
+
+# Initialise prefilters
+ProcessFilters(trainingPreFilters)
+ProcessFilters(performancePreFilters)
