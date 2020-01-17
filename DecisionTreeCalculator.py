@@ -9,6 +9,11 @@ import pandas as pd
 import math as m
 from UpRootFileReader import MicroBooneGeo
 import DataSampler as ds
+from imblearn.combine import SMOTETomek as smtmk
+from imblearn.over_sampling import SMOTE as smt
+from sklearn.experimental import enable_iterative_imputer
+from sklearn.impute import IterativeImputer
+from imblearn.over_sampling import RandomOverSampler as ros
 
 features = (
     {'name': 'RSquaredU'},
@@ -68,21 +73,10 @@ features = (
 # Load the training PFOs
 ds.GetTrainingPfoData()
 
-print((
-    "Training BDTs using the following samples:\n" +
-    "General: %s tracks, %s showers\n" +
-    "U View: %s tracks, %s showers\n" +
-    "V View: %s tracks, %s showers\n" +
-    "W View: %s tracks, %s showers\n" +
-    "3D View: %s tracks, %s showers\n") %
-    (
-        len(ds.dfTrainingPfoData["track"]["general"]), len(ds.dfTrainingPfoData["shower"]["general"]),
-        len(ds.dfTrainingPfoData["track"]["U"]), len(ds.dfTrainingPfoData["shower"]["U"]),
-        len(ds.dfTrainingPfoData["track"]["V"]), len(ds.dfTrainingPfoData["shower"]["V"]),
-        len(ds.dfTrainingPfoData["track"]["W"]), len(ds.dfTrainingPfoData["shower"]["W"]),
-        len(ds.dfTrainingPfoData["track"]["3D"]), len(ds.dfTrainingPfoData["shower"]["3D"]),
-    )
-)
+print("Training BDTs using the following samples:")
+for view in ds.dfTrainingPfoData["track"]:
+    print("%s: %s tracks, %s showers" % (view, len(ds.dfTrainingPfoData["track"][view]), len(ds.dfTrainingPfoData["shower"][view])))
+    
 
 def GetViewFeatures(features, view):
     viewFeatures = []
@@ -92,28 +86,24 @@ def GetViewFeatures(features, view):
     return viewFeatures
 
 
-def GetBDTValues(clf, view, valueMask={}):
+def GetBDTValues(clf, view):
     if view == "union":
         featureNames = ["BDT3D", "BDTU", "BDTV", "BDTW"]
     else:
         viewFeatures = GetViewFeatures(features, view)
         featureNames = [feature['name'] for feature in viewFeatures]
     trainingDataFeed = ds.dfTrainingPfoData['all'][view]
-    for feature in valueMask:
-        mask = trainingDataFeed.eval(valueMask[feature])
-        trainingDataFeed.loc[mask, feature] = np.nan # Mask feature values using NaNs
+    classificationArray = trainingDataFeed.eval("isShower==0")
     trainingDataFeed = trainingDataFeed[featureNames] # Remove all irrelevant columns
-    classificationArray = np.repeat([0,1],[len(ds.dfTrainingPfoData['shower'][view]), len(ds.dfTrainingPfoData['track'][view])])
+    imp = IterativeImputer()
+    imp.fit(trainingDataFeed)
+    trainingDataFeed = imp.transform(trainingDataFeed)
+    #ro = ros(ratio=1)
+    sm = smt(ratio='minority')
+    #smt = smtmk(ratio=1, )
+    trainingDataFeed, classificationArray = sm.fit_sample(trainingDataFeed, classificationArray)
     clfView = clf.fit(trainingDataFeed, classificationArray)
     return clfView.decision_function(ds.dfAllPfoData[featureNames])
-
-#clf = ensemble.AdaBoostClassifier(base_estimator=tree.DecisionTreeClassifier(criterion = 'gini', max_depth = 4, min_samples_leaf = 0.05), n_estimators = 1500, learning_rate = 0.5, algorithm = 'SAMME')
-#dfPfoData["BDT3D"] = GetBDTValues(clf, '3D')
-#dfPfoData["BDTU"] = GetBDTValues(clf, 'U')
-#dfPfoData["BDTV"] = GetBDTValues(clf, 'V')
-#dfPfoData["BDTW"] = GetBDTValues(clf, 'W')
-
-#dfPfoData.to_pickle(outputPickleFile)
 
 print("Calculating BDT values for each view")
 clf = ensemble.HistGradientBoostingClassifier()
@@ -129,7 +119,7 @@ valueMask = {
     "BDTW": ds.trainingPreFilters["W"],
     "BDT3D": ds.trainingPreFilters["3D"]
 }
-ds.dfAllPfoData["BDTMulti"] = GetBDTValues(clf, 'union', valueMask)
+ds.dfAllPfoData["BDTMulti"] = GetBDTValues(clf, 'union')#, valueMask)
 
 ds.SavePickleFile()
 print("Finished!")

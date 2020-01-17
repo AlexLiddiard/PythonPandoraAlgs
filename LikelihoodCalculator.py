@@ -65,10 +65,10 @@ features = (
 )
 
 delta = 1e-12
+viewsUsed = ds.GetViewsUsed(features)
 
 if __name__ == "__main__":
     # Get data samples
-    viewsUsed = ds.GetViewsUsed(features)
     ds.GetTrainingPfoData(viewsUsed=viewsUsed)
     ds.GetPerfPfoData(viewsUsed=viewsUsed)
 

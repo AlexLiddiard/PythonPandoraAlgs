@@ -95,7 +95,7 @@ def GetFeatureView(featureName):
         return "intersection"
 
 # Load the pickle file.
-ds.GetTrainingPfoData(ds.performancePreFilters, 1)
+ds.dfPerfPfoData = ds.GetFilteredPfoData(ds.performancePreFilters, portion=(ds.trainingFraction, 1))
 
 print((
     "Analysing features using the following samples:\n" +
@@ -105,18 +105,18 @@ print((
     "W View: %s tracks, %s showers\n" +
     "3D View: %s tracks, %s showers\n") %
     (
-        len(ds.dfTrainingPfoData["track"]["general"]), len(ds.dfTrainingPfoData["shower"]["general"]),
-        len(ds.dfTrainingPfoData["track"]["U"]), len(ds.dfTrainingPfoData["shower"]["U"]),
-        len(ds.dfTrainingPfoData["track"]["V"]), len(ds.dfTrainingPfoData["shower"]["V"]),
-        len(ds.dfTrainingPfoData["track"]["W"]), len(ds.dfTrainingPfoData["shower"]["W"]),
-        len(ds.dfTrainingPfoData["track"]["3D"]), len(ds.dfTrainingPfoData["shower"]["3D"]),
+        len(ds.dfPerfPfoData["track"]["general"]), len(ds.dfPerfPfoData["shower"]["general"]),
+        len(ds.dfPerfPfoData["track"]["U"]), len(ds.dfPerfPfoData["shower"]["U"]),
+        len(ds.dfPerfPfoData["track"]["V"]), len(ds.dfPerfPfoData["shower"]["V"]),
+        len(ds.dfPerfPfoData["track"]["W"]), len(ds.dfPerfPfoData["shower"]["W"]),
+        len(ds.dfPerfPfoData["track"]["3D"]), len(ds.dfPerfPfoData["shower"]["3D"]),
     )
 )
 
 for feature in features:
     if efficiencyPurityPlots["plot"]:
-        dfTrackData = ds.dfTrainingPfoData["track"][GetFeatureView(feature["name"])]
-        dfShowerData = ds.dfTrainingPfoData["shower"][GetFeatureView(feature["name"])]
+        dfTrackData = ds.dfPerfPfoData["track"][GetFeatureView(feature["name"])]
+        dfShowerData = ds.dfPerfPfoData["shower"][GetFeatureView(feature["name"])]
         # Get optimal purity and efficiency
         testValues = np.linspace(feature["bins"][0], feature["bins"][-1], efficiencyPurityPlots["nTestValues"])
         (
@@ -167,8 +167,8 @@ for feature in features:
 
 dataCorrFilters = [ds.performancePreFilters[x] for x in ds.GetViewsUsed(features)]
 featureNames = [feature["name"]]
-dfPfoDataCorr = ds.dfTrainingPfoData["general"].query("(" + ") and (".join(dataCorrFilters) + ")")
-rMatrix = ds.dfTrainingPfoData["general"][[feature["name"] for feature in features]].corr()
+dfPfoDataCorr = ds.dfPerfPfoData["all"]["general"].query("(" + ") and (".join(dataCorrFilters) + ")")
+rMatrix = ds.dfPerfPfoData["all"]["general"][[feature["name"] for feature in features]].corr()
 rSquaredMatrix = rMatrix * rMatrix
 sn.heatmap(rSquaredMatrix, annot=True, annot_kws={"size": 20}, cmap="Blues")
 plt.xticks(rotation=45, ha="right", rotation_mode="anchor")

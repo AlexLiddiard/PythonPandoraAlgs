@@ -161,25 +161,25 @@ def PrintPurityEfficiency(dfTrackData, dfShowerData, variableName, cutoff, cutof
 )
 
 if __name__ == "__main__":
-    ds.GetPerformancePfoData(viewsUsed=lc.viewsUsed)
+    ds.GetPerfPfoData(viewsUsed=lc.viewsUsed)
 
-    print("Testing likelihood using %d tracks and %d showers." % (ds.nPerfPfoData["track"], ds.nPerfPfoData["shower"]))
+    print("Testing likelihood using %d tracks and %d showers." % (len(ds.dfPerfPfoData["track"]['union']), len(ds.dfPerfPfoData["shower"]['union'])))
     # Get optimal purity and efficiency
     (
         bestTrackCutoff, trackEfficiencies, trackPurities, trackPurityEfficiencies, 
         bestShowerCutoff, showerEfficiencies, showerPurities, showerPurityEfficiencies
-    ) = OptimiseCutoff(ds.dfPerfPfoData["track"], ds.dfPerfPfoData["shower"], 'Likelihood', purityEfficiencyCutoffGraph['testValues'], 'right')
+    ) = OptimiseCutoff(ds.dfPerfPfoData["track"]['union'], ds.dfPerfPfoData["shower"]['union'], 'Likelihood', purityEfficiencyCutoffGraph['testValues'], 'right')
 
     # Printing results for optimal purity and efficiency
     print("\nOptimal track cutoff %.3f" % bestTrackCutoff)
-    PrintPurityEfficiency(ds.dfPerfPfoData["track"], ds.dfPerfPfoData["shower"], 'Likelihood', bestTrackCutoff)
+    PrintPurityEfficiency(ds.dfPerfPfoData["track"]['union'], ds.dfPerfPfoData["shower"]['union'], 'Likelihood', bestTrackCutoff)
     print("\nOptimal shower cutoff %.3f" % bestShowerCutoff)
-    PrintPurityEfficiency(ds.dfPerfPfoData["track"], ds.dfPerfPfoData["shower"], 'Likelihood', bestShowerCutoff)
+    PrintPurityEfficiency(ds.dfPerfPfoData["track"]['union'], ds.dfPerfPfoData["shower"]['union'], 'Likelihood', bestShowerCutoff)
 
     # Make likelihood histograms.
     for histogram in likelihoodHistograms:
         histogram['name'] = 'Likelihood'
-        fig, ax = CreateHistogramWire(ds.dfPerfPfoData["general"], histogram)
+        fig, ax = CreateHistogramWire(ds.dfPerfPfoData['all']['union'], histogram)
         cutoff = histogram.get('cutoff', '')
         if cutoff == 'shower':
             GraphCutoffLine(ax, bestShowerCutoff, ("Track", "Shower"))
@@ -231,8 +231,8 @@ if __name__ == "__main__":
     binWidth = purityEfficiencyNhitsGraph['bins'][1] - purityEfficiencyNhitsGraph['bins'][0]
 
     for nHitsBinMin in purityEfficiencyNhitsGraph['bins'][:-1]:
-        likelihoodShowersInBin = ds.dfPerfPfoData["shower"].query("(nHitsU + nHitsV + nHitsW) >=@nHitsBinMin and (nHitsU + nHitsV + nHitsW) <@nHitsBinMin+@binWidth")['Likelihood']
-        likelihoodTracksInBin = ds.dfPerfPfoData["track"].query("(nHitsU + nHitsV + nHitsW) >=@nHitsBinMin and (nHitsU + nHitsV + nHitsW) <@nHitsBinMin+@binWidth")['Likelihood']
+        likelihoodShowersInBin = ds.dfPerfPfoData["shower"]['union'].query("(nHitsU + nHitsV + nHitsW) >=@nHitsBinMin and (nHitsU + nHitsV + nHitsW) <@nHitsBinMin+@binWidth")['Likelihood']
+        likelihoodTracksInBin = ds.dfPerfPfoData["track"]['union'].query("(nHitsU + nHitsV + nHitsW) >=@nHitsBinMin and (nHitsU + nHitsV + nHitsW) <@nHitsBinMin+@binWidth")['Likelihood']
         (
             trackEfficiency, trackEfficiencyError, trackPurity, trackPurityError, trackPurityEfficiency, trackPurityEfficiencyError, 
             showerEfficiency, showerEfficiencyError, showerPurity, showerPurityError, showerPurityEfficiency, showerPurityEfficiencyError
