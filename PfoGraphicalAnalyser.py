@@ -6,6 +6,7 @@ import matplotlib.colors
 import numpy as np
 import random as rnd
 import pandas as pd
+from UpRootFileReader import MicroBooneGeo
 
 myTestArea = "/home/tomalex/Pandora"
 rootFileDirectory = myTestArea + "/PythonPandoraAlgs/ROOT Files"
@@ -23,23 +24,21 @@ pfoFilters = (
     #### Pre-filters ####
     #'purityU>=0.5',
     #'purityV>=0.5',
-    'purityW>=1',
+    'purityW>=0.8',
     #'completenessU>=0.5',
     #'completenessV>=0.5',
-    'completenessW>=1',
+    'completenessW>=0.8',
     #'(nHitsU>=10 and nHitsV>=10) or (nHitsU>=10 and nHitsW>=10) or (nHitsV>=10 and nHitsW>=10)',
     #'nHitsU + nHitsV + nHitsW >= 100',
     #'nHitsU>=20',
     #'nHitsV>=20',
-    'nHitsW>=200',
+    'nHitsW>=20',
     #'minCoordX >= @MicroBooneGeo.RangeX[0] + 10',
     #'maxCoordX <= @MicroBooneGeo.RangeX[1] - 10',
     #'minCoordY >= @MicroBooneGeo.RangeY[0] + 20',
     #'maxCoordY <= @MicroBooneGeo.RangeY[1] - 20',
     #'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
     #'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
-
-    'fileName=="Pandora_Events_0f417293-3d54-48f5-8a24-c572dd502bf7.root"',
 )
 additionalInfo = [
     #'BinnedHitStdU',
@@ -88,12 +87,10 @@ def DisplayPfo(pfo, wireView = "W", additionalInfo = None, showTitle = True):
         xerr = pfo.driftCoordErrU / 2
         yerr = np.repeat(pfo.wireCoordErr / 2, pfo.nHitsPfoU)
         energy = pfo.energyU
-        trueParticle = pfo.TrueParticleU()
-        isShower = pfo.IsShowerU()
         purity = pfo.PurityU()
         completeness = pfo.CompletenessU()
-        vertexDriftCoord = pfo.vertex[0]
-        vertexWireCoord = 0.5 * pfo.vertex[2] - 0.8660254 * pfo.vertex[1]
+        vertexDriftCoord = pfo.vertexU[0]
+        vertexWireCoord = pfo.vertexU[1]
         wireRange = MicroBooneGeo.WireRangeU
         deadZones = ()
     if wireView == "V":
@@ -102,12 +99,10 @@ def DisplayPfo(pfo, wireView = "W", additionalInfo = None, showTitle = True):
         xerr = pfo.driftCoordErrV / 2
         yerr = np.repeat(pfo.wireCoordErr / 2, pfo.nHitsPfoV)
         energy = pfo.energyV
-        trueParticle = pfo.TrueParticleV()
-        isShower = pfo.IsShowerV()
         purity = pfo.PurityV()
         completeness = pfo.CompletenessV()
-        vertexDriftCoord = pfo.vertex[0]
-        vertexWireCoord = 0.5 * pfo.vertex[2] + 0.8660254 * pfo.vertex[1]
+        vertexDriftCoord = pfo.vertexV[0]
+        vertexWireCoord = pfo.vertexV[1]
         wireRange = MicroBooneGeo.WireRangeV
         deadZones = ()
     if wireView == "W":
@@ -116,12 +111,10 @@ def DisplayPfo(pfo, wireView = "W", additionalInfo = None, showTitle = True):
         xerr = pfo.driftCoordErrW / 2
         yerr = np.repeat(pfo.wireCoordErr / 2, pfo.nHitsPfoW)
         energy = pfo.energyW
-        trueParticle = pfo.TrueParticleW()
-        isShower = pfo.IsShowerW()
         purity = pfo.PurityW()
         completeness = pfo.CompletenessW()
-        vertexDriftCoord = pfo.vertex[0]
-        vertexWireCoord = pfo.vertex[2]
+        vertexDriftCoord = pfo.vertexW[0]
+        vertexWireCoord = pfo.vertexW[1]
         wireRange = MicroBooneGeo.RangeZ
         deadZones = MicroBooneGeo.DeadZonesW
 
@@ -162,7 +155,7 @@ def DisplayPfo(pfo, wireView = "W", additionalInfo = None, showTitle = True):
             '%s\nEventId = %d, PfoId = %d, Hierarchy = %d\n%s (%s), Purity = %.2f, Completeness = %.2f' %
             (pfo.fileName,
             pfo.eventId, pfo.pfoId, pfo.heirarchyTier,
-            trueParticle, 'Track' if isShower==0 else 'Shower', purity, completeness)
+            pfo.TrueParticle(), 'Track' if pfo.isShower()==0 else 'Shower', purity, completeness)
         )
     plt.xlabel('DriftCoord%s (cm)' % wireView)
     plt.ylabel('WireCoord%s (cm)' % wireView)
