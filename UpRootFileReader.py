@@ -218,7 +218,7 @@ def SetAssociatedData(eventPfos):
 def ReadPfoFromRootFile(filepath, eventId, pfoId):
     file = up.open(filepath)
     tree = file["PFOs"].pandas.df(flatten=False)
-    dfFilter = (tree['EventId'] == eventId) & (tree['PfoId'] == pfoId)
+    dfFilter = (tree['eventId'] == eventId) & (tree['pfoId'] == pfoId)
     tree = tree[dfFilter]
     if len(tree) == 1:
         return PfoClass(tree.iloc[0], os.path.basename(filepath))
