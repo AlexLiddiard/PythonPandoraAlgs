@@ -1,8 +1,6 @@
 from sklearn import tree
 from sklearn import ensemble
-from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.experimental import enable_hist_gradient_boosting
-from sklearn.ensemble import HistGradientBoostingClassifier
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -95,12 +93,10 @@ def GetBDTValues(clf, view):
     trainingDataFeed = ds.dfTrainingPfoData['all'][view]
     classificationArray = trainingDataFeed.eval("isShower==0")
     trainingDataFeed = trainingDataFeed[featureNames] # Remove all irrelevant columns
-    imp = IterativeImputer()
+    imp = IterativeImputer(estimator=ensemble.HistGradientBoostingRegressor())
     imp.fit(trainingDataFeed)
     trainingDataFeed = imp.transform(trainingDataFeed)
-    #ro = ros(ratio=1)
-    sm = smt(ratio='minority')
-    #smt = smtmk(ratio=1, )
+    sm = smt(sampling_strategy=1)
     trainingDataFeed, classificationArray = sm.fit_sample(trainingDataFeed, classificationArray)
     clfView = clf.fit(trainingDataFeed, classificationArray)
     return clfView.decision_function(ds.dfAllPfoData[featureNames])
@@ -119,7 +115,7 @@ valueMask = {
     "BDTW": ds.trainingPreFilters["W"],
     "BDT3D": ds.trainingPreFilters["3D"]
 }
-ds.dfAllPfoData["BDTMulti"] = GetBDTValues(clf, 'union')#, valueMask)
+ds.dfAllPfoData["BDTMulti"] = GetBDTValues(clf, 'union')
 
 ds.SavePickleFile()
 print("Finished!")
