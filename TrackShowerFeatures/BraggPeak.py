@@ -44,7 +44,7 @@ def BraggPeak3D(xCoords, yCoords, zCoords, vertex, chargeArray, startFraction, e
 
 
 
-def GetFeatures(pfo, calculateViews, startFraction = 0.8, endFraction = 0.1):
+def GetFeatures(pfo, calculateViews, startFraction = 0.65, endFraction = 0.15):
     featureDict = {}
     braggPeak = m.nan
     if calculateViews["U"]:
