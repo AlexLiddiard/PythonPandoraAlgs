@@ -13,10 +13,10 @@ def PcaVariance2D(xCoords, yCoords):
     eigenvalues, eigenvectors = Pca((xCoords, yCoords))
     return eigenvalues[0], eigenvalues[0] / eigenvalues[1]
 
-def PcaVariance3D(xCoords, yCoords, zCoords):
+def PcaVariance3D(xCoords, yCoords, zCoords, vertex):
     if len(xCoords) < 3:
         return m.nan, m.nan
-    eigenvalues, eigenvectors = Pca((xCoords, yCoords, zCoords))
+    eigenvalues, eigenvectors = Pca((xCoords, yCoords, zCoords), vertex)
     axialVariance = m.sqrt(eigenvalues[0] + eigenvalues[1])
     return axialVariance, axialVariance / m.sqrt(eigenvalues[2])
 
@@ -59,6 +59,6 @@ def GetFeatures(pfo, calculateViews):
         var2d, ratio2d = PcaVariance2D(pfo.driftCoordW, pfo.wireCoordW)
         featureDict.update({ "PcaVarW" : var2d, "PcaRatioW": ratio2d})
     if calculateViews["3D"]:
-        var3d, ratio3d = PcaVariance3D(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D)
+        var3d, ratio3d = PcaVariance3D(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, pfo.vertex3D)
         featureDict.update({ "PcaVar3D": var3d, "PcaRatio3D": ratio3d})
     return featureDict
