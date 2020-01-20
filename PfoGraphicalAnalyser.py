@@ -10,11 +10,12 @@ from UpRootFileReader import MicroBooneGeo
 
 myTestArea = "/home/tomalex/Pandora"
 rootFileDirectory = myTestArea + "/PythonPandoraAlgs/ROOT Files"
-inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
+inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.bz2'
 usePickleFile = True
 pfoFilters = (
     #### PFO selection ####
-    "isShower==1",
+    #"isShower==0 and Likelihood>0.001 and abs(mcpEnergy - 1.05) < 0.05",
+    "mcPdgCode==2212 and mcpEnergy < 1",
     #'AngularSpanW > 2',
     #'Likelihood > 0.89 and nHitsW > 200 and isShower != 1', # shower-like muons/protons/etc. with many hits
     #'likelihood > 0.89 and absPdgCode==2212' # shower-like protons
@@ -24,21 +25,22 @@ pfoFilters = (
     #### Pre-filters ####
     #'purityU>=0.5',
     #'purityV>=0.5',
-    'purityW>=0.8',
+    #'purityW>=0.8',
     #'completenessU>=0.5',
     #'completenessV>=0.5',
-    'completenessW>=0.8',
+    #'completenessW>=0.8',
     #'(nHitsU>=10 and nHitsV>=10) or (nHitsU>=10 and nHitsW>=10) or (nHitsV>=10 and nHitsW>=10)',
     #'nHitsU + nHitsV + nHitsW >= 100',
     #'nHitsU>=20',
     #'nHitsV>=20',
     'nHitsW>=20',
-    #'minCoordX >= @MicroBooneGeo.RangeX[0] + 10',
-    #'maxCoordX <= @MicroBooneGeo.RangeX[1] - 10',
-    #'minCoordY >= @MicroBooneGeo.RangeY[0] + 20',
-    #'maxCoordY <= @MicroBooneGeo.RangeY[1] - 20',
-    #'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
-    #'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
+    'minCoordX >= @MicroBooneGeo.RangeX[0] + 10',
+    'maxCoordX <= @MicroBooneGeo.RangeX[1] - 10',
+    'minCoordY >= @MicroBooneGeo.RangeY[0] + 20',
+    'maxCoordY <= @MicroBooneGeo.RangeY[1] - 20',
+    'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
+    'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
+
 )
 additionalInfo = [
     #'BinnedHitStdU',
@@ -56,7 +58,7 @@ additionalInfo = [
     #'Likelihood'
 ]
 wireView = "W"
-showTitle = False
+showTitle = True
 
 plotStyle = {
     'font.size': 15,
@@ -155,7 +157,7 @@ def DisplayPfo(pfo, wireView = "W", additionalInfo = None, showTitle = True):
             '%s\nEventId = %d, PfoId = %d, Hierarchy = %d\n%s (%s), Purity = %.2f, Completeness = %.2f' %
             (pfo.fileName,
             pfo.eventId, pfo.pfoId, pfo.heirarchyTier,
-            pfo.TrueParticle(), 'Track' if pfo.isShower()==0 else 'Shower', purity, completeness)
+            pfo.TrueParticle(), 'Track' if pfo.IsShower()==0 else 'Shower', purity, completeness)
         )
     plt.xlabel('DriftCoord%s (cm)' % wireView)
     plt.ylabel('WireCoord%s (cm)' % wireView)

@@ -45,7 +45,7 @@ class PfoClass(object):
         # Simulation info
         self.mcNuanceCode = pfo.mcNuanceCode
         self.mcPdgCode = pfo.mcPdgCode
-        self.mcpEnergy = pfo.mcpEnergy
+        self.mcpMomentum = pfo.mcpMomentum
 
         # U view
         self.driftCoordU = np.array(pfo.driftCoordU, dtype = np.double)

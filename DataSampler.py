@@ -3,8 +3,8 @@ import math as m
 from UpRootFileReader import MicroBooneGeo
 
 myTestArea = "/home/tomalex/Pandora/"
-inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
-outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
+inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.bz2'
+outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.bz2'
 
 trainingFraction = 0.5
 trainingPreFilters = {
@@ -18,24 +18,28 @@ trainingPreFilters = {
         'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
     ),
     "U": (
-        'purityU>=0.8',
-        'completenessU>=0.8',
+        '(isShower==1 and purityU>=0.8) or (isShower==0 and purityU>=0.8)',
+        '(isShower==1 and completenessU>=0.5) or (isShower==0 and completenessU>=0.8)',
         'nHitsU>=50',
     ),
     "V": (
-        'purityV>=0.8',
-        'completenessV>=0.8',
+        '(isShower==1 and purityV>=0.8) or (isShower==0 and purityV>=0.8)',
+        '(isShower==1 and completenessV>=0.5) or (isShower==0 and completenessV>=0.8)',
         'nHitsV>=50',
     ),
     "W": (
-        'purityW>=0.8',
-        'completenessW>=0.8',
+        '(isShower==1 and purityW>=0.8) or (isShower==0 and purityW>=0.8)',
+        '(isShower==1 and completenessW>=0.5) or (isShower==0 and completenessW>=0.8)',
         'nHitsW>=50',
     ),
     "3D":
     (
-        'purityU>=0.8 and purityV>=0.8 and purityW>=0.8',
-        'completenessU>=0.8 and completenessV>=0.8 and completenessW>=0.8',
+        '(isShower==1 and purityU>=0.8) or (isShower==0 and purityU>=0.8)',
+        '(isShower==1 and purityV>=0.8) or (isShower==0 and purityV>=0.8)',
+        '(isShower==1 and purityW>=0.8) or (isShower==0 and purityW>=0.8)',
+        '(isShower==1 and completenessU>=0.5) or (isShower==0 and completenessU>=0.8)',
+        '(isShower==1 and completenessV>=0.5) or (isShower==0 and completenessV>=0.8)',
+        '(isShower==1 and completenessW>=0.5) or (isShower==0 and completenessW>=0.8)',
         'nHits3D >= 50',
     )
 }

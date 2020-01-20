@@ -13,9 +13,9 @@ import TrackShowerFeatures.ChargeStdMeanRatio as csmr
 import TrackShowerFeatures.BraggPeak as bp
 import TrackShowerFeatures.MoliereRadius as mr
 
-myTestArea = "/home/epp/phuznm/Documents/Pandora/"
-rootFileDirectory = myTestArea + "/PandoraCoW"
-outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
+myTestArea = "/home/tomalex/Pandora/"
+rootFileDirectory = myTestArea + "/PythonPandoraAlgs/ROOT Files"
+outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.bz2'
 calculateViews = {
     "U": True,
     "V": True,
@@ -36,7 +36,7 @@ def ProcessFile(filePath):
                 'pfoId': pfo.pfoId,
                 'mcNuanceCode': pfo.mcNuanceCode,
                 'mcPdgCode': pfo.mcPdgCode,
-                'mcpEnergy': pfo.mcpEnergy,
+                'mcpMomentum': pfo.mcpMomentum,
                 'isShower': pfo.IsShower(),
                 'minCoordX': min(pfo.xCoord3D),
                 'minCoordY': min(pfo.yCoord3D),

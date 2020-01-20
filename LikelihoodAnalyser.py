@@ -44,7 +44,7 @@ likelihoodHistograms = (
 purityEfficiencyVsCutoffGraph = {'testValues': np.linspace(0, 1, 1001)}
 purityEfficiencyBinnedGraphs = (
     {"dependence": "nHitsU+nHitsV+nHitsW", 'bins': np.linspace(60, 1400, num=40)},
-    {"dependence": "mcpEnergy", 'bins': np.linspace(0.2, 1.5, num=40)},
+    {"dependence": "mcpMomentum", 'bins': np.linspace(0, 1.5, num=40)},
     {"dependence": "purityW", 'bins': np.linspace(0, 1, num=40)},
     {"dependence": "completenessW", 'bins': np.linspace(0, 1, num=40)},
 )
