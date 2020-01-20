@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import math as m
 from UpRootFileReader import MicroBooneGeo
-from HistoSynthesis import CreateHistogramWire
+import HistoSynthesis as hs
 from itertools import count
 import DataSampler as ds
 import LikelihoodCalculator as lc
@@ -41,8 +41,13 @@ likelihoodHistograms = (
     },
 )
 
-purityEfficiencyCutoffGraph = {'testValues': np.linspace(0, 1, 1001)}
-purityEfficiencyNhitsGraph = {'bins': np.linspace(60, 1400, num=40)}
+purityEfficiencyVsCutoffGraph = {'testValues': np.linspace(0, 1, 1001)}
+purityEfficiencyBinnedGraphs = (
+    {"dependence": "nHitsU+nHitsV+nHitsW", 'bins': np.linspace(60, 1400, num=40)},
+    {"dependence": "mcpEnergy", 'bins': np.linspace(0.2, 1.5, num=40)},
+    {"dependence": "purityW", 'bins': np.linspace(0, 1, num=40)},
+    {"dependence": "completenessW", 'bins': np.linspace(0, 1, num=40)},
+)
 
 def Purity(efficiency1, efficiency2, n1, n2):
     Purity1 = 1/(1 + (1 - efficiency2)*n2/(efficiency1*n1))
@@ -147,9 +152,9 @@ def OptimiseCutoff(dfTrackData, dfShowerData, variableName, testCutoffs, showerC
         bestShowerCutoff, showerEfficiencies, showerPurities, showerPurityEfficiencies
     )
 
-def PrintPurityEfficiency(dfTrackData, dfShowerData, variableName, cutoff, cutoffDirection='right'):
-    dfTrackVariable = dfTrackData[variableName]
-    dfShowerVariable =  dfShowerData[variableName]
+def PrintPurityEfficiency(dfTrackData, dfShowerData, predictorName, cutoff, showerCutDirection='right'):
+    dfTrackVariable = dfTrackData[predictorName]
+    dfShowerVariable =  dfShowerData[predictorName]
     print(
         "Track Efficiency %.3f+-%.3f\n"
         "Track Purity %.3f+-%.3f\n"
@@ -157,8 +162,62 @@ def PrintPurityEfficiency(dfTrackData, dfShowerData, variableName, cutoff, cutof
         "Shower Efficiency %.3f+-%.3f\n"
         "Shower Purity %.3f+-%.3f\n"
         "Shower Purity * Efficiency %.3f+-%.3f"
-    % PurityEfficiency(dfTrackVariable, dfShowerVariable, cutoff, cutoffDirection)
+    % PurityEfficiency(dfTrackVariable, dfShowerVariable, cutoff, showerCutDirection)
 )
+
+def BinnedPurityEfficiency(dfTrackData, dfShowerData, dependenceName, binEdges, predictorName, cutoff, showerCutDirection):
+    nBins = len(binEdges) - 1
+    results = {
+        "track": {
+            "efficiency": np.zeros(nBins),
+            "efficiencyError": np.zeros(nBins),
+            "purity": np.zeros(nBins),
+            "purityError": np.zeros(nBins),
+            "purityEfficiency": np.zeros(nBins),
+            "purityEfficiencyError": np.zeros(nBins)
+        },
+        "shower": {
+            "efficiency": np.zeros(nBins),
+            "efficiencyError": np.zeros(nBins),
+            "purity": np.zeros(nBins),
+            "purityError": np.zeros(nBins),
+            "purityEfficiency": np.zeros(nBins),
+            "purityEfficiencyError": np.zeros(nBins)
+        }
+    }
+    for lowerBound, upperBound, i in zip(binEdges[:-1], binEdges[1:], count()):
+        binFilter = dependenceName + ">=@lowerBound and " + dependenceName + "<@upperBound"
+        likelihoodShowersInBin = dfShowerData.query(binFilter)[predictorName]
+        likelihoodTracksInBin = dfTrackData.query(binFilter)[predictorName]  
+        (
+            results["track"]["efficiency"][i],
+            results["track"]["efficiencyError"][i],
+            results["track"]["purity"][i],
+            results["track"]["purityError"][i],
+            results["track"]["purityEfficiency"][i],
+            results["track"]["purityEfficiencyError"][i],
+            results["shower"]["efficiency"][i],
+            results["shower"]["efficiencyError"][i],
+            results["shower"]["purity"][i],
+            results["shower"]["purityError"][i],
+            results["shower"]["purityEfficiency"][i],
+            results["shower"]["purityEfficiencyError"][i]
+        ) = PurityEfficiency(likelihoodTracksInBin, likelihoodShowersInBin, cutoff, showerCutDirection)
+    return results
+
+def BinnedPurityEfficiencyPlot(results, binEdges, pfoType, dependenceName, cutoff, yLimits=(0, 1.01)):
+    fig, ax = plt.subplots(figsize=(10, 7.5))
+    hs.WireBarPlot(ax, results[pfoType]["purity"], binEdges, heightErrors=results[pfoType]["purityError"], colour='r', label="Purity")
+    hs.WireBarPlot(ax, results[pfoType]["efficiency"], binEdges, heightErrors=results[pfoType]["efficiencyError"], colour='g', label="Efficiency")
+    hs.WireBarPlot(ax, results[pfoType]["purityEfficiency"], binEdges, heightErrors=results[pfoType]["purityEfficiencyError"], colour='b', label="Purity*Efficiency")
+    ax.legend(loc='lower center')
+    ax.set_ylim(yLimits)
+    ax.set_title("Purity/Efficiency vs %s, Cutoff=%.3f, %s" % (dependenceName, cutoff, pfoType))
+    ax.set_xlabel(dependenceName)
+    ax.set_ylabel("Fraction")
+    fig.tight_layout()
+    fig.savefig(pfoType + "PurityEfficiencyVs" + dependenceName + ".svg", format='svg', dpi=1200)
+    return fig, ax
 
 if __name__ == "__main__":
     ds.GetPerfPfoData(viewsUsed=lc.viewsUsed)
@@ -168,7 +227,7 @@ if __name__ == "__main__":
     (
         bestTrackCutoff, trackEfficiencies, trackPurities, trackPurityEfficiencies, 
         bestShowerCutoff, showerEfficiencies, showerPurities, showerPurityEfficiencies
-    ) = OptimiseCutoff(ds.dfPerfPfoData["track"]['union'], ds.dfPerfPfoData["shower"]['union'], 'Likelihood', purityEfficiencyCutoffGraph['testValues'], 'right')
+    ) = OptimiseCutoff(ds.dfPerfPfoData["track"]['union'], ds.dfPerfPfoData["shower"]['union'], 'Likelihood', purityEfficiencyVsCutoffGraph['testValues'], 'right')
 
     # Printing results for optimal purity and efficiency
     print("\nOptimal track cutoff %.3f" % bestTrackCutoff)
@@ -179,7 +238,7 @@ if __name__ == "__main__":
     # Make likelihood histograms.
     for histogram in likelihoodHistograms:
         histogram['name'] = 'Likelihood'
-        fig, ax = CreateHistogramWire(ds.dfPerfPfoData['all']['union'], histogram)
+        fig, ax = hs.CreateHistogramWire(ds.dfPerfPfoData['all']['union'], histogram)
         cutoff = histogram.get('cutoff', '')
         if cutoff == 'shower':
             GraphCutoffLine(ax, bestShowerCutoff, ("Track", "Shower"))
@@ -193,9 +252,9 @@ if __name__ == "__main__":
     bx1 = fig.add_subplot(1,2,1)
     bx2 = fig.add_subplot(1,2,2)
 
-    lines = bx1.plot(purityEfficiencyCutoffGraph['testValues'], trackPurities, 'b', purityEfficiencyCutoffGraph['testValues'], trackEfficiencies, 'r', purityEfficiencyCutoffGraph['testValues'], trackPurityEfficiencies, 'g')
+    lines = bx1.plot(purityEfficiencyVsCutoffGraph['testValues'], trackPurities, 'b', purityEfficiencyVsCutoffGraph['testValues'], trackEfficiencies, 'r', purityEfficiencyVsCutoffGraph['testValues'], trackPurityEfficiencies, 'g')
     bx1.legend(lines, ('Purity', 'Efficiency', 'Purity * Efficiency'), loc='lower center')
-    lines = bx2.plot(purityEfficiencyCutoffGraph['testValues'], showerPurities, 'b', purityEfficiencyCutoffGraph['testValues'], showerEfficiencies, 'r', purityEfficiencyCutoffGraph['testValues'], showerPurityEfficiencies, 'g')
+    lines = bx2.plot(purityEfficiencyVsCutoffGraph['testValues'], showerPurities, 'b', purityEfficiencyVsCutoffGraph['testValues'], showerEfficiencies, 'r', purityEfficiencyVsCutoffGraph['testValues'], showerPurityEfficiencies, 'g')
     bx2.legend(lines, ('Purity', 'Efficiency', 'Purity * Efficiency'), loc='lower center')
     GraphCutoffLine(bx1, bestTrackCutoff)
     GraphCutoffLine(bx2, bestShowerCutoff)
@@ -214,84 +273,9 @@ if __name__ == "__main__":
     plt.savefig("PurityEfficiencyVsLikelihoodCutoff.svg", format='svg', dpi=1200)
     plt.show()
 
-    # Plot purity/efficiency as a function of hits
-    trackEfficiencies = []
-    trackEfficiencyErrors = []
-    trackPurities = []
-    trackPurityErrors = []
-    trackPurityEfficiencies = []
-    trackPurityEfficiencyErrors = []
-    showerEfficiencies = []
-    showerEfficiencyErrors = []
-    showerPurities = []
-    showerPurityErrors = []
-    showerPurityEfficiencies = []
-    showerPurityEfficiencyErrors = []
-
-    binWidth = purityEfficiencyNhitsGraph['bins'][1] - purityEfficiencyNhitsGraph['bins'][0]
-
-    for nHitsBinMin in purityEfficiencyNhitsGraph['bins'][:-1]:
-        likelihoodShowersInBin = ds.dfPerfPfoData["shower"]['union'].query("(nHitsU + nHitsV + nHitsW) >=@nHitsBinMin and (nHitsU + nHitsV + nHitsW) <@nHitsBinMin+@binWidth")['Likelihood']
-        likelihoodTracksInBin = ds.dfPerfPfoData["track"]['union'].query("(nHitsU + nHitsV + nHitsW) >=@nHitsBinMin and (nHitsU + nHitsV + nHitsW) <@nHitsBinMin+@binWidth")['Likelihood']
-        (
-            trackEfficiency, trackEfficiencyError, trackPurity, trackPurityError, trackPurityEfficiency, trackPurityEfficiencyError, 
-            showerEfficiency, showerEfficiencyError, showerPurity, showerPurityError, showerPurityEfficiency, showerPurityEfficiencyError
-        ) = PurityEfficiency(likelihoodTracksInBin, likelihoodShowersInBin, bestShowerCutoff, 'right')
-
-        trackEfficiencies.append(trackEfficiency)
-        trackEfficiencyErrors.append(trackEfficiencyError)
-        trackPurities.append(trackPurity)
-        trackPurityErrors.append(trackPurityError)
-        trackPurityEfficiencies.append(trackPurityEfficiency)
-        trackPurityEfficiencyErrors.append(trackPurityEfficiencyError)
-
-        showerEfficiencies.append(showerEfficiency)
-        showerEfficiencyErrors.append(showerEfficiencyError)
-        showerPurities.append(showerPurity)
-        showerPurityErrors.append(showerPurityError)
-        showerPurityEfficiencies.append(showerPurityEfficiency)
-        showerPurityEfficiencyErrors.append(showerPurityEfficiencyError)
-
-
-    Xcoord = np.concatenate((purityEfficiencyNhitsGraph['bins'][:1], np.repeat(purityEfficiencyNhitsGraph['bins'][1:-1], 2), purityEfficiencyNhitsGraph['bins'][-1:]))
-    XcoordErrorBars = purityEfficiencyNhitsGraph['bins'][:-1] + (purityEfficiencyNhitsGraph['bins'][1] - purityEfficiencyNhitsGraph['bins'][0]) / 2
-
-    fig, ax = plt.subplots(figsize=(10, 7.5))
-    trackPuritiesYcoord = np.repeat(trackPurities, 2)
-    trackEfficienciesYcoord = np.repeat(trackEfficiencies, 2)
-    trackPurityEfficienciesYcoord = np.repeat(trackPurityEfficiencies, 2)
-    ax.plot(Xcoord, trackPuritiesYcoord, label='Purity', color='r')
-    ax.plot(Xcoord, trackEfficienciesYcoord, label='Efficiency', color='g')
-    ax.plot(Xcoord, trackPurityEfficienciesYcoord, label='Purity * Efficiency', color='b')
-    ax.errorbar(XcoordErrorBars, trackPurities, yerr=trackPurityErrors, fmt="none", capsize=2, color='r')
-    ax.errorbar(XcoordErrorBars, trackEfficiencies, yerr=trackEfficiencyErrors, fmt="none", capsize=2, color='g')
-    ax.errorbar(XcoordErrorBars, trackPurityEfficiencies, yerr=trackPurityEfficiencyErrors, fmt="none", capsize=2, color='b')
-    ax.legend(loc='lower center')
-    ax.set_ylim((0.5, 1.01))
-    #ax.set_title("Purity/Efficiency vs nHits, Cutoff=%.3f, Tracks" % bestShowerCutoff)
-    ax.set_xlabel("Number of hits")
-    ax.set_ylabel("Fraction")
-    plt.tight_layout()
-    plt.savefig("TrackPurityEfficiencyVsNhits.svg", format='svg', dpi=1200)
-    plt.show()
-
-    fig, ax = plt.subplots(figsize=(10, 7.5))
-    showerPuritiesYcoord = np.repeat(showerPurities, 2)
-    showerEfficienciesYcoord = np.repeat(showerEfficiencies, 2)
-    showerPurityEfficienciesYcoord = np.repeat(showerPurityEfficiencies, 2)
-    Xcoord = np.concatenate((purityEfficiencyNhitsGraph['bins'][:1], np.repeat(purityEfficiencyNhitsGraph['bins'][1:-1], 2), purityEfficiencyNhitsGraph['bins'][-1:]))
-    XcoordErrorBars = purityEfficiencyNhitsGraph['bins'][:-1] + (purityEfficiencyNhitsGraph['bins'][1] - purityEfficiencyNhitsGraph['bins'][0]) / 2
-    ax.plot(Xcoord, showerPuritiesYcoord, label='Purity', color='r')
-    ax.plot(Xcoord, showerEfficienciesYcoord, label='Efficiency', color='g')
-    ax.plot(Xcoord, showerPurityEfficienciesYcoord, label='Purity * Efficiency', color='b')
-    ax.errorbar(XcoordErrorBars, showerPurities, yerr=showerPurityErrors, fmt="none", capsize=2, color='r')
-    ax.errorbar(XcoordErrorBars, showerEfficiencies, yerr=showerEfficiencyErrors, fmt="none", capsize=2, color='g')
-    ax.errorbar(XcoordErrorBars, showerPurityEfficiencies, yerr=showerPurityEfficiencyErrors, fmt="none", capsize=2, color='b')
-    ax.legend(loc='lower center')
-    ax.set_ylim((0.5, 1.01))
-    #ax.set_title("Purity/Efficiency vs nHits, Cutoff=%.3f, Tracks" % bestShowerCutoff)
-    ax.set_xlabel("Number of hits")
-    ax.set_ylabel("Fraction")
-    plt.tight_layout()
-    plt.savefig("ShowerPurityEfficiencyVsNhits.svg", format='svg', dpi=1200)
-    plt.show()
+    for graph in purityEfficiencyBinnedGraphs:
+        results = BinnedPurityEfficiency(ds.dfPerfPfoData["track"]['union'], ds.dfPerfPfoData["shower"]['union'], graph["dependence"], graph['bins'], "Likelihood", bestShowerCutoff, 'right')
+        fig, ax = BinnedPurityEfficiencyPlot(results, graph['bins'], "track", graph["dependence"], bestShowerCutoff)
+        plt.show()
+        fig, ax = BinnedPurityEfficiencyPlot(results, graph['bins'], "shower", graph["dependence"], bestShowerCutoff)
+        plt.show()

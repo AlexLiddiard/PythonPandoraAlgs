@@ -51,12 +51,19 @@ def CreateHistogramWire(df, histogram):
             normedBinCounts = binCounts/len(df.query(normFilter))
         else:
             normedBinCounts = binCounts/len(filteredDf)
-        normedBinCountsYcoord = np.concatenate(([0], np.repeat(normedBinCounts, 2), [0]))
-        normedBinCountsXcoord = np.repeat(binEdges, 2)
-        ax.plot(normedBinCountsXcoord, normedBinCountsYcoord, label=name)
-        if fill:
-            ax.fill(normedBinCountsXcoord, normedBinCountsYcoord, alpha=0.2)
+        WireBarPlot(ax, normedBinCounts, binEdges, fill=fill, label=name)
 
     plt.tight_layout()
     plt.legend(loc='upper right', framealpha=0.5)
     return fig, ax
+
+def WireBarPlot(ax, heights, edges, heightErrors=None, colour=None, fill=False, label=None):
+    x = np.repeat(edges, 2)
+    y = np.concatenate(([0], np.repeat(heights, 2), [0]))
+    ax.plot(x[1:-1], y[1:-1], label=label, color=colour)
+    if fill:
+        ax.fill(x, y, alpha=0.2)
+    if heightErrors is not None:
+        x = (edges[:-1] + edges[1:]) / 2
+        ax.errorbar(x, heights, yerr=heightErrors, fmt="none", capsize=2, color=colour)
+
