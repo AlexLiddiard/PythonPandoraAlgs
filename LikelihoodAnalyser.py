@@ -43,10 +43,67 @@ likelihoodHistograms = (
 
 purityEfficiencyVsCutoffGraph = {'testValues': np.linspace(0, 1, 1001)}
 purityEfficiencyBinnedGraphs = (
-    {"dependence": "nHitsU+nHitsV+nHitsW", 'bins': np.linspace(60, 1400, num=40)},
-    {"dependence": "mcpMomentum", 'bins': np.linspace(0, 1.5, num=40)},
-    {"dependence": "purityW", 'bins': np.linspace(0, 1, num=40)},
-    {"dependence": "completenessW", 'bins': np.linspace(0, 1, num=40)},
+    {
+        "dependence":
+        "nHitsU+nHitsV+nHitsW",
+        'bins': np.linspace(60, 1400, num=40),
+        "pfoClass": "both"
+    },
+    {
+        "dependence": "mcpMomentum",
+        'bins': np.linspace(0, 1.5, num=40),
+        "pfoClass": "both"
+    },
+    {
+        "dependence": "purityW",
+        'bins': np.linspace(0, 1, num=40),
+        "pfoClass": "both"
+    },
+    {
+        "dependence": "completenessW", 
+        'bins': np.linspace(0, 1, num=40), 
+        "pfoClass": "both"
+    },
+    {
+        "dependence": "nHitsU+nHitsV+nHitsW", 
+        'bins': np.linspace(0, 400, num=40), 
+        "pfoClass": "shower", 
+        "filter": {
+            "name": "Electrons",
+            "query": "abs(mcPdgCode)==11",
+            "showPurity": False
+        }
+    },
+    {
+        "dependence": "nHitsU+nHitsV+nHitsW",
+        'bins': np.linspace(0, 800, num=40),
+        "pfoClass": "shower",
+        "filter": {
+            "name": "Photons",
+            "query": "abs(mcPdgCode)==22",
+            "showPurity": False
+        }
+    },
+    {
+        "dependence": "mcpMomentum",
+        'bins': np.linspace(0, 1, num=40),
+        "pfoClass": "shower",
+        "filter": {
+            "name": "Electrons",
+            "query": "abs(mcPdgCode)==11",
+            "showPurity": False
+        }
+    },
+    {
+        "dependence": "mcpMomentum",
+        'bins': np.linspace(0, 1, num=80),
+        "pfoClass": "shower",
+        "filter": {
+            "name": "Photons",
+            "query": "abs(mcPdgCode)==22",
+            "showPurity": False
+        }
+    },
 )
 
 def Purity(efficiency1, efficiency2, n1, n2):
@@ -205,18 +262,19 @@ def BinnedPurityEfficiency(dfTrackData, dfShowerData, dependenceName, binEdges, 
         ) = PurityEfficiency(likelihoodTracksInBin, likelihoodShowersInBin, cutoff, showerCutDirection)
     return results
 
-def BinnedPurityEfficiencyPlot(results, binEdges, pfoType, dependenceName, cutoff, yLimits=(0, 1.01)):
+def BinnedPurityEfficiencyPlot(results, binEdges, pfoClass, dependenceName, cutoff, filterName=None, showPurity=True, yLimits=(0, 1.01)):
     fig, ax = plt.subplots(figsize=(10, 7.5))
-    hs.WireBarPlot(ax, results[pfoType]["purity"], binEdges, heightErrors=results[pfoType]["purityError"], colour='r', label="Purity")
-    hs.WireBarPlot(ax, results[pfoType]["efficiency"], binEdges, heightErrors=results[pfoType]["efficiencyError"], colour='g', label="Efficiency")
-    hs.WireBarPlot(ax, results[pfoType]["purityEfficiency"], binEdges, heightErrors=results[pfoType]["purityEfficiencyError"], colour='b', label="Purity*Efficiency")
+    hs.WireBarPlot(ax, results[pfoClass]["efficiency"], binEdges, heightErrors=results[pfoClass]["efficiencyError"], colour='g', label="Efficiency")
+    if showPurity:
+        hs.WireBarPlot(ax, results[pfoClass]["purity"], binEdges, heightErrors=results[pfoClass]["purityError"], colour='r', label="Purity")
+        hs.WireBarPlot(ax, results[pfoClass]["purityEfficiency"], binEdges, heightErrors=results[pfoClass]["purityEfficiencyError"], colour='b', label="Purity*Efficiency")
     ax.legend(loc='lower center')
     ax.set_ylim(yLimits)
-    ax.set_title("Purity/Efficiency vs %s, Cutoff=%.3f, %s" % (dependenceName, cutoff, pfoType))
+    ax.set_title("Purity/Efficiency vs %s, Cutoff=%.3f, %s" % (dependenceName, cutoff, filterName if filterName is not None else pfoClass))
     ax.set_xlabel(dependenceName)
     ax.set_ylabel("Fraction")
     fig.tight_layout()
-    fig.savefig(pfoType + "PurityEfficiencyVs" + dependenceName + ".svg", format='svg', dpi=1200)
+    fig.savefig(filterName if filterName is not None else pfoClass + "PurityEfficiencyVs" + dependenceName + ".svg", format='svg', dpi=1200)
     return fig, ax
 
 if __name__ == "__main__":
@@ -274,8 +332,18 @@ if __name__ == "__main__":
     plt.show()
 
     for graph in purityEfficiencyBinnedGraphs:
-        results = BinnedPurityEfficiency(ds.dfPerfPfoData["track"]['union'], ds.dfPerfPfoData["shower"]['union'], graph["dependence"], graph['bins'], "Likelihood", bestShowerCutoff, 'right')
-        fig, ax = BinnedPurityEfficiencyPlot(results, graph['bins'], "track", graph["dependence"], bestShowerCutoff)
-        plt.show()
-        fig, ax = BinnedPurityEfficiencyPlot(results, graph['bins'], "shower", graph["dependence"], bestShowerCutoff)
-        plt.show()
+        dfTrackData = ds.dfPerfPfoData["track"]['union']
+        dfShowerData = ds.dfPerfPfoData["shower"]["union"]
+        filter = graph.get("filter", {})
+        query = filter.get("query", None)
+        if query is not None:
+            dfTrackData = dfTrackData.query(query)
+            dfShowerData = dfShowerData.query(query)
+
+        results = BinnedPurityEfficiency(dfTrackData, dfShowerData, graph["dependence"], graph['bins'], "Likelihood", bestShowerCutoff, 'right')
+        if graph["pfoClass"] != "shower":
+            fig, ax = BinnedPurityEfficiencyPlot(results, graph['bins'], "track", graph["dependence"], bestShowerCutoff, filter.get("name", None), filter.get("showPurity", True))
+            plt.show()
+        if graph["pfoClass"] != "track":
+            fig, ax = BinnedPurityEfficiencyPlot(results, graph['bins'], "shower", graph["dependence"], bestShowerCutoff, filter.get("name", None), filter.get("showPurity", True))
+            plt.show()
