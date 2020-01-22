@@ -13,9 +13,9 @@ import TrackShowerFeatures.ChargeStdMeanRatio as csmr
 import TrackShowerFeatures.BraggPeak as bp
 import TrackShowerFeatures.MoliereRadius as mr
 
-myTestArea = "/home/tomalex/Pandora/"
-rootFileDirectory = myTestArea + "/PythonPandoraAlgs/ROOT Files"
-outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.bz2'
+myTestArea = "/home/epp/phuznm/Documents/Pandora/"
+rootFileDirectory = myTestArea + "/PandoraCoW"
+outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 calculateViews = {
     "U": True,
     "V": True,
