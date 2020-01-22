@@ -289,9 +289,9 @@ if __name__ == "__main__":
 
     # Printing results for optimal purity and efficiency
     print("\nOptimal track cutoff %.3f" % bestTrackCutoff)
-    PrintPurityEfficiency(ds.dfPerfPfoData["track"]['union'], ds.dfPerfPfoData["shower"]['union'], 'Likelihood', bestTrackCutoff)
+    PrintPurityEfficiency(ds.dfPerfPfoData["track"]['union'], ds.dfPerfPfoData["shower"]['union'], ('track', 'shower'), 'Likelihood', bestTrackCutoff)
     print("\nOptimal shower cutoff %.3f" % bestShowerCutoff)
-    PrintPurityEfficiency(ds.dfPerfPfoData["track"]['union'], ds.dfPerfPfoData["shower"]['union'], 'Likelihood', bestShowerCutoff)
+    PrintPurityEfficiency(ds.dfPerfPfoData["track"]['union'], ds.dfPerfPfoData["shower"]['union'], ('track', 'shower'), 'Likelihood', bestShowerCutoff)
 
     # Make likelihood histograms.
     for histogram in likelihoodHistograms:
@@ -299,9 +299,9 @@ if __name__ == "__main__":
         fig, ax = hs.CreateHistogramWire(ds.dfPerfPfoData['all']['union'], histogram)
         cutoff = histogram.get('cutoff', '')
         if cutoff == 'shower':
-            GraphCutoffLine(ax, ("Track", "Shower"), bestShowerCutoff)
+            GraphCutoffLine(ax, ("track", "shower"), bestShowerCutoff, True)
         if cutoff == 'track':
-            GraphCutoffLine(ax, ("Track", "Shower"), bestTrackCutoff)
+            GraphCutoffLine(ax, ("track", "shower"), bestTrackCutoff, True)
         plt.savefig('%s distribution for %s' % (histogram['name'], ', '.join((filter[0] for filter in histogram['filters'])) + '.svg'), format='svg', dpi=1200)
         plt.show()
 
@@ -314,8 +314,8 @@ if __name__ == "__main__":
     bx1.legend(lines, ('Purity', 'Efficiency', 'Purity * Efficiency'), loc='lower center')
     lines = bx2.plot(purityEfficiencyVsCutoffGraph['testValues'], showerPurities, 'b', purityEfficiencyVsCutoffGraph['testValues'], showerEfficiencies, 'r', purityEfficiencyVsCutoffGraph['testValues'], showerPurityEfficiencies, 'g')
     bx2.legend(lines, ('Purity', 'Efficiency', 'Purity * Efficiency'), loc='lower center')
-    GraphCutoffLine(bx1, bestTrackCutoff, ("Track", "Shower"))
-    GraphCutoffLine(bx2, bestShowerCutoff, ("Track", "Shower"))
+    GraphCutoffLine(bx1, ("track", "shower"), bestTrackCutoff)
+    GraphCutoffLine(bx2, ("track", "shower"), bestShowerCutoff)
 
     bx1.set_ylim([0, 1])
     bx1.set_title("Purity/Efficiency vs Likelihood Cutoff — Tracks")
