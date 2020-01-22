@@ -70,9 +70,9 @@ purityEfficiencyBinnedGraphs = (
         "pfoClass": "shower", 
         "filter": {
             "name": "Electrons",
-            "query": "abs(mcPdgCode)==11",
-            "showPurity": False
-        }
+            "query": "abs(mcPdgCode)==11"
+        },
+        "showPurity": False
     },
     {
         "dependence": "nHitsU+nHitsV+nHitsW",
@@ -80,9 +80,9 @@ purityEfficiencyBinnedGraphs = (
         "pfoClass": "shower",
         "filter": {
             "name": "Photons",
-            "query": "abs(mcPdgCode)==22",
-            "showPurity": False
-        }
+            "query": "abs(mcPdgCode)==22"
+        },
+        "showPurity": False
     },
     {
         "dependence": "mcpMomentum",
@@ -90,9 +90,9 @@ purityEfficiencyBinnedGraphs = (
         "pfoClass": "shower",
         "filter": {
             "name": "Electrons",
-            "query": "abs(mcPdgCode)==11",
-            "showPurity": False
-        }
+            "query": "abs(mcPdgCode)==11"
+        },
+        "showPurity": False
     },
     {
         "dependence": "mcpMomentum",
@@ -100,9 +100,9 @@ purityEfficiencyBinnedGraphs = (
         "pfoClass": "shower",
         "filter": {
             "name": "Photons",
-            "query": "abs(mcPdgCode)==22",
-            "showPurity": False
-        }
+            "query": "abs(mcPdgCode)==22"
+        },
+        "showPurity": False
     },
 )
 
@@ -342,8 +342,8 @@ if __name__ == "__main__":
 
         results = BinnedPurityEfficiency(dfTrackData, dfShowerData, graph["dependence"], graph['bins'], "Likelihood", bestShowerCutoff, 'right')
         if graph["pfoClass"] != "shower":
-            fig, ax = BinnedPurityEfficiencyPlot(results, graph['bins'], "track", graph["dependence"], bestShowerCutoff, filter.get("name", None), filter.get("showPurity", True))
+            fig, ax = BinnedPurityEfficiencyPlot(results, graph['bins'], "track", graph["dependence"], bestShowerCutoff, filter.get("name", None), graph.get("showPurity", True))
             plt.show()
         if graph["pfoClass"] != "track":
-            fig, ax = BinnedPurityEfficiencyPlot(results, graph['bins'], "shower", graph["dependence"], bestShowerCutoff, filter.get("name", None), filter.get("showPurity", True))
+            fig, ax = BinnedPurityEfficiencyPlot(results, graph['bins'], "shower", graph["dependence"], bestShowerCutoff, filter.get("name", None), graph.get("showPurity", True))
             plt.show()
