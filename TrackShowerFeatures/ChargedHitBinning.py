@@ -1,5 +1,4 @@
 # This module is for track/shower algorithm #4
-import statistics
 import math as m
 import numpy as np
 import TrackShowerFeatures.LinearRegression as lr
@@ -59,7 +58,7 @@ def GetRotatedBinStdevOLS(driftCoord, wireCoord, binWidth, minBins, energyArray)
     # Ensure there are enough bins
     if len(rotatedBins) >= minBins:
         # Get stdev of the bin counts
-        return statistics.stdev(rotatedBins)
+        return np.std(rotatedBins)
     else:
         # Insufficient bins
         return m.nan
@@ -72,7 +71,7 @@ def GetRotatedBinStdevPCA(driftCoord, wireCoord, binWidth, minBins, energyArray)
     if len(rotatedBins) < minBins:
         return m.nan
     # Get stdev of the bin counts
-    return statistics.stdev(rotatedBins)/np.mean(energyArray)
+    return np.std(rotatedBins)/np.mean(energyArray)
 
 
 def GetFeatures(pfo, calculateViews, binWidth=2, minBins=3):

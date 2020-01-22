@@ -2,9 +2,9 @@ import pandas as pd
 import math as m
 from UpRootFileReader import MicroBooneGeo
 
-myTestArea = "/home/tomalex/Pandora/"
-inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.bz2'
-outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.bz2'
+myTestArea = "/home/jack/Documents/Pandora/"
+inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
+outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
 
 trainingFraction = 0.5
 trainingPreFilters = {
@@ -150,6 +150,12 @@ def GetViewsUsed(features):
     for feature in features:
         viewsUsed.append(GetFeatureView(feature["name"]))
     return list(dict.fromkeys(viewsUsed))
+
+def PrintSampleInput(pfoData):
+    for className in pfoData:
+        print(className + ":")
+        for view in pfoData[className]:
+            print("\t%s: %s PFOs" % (view, len(pfoData[className][view])))
 
 # Initialise prefilters
 ProcessFilters(trainingPreFilters)

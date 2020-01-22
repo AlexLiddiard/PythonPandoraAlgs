@@ -150,25 +150,25 @@ def PurityEfficiency(dfTrackVariable, dfShowerVariable, cutOff, showerCutDirecti
         showerEfficiency, showerEfficiencyError, showerPurity, showerPurityError, showerPurityEfficiency, showerPurityEfficiencyError
     )
 
-def GraphCutoffLine(ax, cutoff, arrows=False, flipArrows=False):
+def GraphCutoffLine(ax, classNames, cutoff, arrows=False, flipArrows=False):
     ax.axvline(cutoff)
     if arrows:
         if not flipArrows:
             ax.annotate(
-                "Track", xy=(cutoff, 0.93), xycoords=ax.get_xaxis_transform(), ha="right", va="center",
+                classNames[0], xy=(cutoff, 0.93), xycoords=ax.get_xaxis_transform(), ha="right", va="center",
                 xytext=(-18,0), textcoords="offset points", bbox={'boxstyle': "larrow", 'fc': 'C1', 'ec': 'C1', 'alpha': 0.5}, fontsize=20
             )
             ax.annotate(
-                "Shower", xy=(cutoff, 0.93), xycoords=ax.get_xaxis_transform(), ha="left", va="center",
+                classNames[1], xy=(cutoff, 0.93), xycoords=ax.get_xaxis_transform(), ha="left", va="center",
                 xytext=(18,0), textcoords="offset points", bbox={'boxstyle': "rarrow", 'fc': 'C0', 'ec': 'C0', 'alpha': 0.5}, fontsize=20
             )
         else:
             ax.annotate(
-                "Track", xy=(cutoff, 0.93), xycoords=ax.get_xaxis_transform(), ha="left", va="center",
+                classNames[0], xy=(cutoff, 0.93), xycoords=ax.get_xaxis_transform(), ha="left", va="center",
                 xytext=(18,0), textcoords="offset points", bbox={'boxstyle': "rarrow", 'fc': 'C1', 'ec': 'C1', 'alpha': 0.5}, fontsize=20
             )
             ax.annotate(
-                "Shower", xy=(cutoff, 0.93), xycoords=ax.get_xaxis_transform(), ha="right", va="center",
+                classNames[1], xy=(cutoff, 0.93), xycoords=ax.get_xaxis_transform(), ha="right", va="center",
                 xytext=(-18,0), textcoords="offset points", bbox={'boxstyle': "larrow", 'fc': 'C0', 'ec': 'C0', 'alpha': 0.5}, fontsize=20
             )
 
@@ -209,17 +209,17 @@ def OptimiseCutoff(dfTrackData, dfShowerData, variableName, testCutoffs, showerC
         bestShowerCutoff, showerEfficiencies, showerPurities, showerPurityEfficiencies
     )
 
-def PrintPurityEfficiency(dfTrackData, dfShowerData, predictorName, cutoff, showerCutDirection='right'):
-    dfTrackVariable = dfTrackData[predictorName]
-    dfShowerVariable =  dfShowerData[predictorName]
+def PrintPurityEfficiency(dfClass0Data, dfClass1Data, classNames, predictorName, cutoff, cutDirection='right'):
+    dfClass0Variable = dfClass0Data[predictorName]
+    dfClass1Variable =  dfClass1Data[predictorName]
     print(
-        "Track Efficiency %.3f+-%.3f\n"
-        "Track Purity %.3f+-%.3f\n"
-        "Track Purity * Efficiency %.3f+-%.3f\n"
-        "Shower Efficiency %.3f+-%.3f\n"
-        "Shower Purity %.3f+-%.3f\n"
-        "Shower Purity * Efficiency %.3f+-%.3f"
-    % PurityEfficiency(dfTrackVariable, dfShowerVariable, cutoff, showerCutDirection)
+        (classNames[0] + " Efficiency %.3f+-%.3f\n" +
+        classNames[0] + " Purity %.3f+-%.3f\n" +
+        classNames[0] + " Purity * Efficiency %.3f+-%.3f\n" +
+        classNames[1] + " Efficiency %.3f+-%.3f\n" +
+        classNames[1] + " Purity %.3f+-%.3f\n" +
+        classNames[1] + " Purity * Efficiency %.3f+-%.3f")
+    % PurityEfficiency(dfClass0Variable, dfClass1Variable, cutoff, cutDirection)
 )
 
 def BinnedPurityEfficiency(dfTrackData, dfShowerData, dependenceName, binEdges, predictorName, cutoff, showerCutDirection):
@@ -299,9 +299,9 @@ if __name__ == "__main__":
         fig, ax = hs.CreateHistogramWire(ds.dfPerfPfoData['all']['union'], histogram)
         cutoff = histogram.get('cutoff', '')
         if cutoff == 'shower':
-            GraphCutoffLine(ax, bestShowerCutoff, ("Track", "Shower"))
+            GraphCutoffLine(ax, ("Track", "Shower"), bestShowerCutoff)
         if cutoff == 'track':
-            GraphCutoffLine(ax, bestTrackCutoff, ("Track", "Shower"))
+            GraphCutoffLine(ax, ("Track", "Shower"), bestTrackCutoff)
         plt.savefig('%s distribution for %s' % (histogram['name'], ', '.join((filter[0] for filter in histogram['filters'])) + '.svg'), format='svg', dpi=1200)
         plt.show()
 
@@ -314,8 +314,8 @@ if __name__ == "__main__":
     bx1.legend(lines, ('Purity', 'Efficiency', 'Purity * Efficiency'), loc='lower center')
     lines = bx2.plot(purityEfficiencyVsCutoffGraph['testValues'], showerPurities, 'b', purityEfficiencyVsCutoffGraph['testValues'], showerEfficiencies, 'r', purityEfficiencyVsCutoffGraph['testValues'], showerPurityEfficiencies, 'g')
     bx2.legend(lines, ('Purity', 'Efficiency', 'Purity * Efficiency'), loc='lower center')
-    GraphCutoffLine(bx1, bestTrackCutoff)
-    GraphCutoffLine(bx2, bestShowerCutoff)
+    GraphCutoffLine(bx1, bestTrackCutoff, ("Track", "Shower"))
+    GraphCutoffLine(bx2, bestShowerCutoff, ("Track", "Shower"))
 
     bx1.set_ylim([0, 1])
     bx1.set_title("Purity/Efficiency vs Likelihood Cutoff — Tracks")
