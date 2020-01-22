@@ -93,7 +93,7 @@ for feature in features:
     dfShowerData = ds.dfPerfPfoData["shower"][ds.GetFeatureView(feature["name"])]
     cutoffValues, cutoffResults = fa.GetBestPurityEfficiency(dfTrackData, dfShowerData, ("track", "shower"), feature, purityEfficiency["nTestCuts"])
     if featureHistogram["plot"]:
-        fa.PlotFeatureHistogram(dfPfoData, ("track", "shower"), feature, featureHistogram, cutoffResults[4])
+        fa.PlotVariableHistogram(dfPfoData, ("track", "shower"), feature, featureHistogram, cutoffResults[4])
     if purityEfficiency["plot"]:        
         fa.PlotPurityEfficiencyVsCutoff(feature["name"], ("track", "shower"), cutoffValues, cutoffResults)
 
