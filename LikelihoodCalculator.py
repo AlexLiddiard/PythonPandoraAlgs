@@ -73,53 +73,52 @@ if __name__ == "__main__":
     ds.GetPerfPfoData(viewsUsed=viewsUsed)
 
     # Calculate priors
-    nTracksPrior = len(ds.dfTrainingPfoData["track"]["union"])
-    nShowersPrior = len(ds.dfTrainingPfoData["shower"]["union"])
-    showerPrior = nShowersPrior / (nShowersPrior + nTracksPrior)
-    trackPrior = nTracksPrior / (nShowersPrior + nTracksPrior)
+    nClass0Prior = len(ds.dfTrainingPfoData["track"]["union"])
+    nClass1Prior = len(ds.dfTrainingPfoData["shower"]["union"])
+    class1Prior = nClass1Prior / (nClass1Prior + nClass0Prior)
+    class0Prior = nClass0Prior / (nClass1Prior + nClass0Prior)
 
     print("Training likelihood using the following samples:")
 
     ds.PrintSampleInput(ds.dfTrainingPfoData)
-
-    #for view in ds.dfTrainingPfoData["track"]:
-    #        print("%s: %s tracks, %s showers" % (view, len(ds.dfTrainingPfoData["track"][view]), len(ds.dfTrainingPfoData["shower"][view])))
     
     #Calculate histogram bins, obtain probabilities from them
-    print("\nPriors: showers %.3f, tracks %.3f" % (showerPrior, trackPrior))
+    print("\nPriors: showers %.3f, tracks %.3f" % (class1Prior, class0Prior))
     print("Calculating likelihood values")
-    probabilities = {
-        "track": {},
-        "shower": {}
-    }
-    for feature in features:
-        featureView = ds.GetFeatureView(feature['name'])
-        showerHist, binEdges = np.histogram(ds.dfTrainingPfoData["shower"][featureView][feature['name']], bins=feature['pdfBins'], density=True)
-        trackHist, binEdges = np.histogram(ds.dfTrainingPfoData["track"][featureView][feature['name']], bins=feature['pdfBins'], density=True)
-        showerHist = np.concatenate(([1], showerHist, [1])) # values that fall outside the histogram range will not be used for calculating likelihood
-        showerHist[showerHist==0] = delta # Avoid nan-valued likelihoods by replacing zero probability densities with a tiny positive number
-        trackHist[trackHist==0] = delta
-        trackHist = np.concatenate(([1], trackHist, [1]))
-        featureValues = ds.dfAllPfoData[feature['name']]
-        histIndices = np.digitize(featureValues, feature['pdfBins'])
-        if featureView not in probabilities["track"]:
-            probabilities["track"][featureView] = 1
-            probabilities["shower"][featureView] = 1
-        probabilities["track"][featureView] *= trackHist[histIndices]
-        probabilities["shower"][featureView] *= showerHist[histIndices]
 
-    # Obtain likelihood values, using only probabilities from views that the PFO satisfied the filters.
-    pfoCheck = {}
-    for key in viewsUsed:
-        pfoCheck[key] = ds.dfAllPfoData.eval(ds.performancePreFilters[key])
-    ps = np.ones(len(ds.dfAllPfoData))
-    pt = np.ones(len(ds.dfAllPfoData))
-    for key in viewsUsed:
-        ps *= (1 + pfoCheck[key] * (probabilities["shower"][key] - 1))
-        pt *= (1 + pfoCheck[key] * (probabilities["track"][key] - 1))
-    likelihoods = ps / (ps + pt)
+    def CalculateLikelihoodValues(dfTrainingPfoData, dfAllPfoData, classNames, features, performancePreFilters):
+        probabilities = {
+            classNames[0]: {},
+            classNames[1]: {}
+        }
+        for feature in features:
+            featureView = ds.GetFeatureView(feature['name'])
+            class1Hist, binEdges = np.histogram(dfTrainingPfoData[classNames[1]][featureView][feature['name']], bins=feature['pdfBins'], density=True)
+            class0Hist, binEdges = np.histogram(dfTrainingPfoData[classNames[0]][featureView][feature['name']], bins=feature['pdfBins'], density=True)
+            class1Hist = np.concatenate(([1], class1Hist, [1])) # values that fall outside the histogram range will not be used for calculating likelihood
+            class1Hist[class1Hist==0] = delta # Avoid nan-valued likelihoods by replacing zero probability densities with a tiny positive number
+            class0Hist[class0Hist==0] = delta
+            class0Hist = np.concatenate(([1], class0Hist, [1]))
+            featureValues = dfAllPfoData[feature['name']]
+            histIndices = np.digitize(featureValues, feature['pdfBins'])
+            if featureView not in probabilities[classNames[0]]:
+                probabilities[classNames[0]][featureView] = 1
+                probabilities[classNames[1]][featureView] = 1
+            probabilities[classNames[0]][featureView] *= class0Hist[histIndices]
+            probabilities[classNames[1]][featureView] *= class1Hist[histIndices]
+
+        # Obtain likelihood values, using only probabilities from views that the PFO satisfied the filters.
+        pfoCheck = {}
+        for key in viewsUsed:
+            pfoCheck[key] = dfAllPfoData.eval(performancePreFilters[key])
+        p1 = np.ones(len(dfAllPfoData))
+        p0 = np.ones(len(dfAllPfoData))
+        for key in viewsUsed:
+            p1 *= (1 + pfoCheck[key] * (probabilities[classNames[1]][key] - 1))
+            p0 *= (1 + pfoCheck[key] * (probabilities[classNames[0]][key] - 1))
+        return p1 / (p1 + p0)
 
     # Save the results
-    ds.dfAllPfoData["Likelihood"] = likelihoods
+    ds.dfAllPfoData["Likelihood"] = CalculateLikelihoodValues(ds.dfTrainingPfoData, ds.dfAllPfoData, ('track', 'shower'), features, ds.performancePreFilters)
     ds.SavePickleFile()
     print("Finished!")
