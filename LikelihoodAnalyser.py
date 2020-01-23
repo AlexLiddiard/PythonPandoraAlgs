@@ -65,8 +65,6 @@ def BinnedPurityEfficiencyPlot(results, binEdges, pfoClass, dependenceName, cuto
     return fig, ax
 
 def PlotPurityEfficiencyVsVariable(dfClass0, dfClass1, classNames, graph):
-    dfClass0 = ds.dfPerfPfoData["track"]['union']
-    dfClass1 = ds.dfPerfPfoData["shower"]["union"]
     filter = graph.get("filter", {})
     query = filter.get("query", None)
     if query is not None:
@@ -74,9 +72,9 @@ def PlotPurityEfficiencyVsVariable(dfClass0, dfClass1, classNames, graph):
         dfClass1 = dfClass1.query(query)
 
     results = BinnedPurityEfficiency(dfClass0, dfClass1, classNames, graph["dependence"], graph['bins'], "Likelihood", graph["cutoff"], 'right')
-    if graph["pfoClass"] != "shower":
+    if graph["pfoClass"] != classNames[1]:
         fig, ax = BinnedPurityEfficiencyPlot(results, graph['bins'], classNames[0], graph["dependence"], graph["cutoff"], filter.get("name", None), graph.get("showPurity", True))
         plt.show()
-    if graph["pfoClass"] != "track":
+    if graph["pfoClass"] != classNames[0]:
         fig, ax = BinnedPurityEfficiencyPlot(results, graph['bins'], classNames[1], graph["dependence"], graph["cutoff"], filter.get("name", None), graph.get("showPurity", True))
         plt.show()
