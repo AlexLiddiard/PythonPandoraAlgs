@@ -35,9 +35,7 @@ def CreateHistogram(df, histogram):
         ax.yaxis.set_tick_params(which='both', labelbottom=True)
     plt.show()
 
-def CreateHistogramWire(df, histogram):
-    fig, ax = plt.subplots(figsize=(10, 7.5))
-    fig.tight_layout()
+def CreateHistogramWire(ax, df, histogram):
     ax.set_xlabel(histogram['name'])
     ax.set_xlim((histogram['bins'][0], histogram['bins'][-1]))
     ax.set_ylabel("Probability")
@@ -55,7 +53,6 @@ def CreateHistogramWire(df, histogram):
 
     plt.tight_layout()
     plt.legend(loc='upper right', framealpha=0.5)
-    return fig, ax
 
 def WireBarPlot(ax, heights, edges, heightErrors=None, colour=None, fill=False, label=None):
     x = np.repeat(edges, 2)

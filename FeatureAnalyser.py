@@ -134,7 +134,8 @@ def PlotVariableHistogram(dfPfoData, classNames, variable, variableHistogram, be
     variable['yAxis'] = 'log'
     if "bins" in variableHistogram:
         variable["bins"] = variableHistogram["bins"]
-    fig, ax = CreateHistogramWire(dfPfoData, variable)
+    fig, ax = plt.subplots(figsize=(10, 7.5))
+    CreateHistogramWire(ax, dfPfoData, variable)
     if bestCutoff is not None:
         GraphCutoffLine(ax, classNames, bestCutoff, True, variable['cutDirection'] == 'left')
     plt.savefig('%s distribution for %s' % (variable['name'], ', '.join((filter[0] for filter in variable['filters'])) + '.svg'), format='svg', dpi=1200)

@@ -12,79 +12,59 @@ import TrackShowerFeatures.ChargedHitBinning as chb
 import TrackShowerFeatures.ChargeStdMeanRatio as csmr
 import TrackShowerFeatures.BraggPeak as bp
 import TrackShowerFeatures.MoliereRadius as mr
+import importlib
+import numpy as np
+from itertools import count
 
-myTestArea = "/home/epp/phuznm/Documents/Pandora/"
-rootFileDirectory = myTestArea + "/PandoraCoW"
-outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
+myTestArea = "/home/tomalex/Pandora/"
+rootFileDirectory = myTestArea + "/PythonPandoraAlgs/ROOT Files/Test/"
+outputDataFolder = myTestArea + '/PythonPandoraAlgs/TrackShowerData/'
+outputDataName = "BNBNuOnly"
+algorithmFolder = "TrackShowerFeatures"
+algorithmNames = (
+    "GeneralInfo",
+    "LinearRegression",
+    "HitBinning",
+    "ChainCreation",
+    "AngularSpan",
+    "PCAnalysis",
+    "ChargedHitBinning",
+    "ChargeStdMeanRatio",
+    "BraggPeak",
+    "MoliereRadius"
+)
 calculateViews = {
     "U": True,
     "V": True,
     "W": True,
     "3D": True
 }
+algorithms = [importlib.import_module(algorithmFolder + "." + algorithm) for algorithm in algorithmNames]
 
 def ProcessFile(filePath):
     events = UpRootFileReader.ReadRootFile(filePath)
-    pfoData = []
+    algorithmData = [[] for i in range(len(algorithms))]
     for eventPfos in events:
         for pfo in eventPfos:
             if abs(pfo.mcPdgCode) in (0, 14, 12) or pfo.nHitsPfo3D == 0:
                 continue
-            pfoDataDict = {
-                'fileName': pfo.fileName,
-                'eventId': pfo.eventId,
-                'pfoId': pfo.pfoId,
-                'mcNuanceCode': pfo.mcNuanceCode,
-                'mcPdgCode': pfo.mcPdgCode,
-                'mcpMomentum': pfo.mcpMomentum,
-                'isShower': pfo.IsShower(),
-                'minCoordX': min(pfo.xCoord3D),
-                'minCoordY': min(pfo.yCoord3D),
-                'minCoordZ': min(pfo.zCoord3D),
-                'maxCoordX': max(pfo.xCoord3D),
-                'maxCoordY': max(pfo.yCoord3D),
-                'maxCoordZ': max(pfo.zCoord3D)
-            }
-            if calculateViews["U"]:
-                pfoDataDict.update({
-                'nHitsU': pfo.nHitsPfoU,
-                'purityU': pfo.PurityU(),
-                'completenessU': pfo.CompletenessU()
-                })
-            if calculateViews["V"]:
-                pfoDataDict.update({
-                'nHitsV': pfo.nHitsPfoV,
-                'purityV': pfo.PurityV(),
-                'completenessV': pfo.CompletenessV()
-                })
-            if calculateViews["W"]:
-                pfoDataDict.update({
-                'nHitsW': pfo.nHitsPfoW,
-                'purityW': pfo.PurityW(),
-                'completenessW': pfo.CompletenessW()
-                })
-            if calculateViews["3D"]:
-                pfoDataDict.update({'nHits3D': pfo.nHitsPfo3D})
-            
-            pfoDataDict.update(lr.GetFeatures(pfo, calculateViews))
-            pfoDataDict.update(hb.GetFeatures(pfo, calculateViews))
-            pfoDataDict.update(cc.GetFeatures(pfo, calculateViews))
-            pfoDataDict.update(asp.GetFeatures(pfo, calculateViews))
-            pfoDataDict.update(pca.GetFeatures(pfo, calculateViews))
-            pfoDataDict.update(chb.GetFeatures(pfo, calculateViews))
-            pfoDataDict.update(csmr.GetFeatures(pfo, calculateViews))
-            pfoDataDict.update(bp.GetFeatures(pfo, calculateViews))
-            pfoDataDict.update(mr.GetFeatures(pfo, calculateViews))
-            pfoData.append(pfoDataDict)
-    return pd.DataFrame(pfoData)
+            for data, algorithm in zip(algorithmData, algorithms):
+                data.append(algorithm.GetFeatures(pfo, calculateViews))
+    return [pd.DataFrame(data) for data in algorithmData]
 
 if __name__ == "__main__":
     filePaths =  glob(rootFileDirectory + '/**/*.root', recursive=True)
     if filePaths:
         with cf.ProcessPoolExecutor() as executor:
             results = list(tqdm(executor.map(ProcessFile, filePaths), total=len(filePaths)))
-        df = pd.concat(results).sample(frac=1).reset_index(drop=True) # Shuffle the data to avoid ordering bias during our analysis
-        df.to_pickle(outputPickleFile)
+
+        idx = None
+        for i, algorithmName in zip(count(0), algorithmNames):
+            df = pd.concat([result[i] for result in results]).reset_index(drop=True)
+            if idx is None:
+                idx = np.random.permutation(df.index) # Shuffle the data to avoid ordering bias during our analysis
+            df = df.reindex(idx).sort_index()
+            df.to_pickle(outputDataFolder + outputDataName + "_" + algorithmName + ".pickle")
         print('\nFinished!')
     else:
         print('No ROOT files found!')
