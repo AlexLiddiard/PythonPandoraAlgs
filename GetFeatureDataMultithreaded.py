@@ -16,15 +16,15 @@ import importlib
 import numpy as np
 from itertools import count
 
-myTestArea = "/home/tomalex/Pandora/"
-rootFileDirectory = myTestArea + "/PythonPandoraAlgs/ROOT Files/Test/"
+myTestArea = "/home/epp/phuznm/Documents/Pandora/"
+rootFileDirectory = myTestArea + "/PandoraCoW/"
 outputDataFolder = myTestArea + '/PythonPandoraAlgs/TrackShowerData/'
 outputDataName = "BNBNuOnly"
 algorithmFolder = "TrackShowerFeatures"
 algorithmNames = (
     "GeneralInfo",
     "LinearRegression",
-    "HitBinning",
+    #"HitBinning",
     "ChainCreation",
     "AngularSpan",
     "PCAnalysis",

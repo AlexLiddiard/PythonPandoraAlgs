@@ -212,7 +212,11 @@ def SetAssociatedData(eventPfos):
         if pfo.parentPfoId == -1:
             continue
         else:
-            pfo.parentVertex3D = eventPfos[pfo.parentPfoId].vertex3D
+            try:
+                pfo.parentVertex3D = eventPfos[pfo.parentPfoId].vertex3D
+            except:
+                print(pfo.fileName)
+		
 
 
 def ReadPfoFromRootFile(filepath, eventId, pfoId):
