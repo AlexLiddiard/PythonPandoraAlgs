@@ -2,9 +2,9 @@ import pandas as pd
 import math as m
 from UpRootFileReader import MicroBooneGeo
 
-myTestArea = "/home/jack/Documents/Pandora/"
-inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
-outputPickleFile = myTestArea + '/PythonPandoraAlgs/featureData.bz2'
+myTestArea = "/home/tomalex/Pandora/"
+dataFolder = myTestArea + '/PythonPandoraAlgs/TrackShowerData/'
+dataName = "BNBNuOnly"
 
 trainingFraction = 0.5
 trainingPreFilters = {
@@ -88,14 +88,22 @@ def ProcessFilters(filters):
 
 dfAllPfoData = None
 # Load pickle file
-def LoadPickleFile():
+def LoadPfoData(features):
     global dfAllPfoData
     print("Loading pickle file")
-    dfAllPfoData = pd.read_pickle(inputPickleFile)
+    algorithmNames = GetFeatureAlgorithms(features)
+    algorithmNames['GeneralInfo'] = []
+    featureDataArray = []
+    for algorithmName in algorithmNames:
+        dfAlgorithm = pd.read_pickle(dataFolder + dataName + "_" + algorithmName + ".pickle")
+        if algorithmName == 'GeneralInfo':
+            featureDataArray.append(dfAlgorithm)
+        else:
+            featureDataArray.append(dfAlgorithm[algorithmNames[algorithmName]])
+    dfAllPfoData = pd.concat(featureDataArray, axis=1, sort=False)
 
-def SavePickleFile():
-    print("Saving pickle file")
-    dfAllPfoData.to_pickle(outputPickleFile)
+def SavePfoData(df, algorithmName):
+    df.to_pickle(dataFolder + dataName + "_" + algorithmName + ".pickle")
 
 def GetFilteredDataframes(df, filters):
     dfs = {}
@@ -105,10 +113,10 @@ def GetFilteredDataframes(df, filters):
     dfs["intersection"] = df.query("(" + ") and (".join(filters.values()) + ")").copy()
     return dfs
 
-def GetFilteredPfoData(filters, viewsUsed=("U", "V", "W", "3D"), portion=(0, 1)):
+def GetFilteredPfoData(filters, features, portion=(0, 1)):
     if dfAllPfoData is None:
-        LoadPickleFile()
-    usedViewFilters = {key:filters[key] for key in viewsUsed}
+        LoadPfoData(features)
+    usedViewFilters = {key:filters[key] for key in GetViewsUsed(features)}
     filteredPfoData = {}
     filteredPfoData["all"] = {"unfiltered":dfAllPfoData[m.floor(len(dfAllPfoData) * portion[0]):m.floor(len(dfAllPfoData) * portion[1])].copy()}
     filteredPfoData["all"]["general"] = filteredPfoData["all"]["unfiltered"].query(filters["general"]).copy()
@@ -120,16 +128,16 @@ def GetFilteredPfoData(filters, viewsUsed=("U", "V", "W", "3D"), portion=(0, 1))
     return filteredPfoData
 
 dfTrainingPfoData = None
-def GetTrainingPfoData(viewsUsed=("U", "V", "W", "3D")):
+def GetTrainingPfoData(features):
     global dfTrainingPfoData
     print("Getting training PFOs")
-    dfTrainingPfoData = GetFilteredPfoData(filters=trainingPreFilters, viewsUsed=viewsUsed, portion=(0, trainingFraction))
+    dfTrainingPfoData = GetFilteredPfoData(filters=trainingPreFilters, features=features, portion=(0, trainingFraction))
 
 dfPerfPfoData = None
-def GetPerfPfoData(viewsUsed=("U", "V", "W", "3D")):
+def GetPerfPfoData(features):
     global dfPerfPfoData
     print("Getting performance PFOs")
-    dfPerfPfoData = GetFilteredPfoData(filters=performancePreFilters, viewsUsed=viewsUsed, portion=(trainingFraction, 1))
+    dfPerfPfoData = GetFilteredPfoData(filters=performancePreFilters, features=features, portion=(trainingFraction, 1))
 
 def GetFeatureView(featureName):
     if featureName.endswith("3D"):
@@ -137,6 +145,14 @@ def GetFeatureView(featureName):
     if featureName[-1] in ["U", "V", "W"]:
         return featureName[-1]
     return "union"
+
+def GetFeatureAlgorithms(features):
+    algorithmNames = {}
+    for feature in features:
+        if feature['algorithmName'] not in algorithmNames:
+            algorithmNames[feature['algorithmName']] = []
+        algorithmNames[feature['algorithmName']].append(feature['name'])
+    return algorithmNames
 
 def GetViewFeatures(features, view):
     viewFeatures = []

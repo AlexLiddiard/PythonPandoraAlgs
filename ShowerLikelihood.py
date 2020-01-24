@@ -103,8 +103,8 @@ purityEfficiencyBinnedGraphs = (
 
 
 if __name__ == "__main__":
-    
-    ds.GetPerfPfoData(viewsUsed=lc.viewsUsed)
+    lc.features.append()
+    ds.GetPerfPfoData(lc.features)
     cutoffValues, cutoffResults = la.GetBestPurityEfficiency(ds.dfPerfPfoData['track']['union'], ds.dfPerfPfoData['shower']['union'], ('track', 'shower'), {'name': 'Likelihood', 'bins': (0, 1), 'cutDirection': 'right'}, purityEfficiencyVsCutoffGraph['nTestCuts'])
 
     for histogram in likelihoodHistograms:

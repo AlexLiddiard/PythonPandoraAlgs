@@ -14,62 +14,63 @@ from sklearn.impute import IterativeImputer
 from imblearn.over_sampling import RandomOverSampler as ros
 
 features = (
-    {'name': 'RSquaredU'},
-    {'name': 'RSquaredV'},
-    {'name': 'RSquaredW'},
-    {'name': 'BinnedHitStdU'},
-    {'name': 'BinnedHitStdV'},
-    {'name': 'BinnedHitStdW'},
-    {'name': 'RadialBinStdU'},
-    {'name': 'RadialBinStdV'},
-    {'name': 'RadialBinStdW'},
-    {'name': 'RadialBinStd3D'},
-    {'name': 'ChainCountU'},
-    {'name': 'ChainCountV'},
-    {'name': 'ChainCountW'},
-    {'name': 'ChainRatioAvgU'},
-    {'name': 'ChainRatioAvgV'},
-    {'name': 'ChainRatioAvgW'},
-    {'name': 'ChainRSquaredAvgU'},
-    {'name': 'ChainRSquaredAvgV'},
-    {'name': 'ChainRSquaredAvgW'},
-    {'name': 'ChainRatioStdU'},
-    {'name': 'ChainRatioStdV'},
-    {'name': 'ChainRatioStdW'},
-    {'name': 'ChainRSquaredStdU'},
-    {'name': 'ChainRSquaredStdV'},
-    {'name': 'ChainRSquaredStdW'},
-    {'name': 'AngularSpanU'},
-    {'name': 'AngularSpanV'},
-    {'name': 'AngularSpanW'},
-    {'name': 'AngularSpan3D'},
-    {'name': 'LongitudinalSpanU'},
-    {'name': 'LongitudinalSpanV'},
-    {'name': 'LongitudinalSpanW'},
-    {'name': 'LongitudinalSpan3D'},
-    {'name': 'PcaVarU'},
-    {'name': 'PcaVarV'},
-    {'name': 'PcaVarW'},
-    {'name': 'PcaVar3D'},
-    {'name': 'PcaRatioU'},
-    {'name': 'PcaRatioV'},
-    {'name': 'PcaRatioW'},
-    {'name': 'PcaRatio3D'},
-    {'name': 'ChargedBinnedHitStdU'},
-    {'name': 'ChargedBinnedHitStdV'},
-    {'name': 'ChargedBinnedHitStdW'},
-    {'name': 'ChargedStdMeanRatioU'},
-    {'name': 'ChargedStdMeanRatioV'},
-    {'name': 'ChargedStdMeanRatioW'},
-    {'name': 'BraggPeakU'},
-    {'name': 'BraggPeakV'},
-    {'name': 'BraggPeakW'},
-    {'name': 'BraggPeak3D'},
-    {'name': 'Moliere3D'}
+    {'name': 'RSquaredU', 'algorithmName': 'LinearRegression'},
+    {'name': 'RSquaredV', 'algorithmName': 'LinearRegression'},
+    {'name': 'RSquaredW', 'algorithmName': 'LinearRegression'},
+    {'name': 'BinnedHitStdU', 'algorithmName': 'HitBinning'},
+    {'name': 'BinnedHitStdV', 'algorithmName': 'HitBinning'},
+    {'name': 'BinnedHitStdW', 'algorithmName': 'HitBinning'},
+    {'name': 'RadialBinStdU', 'algorithmName': 'HitBinning'},
+    {'name': 'RadialBinStdV', 'algorithmName': 'HitBinning'},
+    {'name': 'RadialBinStdW', 'algorithmName': 'HitBinning'},
+    {'name': 'RadialBinStd3D', 'algorithmName': 'HitBinning'},
+    {'name': 'ChainCountU', 'algorithmName': 'ChainCreation'},
+    {'name': 'ChainCountV', 'algorithmName': 'ChainCreation'},
+    {'name': 'ChainCountW', 'algorithmName': 'ChainCreation'},
+    {'name': 'ChainRatioAvgU', 'algorithmName': 'ChainCreation'},
+    {'name': 'ChainRatioAvgV', 'algorithmName': 'ChainCreation'},
+    {'name': 'ChainRatioAvgW', 'algorithmName': 'ChainCreation'},
+    {'name': 'ChainRSquaredAvgU', 'algorithmName': 'ChainCreation'},
+    {'name': 'ChainRSquaredAvgV', 'algorithmName': 'ChainCreation'},
+    {'name': 'ChainRSquaredAvgW', 'algorithmName': 'ChainCreation'},
+    {'name': 'ChainRatioStdU', 'algorithmName': 'ChainCreation'},
+    {'name': 'ChainRatioStdV', 'algorithmName': 'ChainCreation'},
+    {'name': 'ChainRatioStdW', 'algorithmName': 'ChainCreation'},
+    {'name': 'ChainRSquaredStdU', 'algorithmName': 'ChainCreation'},
+    {'name': 'ChainRSquaredStdV', 'algorithmName': 'ChainCreation'},
+    {'name': 'ChainRSquaredStdW', 'algorithmName': 'ChainCreation'},
+    {'name': 'AngularSpanU', 'algorithmName': 'AngularSpan'},
+    {'name': 'AngularSpanV', 'algorithmName': 'AngularSpan'},
+    {'name': 'AngularSpanW', 'algorithmName': 'AngularSpan'},
+    {'name': 'AngularSpan3D', 'algorithmName': 'AngularSpan'},
+    {'name': 'LongitudinalSpanU', 'algorithmName': 'AngularSpan'},
+    {'name': 'LongitudinalSpanV', 'algorithmName': 'AngularSpan'},
+    {'name': 'LongitudinalSpanW', 'algorithmName': 'AngularSpan'},
+    {'name': 'LongitudinalSpan3D', 'algorithmName': 'AngularSpan'},
+    {'name': 'PcaVarU', 'algorithmName': 'PCAnalysis'},
+    {'name': 'PcaVarV', 'algorithmName': 'PCAnalysis'},
+    {'name': 'PcaVarW', 'algorithmName': 'PCAnalysis'},
+    {'name': 'PcaVar3D', 'algorithmName': 'PCAnalysis'},
+    {'name': 'PcaRatioU', 'algorithmName': 'PCAnalysis'},
+    {'name': 'PcaRatioV', 'algorithmName': 'PCAnalysis'},
+    {'name': 'PcaRatioW', 'algorithmName': 'PCAnalysis'},
+    {'name': 'PcaRatio3D', 'algorithmName': 'PCAnalysis'},
+    {'name': 'ChargedBinnedHitStdU', 'algorithmName': 'ChargeHitBinning'},
+    {'name': 'ChargedBinnedHitStdV', 'algorithmName': 'ChargeHitBinning'},
+    {'name': 'ChargedBinnedHitStdW', 'algorithmName': 'ChargeHitBinning'},
+    {'name': 'ChargedStdMeanRatioU', 'algorithmName': 'ChargeHitBinning'},
+    {'name': 'ChargedStdMeanRatioV', 'algorithmName': 'ChargeHitBinning'},
+    {'name': 'ChargedStdMeanRatioW', 'algorithmName': 'ChargeHitBinning'},
+    {'name': 'ChargedStdMeanRatio3D', 'algorithmName': 'ChargeHitBinning'},
+    {'name': 'BraggPeakU', 'algorithmName': 'BraggPeak'},
+    {'name': 'BraggPeakV', 'algorithmName': 'BraggPeak'},
+    {'name': 'BraggPeakW', 'algorithmName': 'BraggPeak'},
+    {'name': 'BraggPeak3D', 'algorithmName': 'BraggPeak'},
+    {'name': 'Moliere3D', 'algorithmName': 'MoliereRadius'},
 )
 
 # Load the training PFOs
-ds.GetTrainingPfoData()
+ds.GetTrainingPfoData(features)
 
 print("Training BDTs using the following samples:")
 for view in ds.dfTrainingPfoData["track"]:
@@ -104,10 +105,11 @@ def GetBDTValues(clf, view):
 print("Calculating BDT values for each view")
 clf = ensemble.HistGradientBoostingClassifier()
 viewsUsed = ds.GetViewsUsed(features)
+bdtData = {}
 for view in viewsUsed:
-    ds.dfAllPfoData["BDT" + view] = GetBDTValues(clf, view)
+    bdtData["BDT" + view] = GetBDTValues(clf, view)
 
-ds.GetTrainingPfoData()
+ds.GetTrainingPfoData(features)
 print("Calculating multi-view BDT values")
 valueMask = {
     "BDTU": ds.trainingPreFilters["U"],
@@ -115,7 +117,6 @@ valueMask = {
     "BDTW": ds.trainingPreFilters["W"],
     "BDT3D": ds.trainingPreFilters["3D"]
 }
-ds.dfAllPfoData["BDTMulti"] = GetBDTValues(clf, 'union')
-
-ds.SavePickleFile()
+bdtData["BDTMulti"] = GetBDTValues(clf, 'union')
+ds.SavePfoData(pd.DataFrame(bdtData), "DecisionTreeCalculator")
 print("Finished!")

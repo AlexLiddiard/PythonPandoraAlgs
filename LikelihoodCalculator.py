@@ -4,73 +4,73 @@ import math as m
 import DataSampler as ds
 from UpRootFileReader import MicroBooneGeo
 
-features = (
-    #{'name': 'RSquaredU', 'pdfBins': np.linspace(0, 1, num=50)},
-    #{'name': 'RSquaredV', 'pdfBins': np.linspace(0, 1, num=50)},
-    #{'name': 'RSquaredW', 'pdfBins': np.linspace(0, 1, num=50)},
-    #{'name': 'BinnedHitStdU', 'pdfBins': np.linspace(0, 12, num=50)},
-    #{'name': 'BinnedHitStdV', 'pdfBins': np.linspace(0, 12, num=50)},
-    #{'name': 'BinnedHitStdW', 'pdfBins': np.linspace(0, 12, num=50)},
-    #{'name': 'RadialBinStdU', 'pdfBins': np.linspace(0, 12, num=50)},
-    #{'name': 'RadialBinStdV', 'pdfBins': np.linspace(0, 12, num=50)},
-    #{'name': 'RadialBinStdW', 'pdfBins': np.linspace(0, 12, num=50),},
-    #{'name': 'RadialBinStd3D', 'pdfBins': np.linspace(0, 12, num=50)},
-    #{'name': 'ChainCountU', 'pdfBins': np.linspace(1, 50, num=50)},
-    #{'name': 'ChainCountV', 'pdfBins': np.linspace(1, 50, num=50)},
-    #{'name': 'ChainCountW', 'pdfBins': np.linspace(1, 50, num=50)},
-    #{'name': 'ChainRatioAvgU', 'pdfBins': np.linspace(0, 1, num=50)},
-    #{'name': 'ChainRatioAvgV', 'pdfBins': np.linspace(0, 1, num=50)},
-    #{'name': 'ChainRatioAvgW', 'pdfBins': np.linspace(0, 1, num=50)},
-    ##{'name': 'ChainRSquaredAvgU', 'pdfBins': np.linspace(0, 1, num=50)},
-    ##{'name': 'ChainRSquaredAvgV', 'pdfBins': np.linspace(0, 1, num=50)},
-    ##{'name': 'ChainRSquaredAvgW', 'pdfBins': np.linspace(0, 1, num=50)},
-    #{'name': 'ChainRatioStdU', 'pdfBins': np.linspace(0, 0.8, num=50)},
-    #{'name': 'ChainRatioStdV', 'pdfBins': np.linspace(0, 0.8, num=50)},
-    #{'name': 'ChainRatioStdW', 'pdfBins': np.linspace(0, 0.8, num=50)},
-    ##{'name': 'ChainRSquaredStdU', 'pdfBins': np.linspace(0, 0.8, num=50)},
-    ##{'name': 'ChainRSquaredStdV', 'pdfBins': np.linspace(0, 0.8, num=50)},
-    ##{'name': 'ChainRSquaredStdW', 'pdfBins': np.linspace(0, 0.8, num=50)},
-    #{'name': 'AngularSpanU', 'pdfBins': np.linspace(0, m.pi, num=50)},
-    #{'name': 'AngularSpanV', 'pdfBins': np.linspace(0, m.pi, num=50)},
-    #{'name': 'AngularSpanW', 'pdfBins': np.linspace(0, m.pi, num=50)},
-    #{'name': 'AngularSpan3D', 'pdfBins': np.linspace(0, m.pi, num=50)},
-    #{'name': 'LongitudinalSpanU', 'pdfBins': np.linspace(0, 400, num=50)},
-    #{'name': 'LongitudinalSpanV', 'pdfBins': np.linspace(0, 400, num=50)},
-    #{'name': 'LongitudinalSpanW', 'pdfBins': np.linspace(0, 600, num=50)},
-    #{'name': 'LongitudinalSpan3D', 'pdfBins': np.linspace(0, 600, num=50)},
-    #{'name': 'PcaVarU', 'pdfBins': np.linspace(0, 10, num=50)},
-    #{'name': 'PcaVarV', 'pdfBins': np.linspace(0, 10, num=50)},
-    #{'name': 'PcaVarW', 'pdfBins': np.linspace(0, 10, num=50)},
-    ##{'name': 'PcaVar3D', 'pdfBins': np.linspace(0, 10, num=50)},
-    #{'name': 'PcaRatioU', 'pdfBins': np.linspace(0, 0.4, num=50)},
-    #{'name': 'PcaRatioV', 'pdfBins': np.linspace(0, 0.4, num=50)},
-    #{'name': 'PcaRatioW', 'pdfBins': np.linspace(0, 0.4, num=50)},
-    ##{'name': 'PcaRatio3D', 'pdfBins': np.linspace(0, 0.4, num=50)},
-    #{'name': 'ChargedBinnedHitStdU', 'pdfBins': np.linspace(0, 100, num=25)},
-    #{'name': 'ChargedBinnedHitStdV', 'pdfBins': np.linspace(0, 100, num=25)},
-    #{'name': 'ChargedBinnedHitStdW', 'pdfBins': np.linspace(0, 100, num=25)},
-    #{'name': 'ChargedStdMeanRatioU', 'pdfBins': np.linspace(0, 4, num=100)},
-    #{'name': 'ChargedStdMeanRatioV', 'pdfBins': np.linspace(0, 4, num=100)},
-    ##{'name': 'ChargedStdMeanRatioW', 'pdfBins': np.linspace(0, 4, num=100)},
-    #{'name': 'BraggPeakU', 'pdfBins': np.linspace(0, 1, num=100)},
-    #{'name': 'BraggPeakV', 'pdfBins': np.linspace(0, 1, num=100)},
-    #{'name': 'BraggPeakW', 'pdfBins': np.linspace(0, 1, num=100)},
-    ##{'name': 'BraggPeak3D', 'pdfBins': np.linspace(0, 1, num=100)},
-    ##{'name': 'Moliere3D', 'pdfBins': np.linspace(0, 0.15, num=100)},
-    {'name': 'BDTU', 'pdfBins': np.linspace(-10, 15, num = 50)},
-    {'name': 'BDTV', 'pdfBins': np.linspace(-10, 15, num = 50)},
-    {'name': 'BDTW', 'pdfBins': np.linspace(-10, 15, num = 50)},
-    {'name': 'BDT3D', 'pdfBins': np.linspace(-10, 15, num = 50)},
-    #{'name': 'BDTMulti', 'pdfBins': np.linspace(-10, 15, num = 50)},
-)
+features = [
+    #{'name': 'RSquaredU', 'algorithmName': 'LinearRegression', 'pdfBins': np.linspace(0, 1, num=50)},
+    #{'name': 'RSquaredV', 'algorithmName': 'LinearRegression', 'pdfBins': np.linspace(0, 1, num=50)},
+    #{'name': 'RSquaredW', 'algorithmName': 'LinearRegression', 'pdfBins': np.linspace(0, 1, num=50)},
+    #{'name': 'BinnedHitStdU', 'algorithmName': 'HitBinning', 'pdfBins': np.linspace(0, 12, num=50)},
+    #{'name': 'BinnedHitStdV', 'algorithmName': 'HitBinning', 'pdfBins': np.linspace(0, 12, num=50)},
+    #{'name': 'BinnedHitStdW', 'algorithmName': 'HitBinning', 'pdfBins': np.linspace(0, 12, num=50)},
+    #{'name': 'RadialBinStdU', 'algorithmName': 'HitBinning', 'pdfBins': np.linspace(0, 12, num=50)},
+    #{'name': 'RadialBinStdV', 'algorithmName': 'HitBinning', 'pdfBins': np.linspace(0, 12, num=50)},
+    #{'name': 'RadialBinStdW', 'algorithmName': 'HitBinning', 'pdfBins': np.linspace(0, 12, num=50),},
+    #{'name': 'RadialBinStd3D', 'algorithmName': 'HitBinning', 'pdfBins': np.linspace(0, 12, num=50)},
+    #{'name': 'ChainCountU', 'algorithmName': 'ChainCreation', 'pdfBins': np.linspace(1, 50, num=50)},
+    #{'name': 'ChainCountV', 'algorithmName': 'ChainCreation', 'pdfBins': np.linspace(1, 50, num=50)},
+    #{'name': 'ChainCountW', 'algorithmName': 'ChainCreation', 'pdfBins': np.linspace(1, 50, num=50)},
+    #{'name': 'ChainRatioAvgU', 'algorithmName': 'ChainCreation', 'pdfBins': np.linspace(0, 1, num=50)},
+    #{'name': 'ChainRatioAvgV', 'algorithmName': 'ChainCreation', 'pdfBins': np.linspace(0, 1, num=50)},
+    #{'name': 'ChainRatioAvgW', 'algorithmName': 'ChainCreation', 'pdfBins': np.linspace(0, 1, num=50)},
+    ##{'name': 'ChainRSquaredAvgU', 'algorithmName': 'ChainCreation', 'pdfBins': np.linspace(0, 1, num=50)},
+    ##{'name': 'ChainRSquaredAvgV', 'algorithmName': 'ChainCreation', 'pdfBins': np.linspace(0, 1, num=50)},
+    ##{'name': 'ChainRSquaredAvgW', 'algorithmName': 'ChainCreation', 'pdfBins': np.linspace(0, 1, num=50)},
+    #{'name': 'ChainRatioStdU', 'algorithmName': 'ChainCreation', 'pdfBins': np.linspace(0, 0.8, num=50)},
+    #{'name': 'ChainRatioStdV', 'algorithmName': 'ChainCreation', 'pdfBins': np.linspace(0, 0.8, num=50)},
+    #{'name': 'ChainRatioStdW', 'algorithmName': 'ChainCreation', 'pdfBins': np.linspace(0, 0.8, num=50)},
+    ##{'name': 'ChainRSquaredStdU', 'algorithmName': 'ChainCreation', 'pdfBins': np.linspace(0, 0.8, num=50)},
+    ##{'name': 'ChainRSquaredStdV', 'algorithmName': 'ChainCreation', 'pdfBins': np.linspace(0, 0.8, num=50)},
+    ##{'name': 'ChainRSquaredStdW', 'algorithmName': 'ChainCreation', 'pdfBins': np.linspace(0, 0.8, num=50)},
+    #{'name': 'AngularSpanU', 'algorithmName': 'AngularSpan', 'pdfBins': np.linspace(0, m.pi, num=50)},
+    #{'name': 'AngularSpanV', 'algorithmName': 'AngularSpan', 'pdfBins': np.linspace(0, m.pi, num=50)},
+    #{'name': 'AngularSpanW', 'algorithmName': 'AngularSpan', 'pdfBins': np.linspace(0, m.pi, num=50)},
+    #{'name': 'AngularSpan3D', 'algorithmName': 'AngularSpan', 'pdfBins': np.linspace(0, m.pi, num=50)},
+    #{'name': 'LongitudinalSpanU', 'algorithmName': 'AngularSpan', 'pdfBins': np.linspace(0, 400, num=50)},
+    #{'name': 'LongitudinalSpanV', 'algorithmName': 'AngularSpan', 'pdfBins': np.linspace(0, 400, num=50)},
+    #{'name': 'LongitudinalSpanW', 'algorithmName': 'AngularSpan', 'pdfBins': np.linspace(0, 600, num=50)},
+    #{'name': 'LongitudinalSpan3D', 'algorithmName': 'AngularSpan', 'pdfBins': np.linspace(0, 600, num=50)},
+    #{'name': 'PcaVarU', 'algorithmName': 'PCAnalysis', 'pdfBins': np.linspace(0, 10, num=50)},
+    #{'name': 'PcaVarV', 'algorithmName': 'PCAnalysis', 'pdfBins': np.linspace(0, 10, num=50)},
+    #{'name': 'PcaVarW', 'algorithmName': 'PCAnalysis', 'pdfBins': np.linspace(0, 10, num=50)},
+    ##{'name': 'PcaVar3D', 'algorithmName': 'PCAnalysis', 'pdfBins': np.linspace(0, 10, num=50)},
+    #{'name': 'PcaRatioU', 'algorithmName': 'PCAnalysis', 'pdfBins': np.linspace(0, 0.4, num=50)},
+    #{'name': 'PcaRatioV', 'algorithmName': 'PCAnalysis', 'pdfBins': np.linspace(0, 0.4, num=50)},
+    #{'name': 'PcaRatioW', 'algorithmName': 'PCAnalysis', 'pdfBins': np.linspace(0, 0.4, num=50)},
+    ##{'name': 'PcaRatio3D', 'algorithmName': 'PCAnalysis', 'pdfBins': np.linspace(0, 0.4, num=50)},
+    #{'name': 'ChargedBinnedHitStdU', 'algorithmName': 'ChargeHitBinning', 'pdfBins': np.linspace(0, 100, num=25)},
+    #{'name': 'ChargedBinnedHitStdV', 'algorithmName': 'ChargeHitBinning', 'pdfBins': np.linspace(0, 100, num=25)},
+    #{'name': 'ChargedBinnedHitStdW', 'algorithmName': 'ChargeHitBinning', 'pdfBins': np.linspace(0, 100, num=25)},
+    #{'name': 'ChargedStdMeanRatioU', 'algorithmName': 'ChargeHitBinning', 'pdfBins': np.linspace(0, 4, num=100)},
+    #{'name': 'ChargedStdMeanRatioV', 'algorithmName': 'ChargeHitBinning', 'pdfBins': np.linspace(0, 4, num=100)},
+    #{'name': 'ChargedStdMeanRatioW', 'algorithmName': 'ChargeHitBinning', 'pdfBins': np.linspace(0, 4, num=100)},
+    #{'name': 'BraggPeakU', 'algorithmName': 'ChargeHitBinning', 'pdfBins': np.linspace(0, 1, num=100)},
+    #{'name': 'BraggPeakV', 'algorithmName': 'BraggPeak','pdfBins': np.linspace(0, 1, num=100)},
+    #{'name': 'BraggPeakW', 'algorithmName': 'BraggPeak','pdfBins': np.linspace(0, 1, num=100)},
+    #{'name': 'BraggPeak3D', 'algorithmName': 'BraggPeak', 'pdfBins': np.linspace(0, 1, num=100)},
+    ##{'name': 'Moliere3D', 'algorithmName': 'MoliereRadius', 'pdfBins': np.linspace(0, 0.15, num=100)},
+    {'name': 'BDTU', 'algorithmName': 'DecisionTreeCalculator', 'pdfBins': np.linspace(-10, 15, num = 50)},
+    {'name': 'BDTV', 'algorithmName': 'DecisionTreeCalculator', 'pdfBins': np.linspace(-10, 15, num = 50)},
+    {'name': 'BDTW', 'algorithmName': 'DecisionTreeCalculator', 'pdfBins': np.linspace(-10, 15, num = 50)},
+    {'name': 'BDT3D', 'algorithmName': 'DecisionTreeCalculator', 'pdfBins': np.linspace(-10, 15, num = 50)},
+    #{'name': 'BDTMulti', 'BDTMulti', 'algorithmName': 'DecisionTreeCalculator', 'pdfBins': np.linspace(-10, 15, num = 50)},
+]
 
 delta = 1e-12
 viewsUsed = ds.GetViewsUsed(features)
 
 if __name__ == "__main__":
     # Get data samples
-    ds.GetTrainingPfoData(viewsUsed=viewsUsed)
-    ds.GetPerfPfoData(viewsUsed=viewsUsed)
+    ds.GetTrainingPfoData(features)
+    ds.GetPerfPfoData(features)
 
     # Calculate priors
     nClass0Prior = len(ds.dfTrainingPfoData["track"]["union"])
@@ -119,6 +119,6 @@ if __name__ == "__main__":
         return p1 / (p1 + p0)
 
     # Save the results
-    ds.dfAllPfoData["Likelihood"] = CalculateLikelihoodValues(ds.dfTrainingPfoData, ds.dfAllPfoData, ('track', 'shower'), features, ds.performancePreFilters)
-    ds.SavePickleFile()
+    dfLikelihood = pd.DataFrame({"Likelihood": CalculateLikelihoodValues(ds.dfTrainingPfoData, ds.dfAllPfoData, ('track', 'shower'), features, ds.performancePreFilters)})
+    ds.SavePfoData(dfLikelihood, "LikelihoodCalculator")
     print("Finished!")
