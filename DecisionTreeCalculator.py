@@ -103,14 +103,19 @@ for view in featureViews:
     bdts["BDT" + view] = TrainBDT(clf, featureViews[view], ds.dfTrainingPfoData["all"][view])
 
 dfBdtValues = GetBDTValues(bdts, featureViews, ds.dfTrainingPfoData["all"]["union"])
+print(ds.dfTrainingPfoData["all"]["union"])
+print(dfBdtValues)
 ds.dfTrainingPfoData["all"]["union"] = pd.concat([ds.dfTrainingPfoData["all"]["union"], dfBdtValues], axis=1, sort=False)
 
 print("\nCalculating multi-view BDT values")
 clf = ensemble.HistGradientBoostingClassifier()
+print(ds.dfTrainingPfoData["all"]["union"])
 bdtMulti = TrainBDT(clf, dfBdtValues.columns, ds.dfTrainingPfoData["all"]["union"])
-dfBdtValues = GetBDTValues(bdts, featureViews, ds.dfTrainingPfoData["all"]["unfiltered"])
-dfBdtValues["bdtMulti"] = bdtMulti.decision_function(dfBdtValues)
+dfBdtValues = GetBDTValues(bdts, featureViews, ds.dfAllPfoData)
+dfBdtValues["BDTMulti"] = bdtMulti.decision_function(dfBdtValues)
 
+print(len(dfBdtValues["BDTMulti"]))
 print("\nSaving results")
+
 ds.SavePfoData(dfBdtValues, "DecisionTreeCalculator")
 print("Finished!")

@@ -50,18 +50,18 @@ features = (
     #{'name': 'ChargedStdMeanRatioU', 'algorithmName': 'ChargeStdMeanRatio', 'bins': np.linspace(0, 4, num=100), 'cutDirection': 'right'},
     #{'name': 'ChargedStdMeanRatioV', 'algorithmName': 'ChargeStdMeanRatio', 'bins': np.linspace(0, 4, num=100), 'cutDirection': 'right'},
     #{'name': 'ChargedStdMeanRatioW', 'algorithmName': 'ChargeStdMeanRatio', 'bins': np.linspace(0, 4, num=100), 'cutDirection': 'right'},
-    {'name': 'ChargedStdMeanRatio3D', 'algorithmName': 'ChargeStdMeanRatio', 'bins': np.linspace(0, 4, num=100), 'cutDirection': 'right'},
+    #{'name': 'ChargedStdMeanRatio3D', 'algorithmName': 'ChargeStdMeanRatio', 'bins': np.linspace(0, 4, num=100), 'cutDirection': 'right'},
     #{'name': 'BraggPeakU', 'algorithmName': 'BraggPeak', 'bins': np.linspace(0, 1, num=100), 'cutDirection': 'left'},
     #{'name': 'BraggPeakV', 'algorithmName': 'BraggPeak', 'bins': np.linspace(0, 1, num=100), 'cutDirection': 'left'},
     #{'name': 'BraggPeakW', 'algorithmName': 'BraggPeak', 'bins': np.linspace(0, 1, num=100), 'cutDirection': 'left'},
-    {'name': 'BraggPeak3D', 'algorithmName': 'BraggPeak', 'bins': np.linspace(0, 1, num=100), 'cutDirection': 'left'},
-    {'name': 'Moliere3D', 'algorithmName': 'MoliereRadius', 'bins': np.linspace(0, 0.2, num=100), 'cutDirection': 'right'},
-    #{'name': 'BDTU', 'algorithmName': 'DecisionTreeCalculator', 'bins': np.linspace(-10, 15, num = 200), 'cutDirection': 'left'},
-    #{'name': 'BDTV', 'algorithmName': 'DecisionTreeCalculator', 'bins': np.linspace(-10, 15, num = 200), 'cutDirection': 'left'},
-    #{'name': 'BDTW', 'algorithmName': 'DecisionTreeCalculator', 'bins': np.linspace(-10, 15, num = 200), 'cutDirection': 'left'},
-    #{'name': 'BDT3D', 'algorithmName': 'DecisionTreeCalculator', 'bins': np.linspace(-10, 15, num = 200), 'cutDirection': 'left'},
-    #{'name': 'BDTMulti', 'algorithmName': 'DecisionTreeCalculator', 'bins': np.linspace(-10, 15, num = 200), 'cutDirection': 'left'},
-    {'name': 'mcpMomentum', 'algorithmName': 'GeneralInfo', 'bins': np.linspace(0, 0.3, num = 100), 'cutDirection': 'left'},
+    #{'name': 'BraggPeak3D', 'algorithmName': 'BraggPeak', 'bins': np.linspace(0, 1, num=100), 'cutDirection': 'left'},
+    #{'name': 'Moliere3D', 'algorithmName': 'MoliereRadius', 'bins': np.linspace(0, 0.2, num=100), 'cutDirection': 'right'},
+    {'name': 'BDTU', 'algorithmName': 'DecisionTreeCalculator', 'bins': np.linspace(-10, 15, num = 200), 'cutDirection': 'left'},
+    {'name': 'BDTV', 'algorithmName': 'DecisionTreeCalculator', 'bins': np.linspace(-10, 15, num = 200), 'cutDirection': 'left'},
+    {'name': 'BDTW', 'algorithmName': 'DecisionTreeCalculator', 'bins': np.linspace(-10, 15, num = 200), 'cutDirection': 'left'},
+    {'name': 'BDT3D', 'algorithmName': 'DecisionTreeCalculator', 'bins': np.linspace(-10, 15, num = 200), 'cutDirection': 'left'},
+    {'name': 'BDTMulti', 'algorithmName': 'DecisionTreeCalculator', 'bins': np.linspace(-10, 15, num = 200), 'cutDirection': 'left'},
+    #{'name': 'mcpMomentum', 'algorithmName': 'GeneralInfo', 'bins': np.linspace(0, 0.3, num = 100), 'cutDirection': 'left'},
 )
 
 featureHistogram = {
@@ -83,6 +83,7 @@ purityEfficiency = {
 
 # Load the pickle file.
 ds.dfPerfPfoData = ds.GetFilteredPfoData(ds.performancePreFilters, features, portion=(ds.trainingFraction, 1))
+print(len(ds.dfPerfPfoData["all"]["unfiltered"]))
 
 print("Analysing features using the following samples:\n")
 ds.PrintSampleInput(ds.dfPerfPfoData)
@@ -97,4 +98,4 @@ for feature in features:
     if purityEfficiency["plot"]:        
         fa.PlotPurityEfficiencyVsCutoff(feature["name"], ("track", "shower"), cutoffValues, cutoffResults)
 
-fa.CorrelationMatrix([feature['name'] for feature in features], ds.GetViewsUsed(features), ds.performancePreFilters, ds.dfPerfPfoData)
+fa.CorrelationMatrix([feature['name'] for feature in features], ds.GetFeatureViews(features), ds.performancePreFilters, ds.dfPerfPfoData)

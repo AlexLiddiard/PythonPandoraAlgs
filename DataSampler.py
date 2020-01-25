@@ -109,9 +109,9 @@ def SavePfoData(df, algorithmName):
 def GetFilteredDataframes(df, filters):
     dfs = {}
     for key in filters:
-        dfs[key] = df.query(filters[key]).copy()
-    dfs["union"] = df.query("(" + ") or (".join(filters.values()) + ")").copy()
-    dfs["intersection"] = df.query("(" + ") and (".join(filters.values()) + ")").copy()
+        dfs[key] = df.query(filters[key]).copy().reset_index(drop=True)
+    dfs["union"] = df.query("(" + ") or (".join(filters.values()) + ")").copy().reset_index(drop=True)
+    dfs["intersection"] = df.query("(" + ") and (".join(filters.values()) + ")").copy().reset_index(drop=True)
     return dfs
 
 def GetFilteredPfoData(filters, features, portion=(0, 1)):
@@ -119,12 +119,12 @@ def GetFilteredPfoData(filters, features, portion=(0, 1)):
         LoadPfoData(features)
     usedViewFilters = {key:filters[key] for key in GetFeatureViews(features)}
     filteredPfoData = {}
-    filteredPfoData["all"] = {"unfiltered":dfAllPfoData[m.floor(len(dfAllPfoData) * portion[0]):m.floor(len(dfAllPfoData) * portion[1])].copy()}
-    filteredPfoData["all"]["general"] = filteredPfoData["all"]["unfiltered"].query(filters["general"]).copy()
+    filteredPfoData["all"] = {"unfiltered":dfAllPfoData[m.floor(len(dfAllPfoData) * portion[0]):m.floor(len(dfAllPfoData) * portion[1])].copy().reset_index(drop=True)}
+    filteredPfoData["all"]["general"] = filteredPfoData["all"]["unfiltered"].query(filters["general"]).copy().reset_index(drop=True)
     filteredPfoData["all"].update(GetFilteredDataframes(filteredPfoData["all"]["general"], usedViewFilters))
-    filteredPfoData["shower"] = {"general": filteredPfoData["all"]["general"].query("isShower==1").copy()}
+    filteredPfoData["shower"] = {"general": filteredPfoData["all"]["general"].query("isShower==1").copy().reset_index(drop=True)}
     filteredPfoData["shower"].update(GetFilteredDataframes(filteredPfoData["shower"]["general"], usedViewFilters))
-    filteredPfoData["track"] = {"general": filteredPfoData["all"]["general"].query("isShower==0").copy()}
+    filteredPfoData["track"] = {"general": filteredPfoData["all"]["general"].query("isShower==0").copy().reset_index(drop=True)}
     filteredPfoData["track"].update(GetFilteredDataframes(filteredPfoData["track"]["general"], usedViewFilters))
     return filteredPfoData
 

@@ -31,8 +31,8 @@ def CalculateLikelihoodValues(dfTrainingClass0, dfTrainingClass1, dfAllPfoData, 
     class1Prior = 1 - class0Prior
     p0 = np.repeat(class0Prior, len(dfAllPfoData))
     p1 = np.repeat(class1Prior, len(dfAllPfoData))
-    for key in ds.GetViewsUsed(features):
-        pfoCheck = dfAllPfoData.eval(performancePreFilters[key])
-        p0 *= (1 + pfoCheck * (probabilities[0][key] - 1))
-        p1 *= (1 + pfoCheck * (probabilities[1][key] - 1))
+    for view in ds.GetFeatureViews(features):
+        pfoCheck = dfAllPfoData.eval(performancePreFilters[view])
+        p0 *= (1 + pfoCheck * (probabilities[0][view] - 1))
+        p1 *= (1 + pfoCheck * (probabilities[1][view] - 1))
     return p1 / (p1 + p0)
