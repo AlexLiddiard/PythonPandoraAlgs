@@ -101,7 +101,7 @@ def LoadPfoData(features):
         else:
             featureDataArray.append(dfAlgorithm[algorithmNames[algorithmName]])
     dfAllPfoData = pd.concat(featureDataArray, axis=1, sort=False)
-    dfAllPfoData = dfAllPfoData.sample(frac=1, random_state=random_state).reset_index(drop=True)
+    dfAllPfoData = dfAllPfoData.sample(frac=1, random_state=random_state) # Randomise to remove ordering bias
 
 def SavePfoData(df, algorithmName):
     df.to_pickle(dataFolder + dataName + "_" + algorithmName + ".pickle")

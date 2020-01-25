@@ -56,11 +56,12 @@ features = (
     #{'name': 'BraggPeakW', 'algorithmName': 'BraggPeak', 'bins': np.linspace(0, 1, num=100), 'cutDirection': 'left'},
     #{'name': 'BraggPeak3D', 'algorithmName': 'BraggPeak', 'bins': np.linspace(0, 1, num=100), 'cutDirection': 'left'},
     #{'name': 'Moliere3D', 'algorithmName': 'MoliereRadius', 'bins': np.linspace(0, 0.2, num=100), 'cutDirection': 'right'},
-    {'name': 'BDTU', 'algorithmName': 'DecisionTreeCalculator', 'bins': np.linspace(-10, 15, num = 200), 'cutDirection': 'left'},
-    {'name': 'BDTV', 'algorithmName': 'DecisionTreeCalculator', 'bins': np.linspace(-10, 15, num = 200), 'cutDirection': 'left'},
-    {'name': 'BDTW', 'algorithmName': 'DecisionTreeCalculator', 'bins': np.linspace(-10, 15, num = 200), 'cutDirection': 'left'},
-    {'name': 'BDT3D', 'algorithmName': 'DecisionTreeCalculator', 'bins': np.linspace(-10, 15, num = 200), 'cutDirection': 'left'},
-    {'name': 'BDTMulti', 'algorithmName': 'DecisionTreeCalculator', 'bins': np.linspace(-10, 15, num = 200), 'cutDirection': 'left'},
+    #{'name': 'BDTU', 'algorithmName': 'DecisionTreeCalculator', 'bins': np.linspace(-10, 15, num = 200), 'cutDirection': 'left'},
+    #{'name': 'BDTV', 'algorithmName': 'DecisionTreeCalculator', 'bins': np.linspace(-10, 15, num = 200), 'cutDirection': 'left'},
+    #{'name': 'BDTW', 'algorithmName': 'DecisionTreeCalculator', 'bins': np.linspace(-10, 15, num = 200), 'cutDirection': 'left'},
+    #{'name': 'BDT3D', 'algorithmName': 'DecisionTreeCalculator', 'bins': np.linspace(-10, 15, num = 200), 'cutDirection': 'left'},
+    #{'name': 'BDTMulti', 'algorithmName': 'DecisionTreeCalculator', 'bins': np.linspace(-10, 15, num = 200), 'cutDirection': 'left'},
+    {'name': 'Likelihood', 'algorithmName': 'LikelihoodCalculator', 'bins': np.linspace(0, 1, num = 200), 'cutDirection': 'right'},
     #{'name': 'mcpMomentum', 'algorithmName': 'GeneralInfo', 'bins': np.linspace(0, 0.3, num = 100), 'cutDirection': 'left'},
 )
 
@@ -69,11 +70,11 @@ featureHistogram = {
     "filters": (
         ("Showers", "isShower==1", "", True), 
         ("Tracks", "isShower==0", "", True),
-        ("Electrons + Positrons", "abs(mcPdgCode)==11", "isShower==1", False),
-        ("Photons", "abs(mcPdgCode)==22",  "isShower==1", False),
-        ("Protons", "abs(mcPdgCode)==2212", "isShower==0", False),
-        ("Muons", "abs(mcPdgCode)==13", "isShower==0", False),
-        ("Charged Pions", "abs(mcPdgCode)==211", "isShower==0", False),
+        #("Electrons + Positrons", "abs(mcPdgCode)==11", "isShower==1", False),
+        #("Photons", "abs(mcPdgCode)==22",  "isShower==1", False),
+        #("Protons", "abs(mcPdgCode)==2212", "isShower==0", False),
+        #("Muons", "abs(mcPdgCode)==13", "isShower==0", False),
+        #("Charged Pions", "abs(mcPdgCode)==211", "isShower==0", False),
     )   
 }
 purityEfficiency = {
