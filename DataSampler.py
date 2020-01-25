@@ -1,9 +1,10 @@
 import pandas as pd
 import math as m
+import numpy as np
 from UpRootFileReader import MicroBooneGeo
 
 myTestArea = "/home/tomalex/Pandora/"
-dataFolder = myTestArea + '/PythonPandoraAlgs/TrackShowerData2000/'
+dataFolder = myTestArea + '/PythonPandoraAlgs/TrackShowerData/'
 dataName = "BNBNuOnly"
 random_state = 201746973
 trainingFraction = 0.5
@@ -86,10 +87,14 @@ def ProcessFilters(filters):
     filters["union"] = "(" + ") or (".join(viewFilters) + ")"
     filters["intersection"] = "(" + ") and (".join(viewFilters) + ")"
 
+shufflePermutation = None
+inverseShufflePermutation = None
 dfAllPfoData = None
 # Load pickle file
 def LoadPfoData(features):
     global dfAllPfoData
+    global shufflePermutation
+    global inverseShufflePermutation
     print("Loading data from pickle files")
     algorithmNames = GetFeatureAlgorithms(features)
     algorithmNames['GeneralInfo'] = []
@@ -101,9 +106,12 @@ def LoadPfoData(features):
         else:
             featureDataArray.append(dfAlgorithm[algorithmNames[algorithmName]])
     dfAllPfoData = pd.concat(featureDataArray, axis=1, sort=False)
-    dfAllPfoData = dfAllPfoData.sample(frac=1, random_state=random_state) # Randomise to remove ordering bias
+    shufflePermutation = np.random.permutation(len(dfAllPfoData))
+    inverseShufflePermutation = invert_permutation(shufflePermutation)
+    dfAllPfoData = dfAllPfoData.iloc[shufflePermutation].reset_index(drop=True) # Randomise to remove ordering bias
 
 def SavePfoData(df, algorithmName):
+    df = df.iloc[inverseShufflePermutation].reset_index(drop=True) # Undo randomisation, to match input pickle files
     df.to_pickle(dataFolder + dataName + "_" + algorithmName + ".pickle")
 
 def GetFilteredDataframes(df, filters):
@@ -172,6 +180,14 @@ def PrintSampleInput(pfoData):
         print(className + ":")
         for view in pfoData[className]:
             print("\t%s: %s PFOs" % (view, len(pfoData[className][view])))
+
+def invert_permutation(p):
+    '''The argument p is assumed to be some permutation of 0, 1, ..., len(p)-1. 
+    Returns an array s, where s[i] gives the index of i in p.
+    '''
+    s = np.empty(p.size, p.dtype)
+    s[p] = np.arange(p.size)
+    return s
 
 # Initialise prefilters
 ProcessFilters(trainingPreFilters)
