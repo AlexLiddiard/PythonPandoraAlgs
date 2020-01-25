@@ -3,9 +3,9 @@ import math as m
 from UpRootFileReader import MicroBooneGeo
 
 myTestArea = "/home/tomalex/Pandora/"
-dataFolder = myTestArea + '/PythonPandoraAlgs/TrackShowerData/'
+dataFolder = myTestArea + '/PythonPandoraAlgs/TrackShowerData2000/'
 dataName = "BNBNuOnly"
-
+random_state = 201746973
 trainingFraction = 0.5
 trainingPreFilters = {
     "general": (
@@ -101,6 +101,7 @@ def LoadPfoData(features):
         else:
             featureDataArray.append(dfAlgorithm[algorithmNames[algorithmName]])
     dfAllPfoData = pd.concat(featureDataArray, axis=1, sort=False)
+    #dfAllPfoData = dfAllPfoData.sample(frac=1, random_state=random_state).reset_index(drop=True)
 
 def SavePfoData(df, algorithmName):
     df.to_pickle(dataFolder + dataName + "_" + algorithmName + ".pickle")
@@ -116,7 +117,7 @@ def GetFilteredDataframes(df, filters):
 def GetFilteredPfoData(filters, features, portion=(0, 1)):
     if dfAllPfoData is None:
         LoadPfoData(features)
-    usedViewFilters = {key:filters[key] for key in GetViewsUsed(features)}
+    usedViewFilters = {key:filters[key] for key in GetFeatureViews(features)}
     filteredPfoData = {}
     filteredPfoData["all"] = {"unfiltered":dfAllPfoData[m.floor(len(dfAllPfoData) * portion[0]):m.floor(len(dfAllPfoData) * portion[1])].copy()}
     filteredPfoData["all"]["general"] = filteredPfoData["all"]["unfiltered"].query(filters["general"]).copy()
@@ -154,18 +155,17 @@ def GetFeatureAlgorithms(features):
         algorithmNames[feature['algorithmName']].append(feature['name'])
     return algorithmNames
 
-def GetViewFeatures(features, view):
-    viewFeatures = []
-    for feature in features:
-        if GetFeatureView(feature['name']) == view:
-            viewFeatures.append(feature)
-    return viewFeatures
+def GetFeatureNames(features):
+    return [feature['name'] for feature in features]
 
-def GetViewsUsed(features):
-    viewsUsed = []
+def GetFeatureViews(features):
+    viewsUsed = {}
     for feature in features:
-        viewsUsed.append(GetFeatureView(feature["name"]))
-    return list(dict.fromkeys(viewsUsed))
+        view = GetFeatureView(feature["name"])
+        if view not in viewsUsed:
+            viewsUsed[view] = []
+        viewsUsed[view].append(feature["name"])
+    return viewsUsed
 
 def PrintSampleInput(pfoData):
     for className in pfoData:

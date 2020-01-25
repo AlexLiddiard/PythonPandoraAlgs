@@ -16,9 +16,9 @@ import importlib
 import numpy as np
 from itertools import count
 
-myTestArea = "/home/epp/phuznm/Documents/Pandora/"
-rootFileDirectory = myTestArea + "/PandoraCoW/"
-outputDataFolder = myTestArea + '/PythonPandoraAlgs/TrackShowerData/'
+myTestArea = "/home/tomalex/Pandora/"
+rootFileDirectory = myTestArea + "/PythonPandoraAlgs/ROOT Files/BNB Nu Only/"
+outputDataFolder = myTestArea + '/PythonPandoraAlgs/TrackShowerData2000/'
 outputDataName = "BNBNuOnly"
 algorithmFolder = "TrackShowerFeatures"
 algorithmNames = (
@@ -61,9 +61,6 @@ if __name__ == "__main__":
         idx = None
         for i, algorithmName in zip(count(0), algorithmNames):
             df = pd.concat([result[i] for result in results]).reset_index(drop=True)
-            if idx is None:
-                idx = np.random.permutation(df.index) # Shuffle the data to avoid ordering bias during our analysis
-            df = df.reindex(idx).sort_index()
             df.to_pickle(outputDataFolder + outputDataName + "_" + algorithmName + ".pickle")
         print('\nFinished!')
     else:

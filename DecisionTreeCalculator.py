@@ -17,13 +17,13 @@ features = (
     {'name': 'RSquaredU', 'algorithmName': 'LinearRegression'},
     {'name': 'RSquaredV', 'algorithmName': 'LinearRegression'},
     {'name': 'RSquaredW', 'algorithmName': 'LinearRegression'},
-    {'name': 'BinnedHitStdU', 'algorithmName': 'HitBinning'},
-    {'name': 'BinnedHitStdV', 'algorithmName': 'HitBinning'},
-    {'name': 'BinnedHitStdW', 'algorithmName': 'HitBinning'},
-    {'name': 'RadialBinStdU', 'algorithmName': 'HitBinning'},
-    {'name': 'RadialBinStdV', 'algorithmName': 'HitBinning'},
-    {'name': 'RadialBinStdW', 'algorithmName': 'HitBinning'},
-    {'name': 'RadialBinStd3D', 'algorithmName': 'HitBinning'},
+    #{'name': 'BinnedHitStdU', 'algorithmName': 'HitBinning'},
+    #{'name': 'BinnedHitStdV', 'algorithmName': 'HitBinning'},
+    #{'name': 'BinnedHitStdW', 'algorithmName': 'HitBinning'},
+    #{'name': 'RadialBinStdU', 'algorithmName': 'HitBinning'},
+    #{'name': 'RadialBinStdV', 'algorithmName': 'HitBinning'},
+    #{'name': 'RadialBinStdW', 'algorithmName': 'HitBinning'},
+    #{'name': 'RadialBinStd3D', 'algorithmName': 'HitBinning'},
     {'name': 'ChainCountU', 'algorithmName': 'ChainCreation'},
     {'name': 'ChainCountV', 'algorithmName': 'ChainCreation'},
     {'name': 'ChainCountW', 'algorithmName': 'ChainCreation'},
@@ -55,13 +55,13 @@ features = (
     {'name': 'PcaRatioV', 'algorithmName': 'PCAnalysis'},
     {'name': 'PcaRatioW', 'algorithmName': 'PCAnalysis'},
     {'name': 'PcaRatio3D', 'algorithmName': 'PCAnalysis'},
-    {'name': 'ChargedBinnedHitStdU', 'algorithmName': 'ChargeHitBinning'},
-    {'name': 'ChargedBinnedHitStdV', 'algorithmName': 'ChargeHitBinning'},
-    {'name': 'ChargedBinnedHitStdW', 'algorithmName': 'ChargeHitBinning'},
-    {'name': 'ChargedStdMeanRatioU', 'algorithmName': 'ChargeHitBinning'},
-    {'name': 'ChargedStdMeanRatioV', 'algorithmName': 'ChargeHitBinning'},
-    {'name': 'ChargedStdMeanRatioW', 'algorithmName': 'ChargeHitBinning'},
-    {'name': 'ChargedStdMeanRatio3D', 'algorithmName': 'ChargeHitBinning'},
+    {'name': 'ChargedBinnedHitStdU', 'algorithmName': 'ChargedHitBinning'},
+    {'name': 'ChargedBinnedHitStdV', 'algorithmName': 'ChargedHitBinning'},
+    {'name': 'ChargedBinnedHitStdW', 'algorithmName': 'ChargedHitBinning'},
+    {'name': 'ChargedStdMeanRatioU', 'algorithmName': 'ChargeStdMeanRatio'},
+    {'name': 'ChargedStdMeanRatioV', 'algorithmName': 'ChargeStdMeanRatio'},
+    {'name': 'ChargedStdMeanRatioW', 'algorithmName': 'ChargeStdMeanRatio'},
+    {'name': 'ChargedStdMeanRatio3D', 'algorithmName': 'ChargeStdMeanRatio'},
     {'name': 'BraggPeakU', 'algorithmName': 'BraggPeak'},
     {'name': 'BraggPeakV', 'algorithmName': 'BraggPeak'},
     {'name': 'BraggPeakW', 'algorithmName': 'BraggPeak'},
@@ -75,48 +75,39 @@ ds.GetTrainingPfoData(features)
 print("Training BDTs using the following samples:")
 for view in ds.dfTrainingPfoData["track"]:
     print("%s: %s tracks, %s showers" % (view, len(ds.dfTrainingPfoData["track"][view]), len(ds.dfTrainingPfoData["shower"][view])))
-    
-
-def GetViewFeatures(features, view):
-    viewFeatures = []
-    for feature in features:
-        if ds.GetFeatureView(feature['name']) == view:
-            viewFeatures.append(feature)
-    return viewFeatures
 
 
-def GetBDTValues(clf, view):
-    if view == "union":
-        featureNames = ["BDT3D", "BDTU", "BDTV", "BDTW"]
-    else:
-        viewFeatures = GetViewFeatures(features, view)
-        featureNames = [feature['name'] for feature in viewFeatures]
-    trainingDataFeed = ds.dfTrainingPfoData['all'][view]
-    classificationArray = trainingDataFeed.eval("isShower==0")
-    trainingDataFeed = trainingDataFeed[featureNames] # Remove all irrelevant columns
-    imp = IterativeImputer(estimator=ensemble.HistGradientBoostingRegressor())
-    imp.fit(trainingDataFeed)
-    trainingDataFeed = imp.transform(trainingDataFeed)
+def TrainBDT(clf, featureNames, trainingData):
+    classificationArray = trainingData.eval("isShower==0")
+    trainingData = trainingData[featureNames] # Remove all irrelevant columns
+    imp = IterativeImputer()
+    imp.fit(trainingData)
+    trainingData = imp.transform(trainingData)
     sm = smt(sampling_strategy=1)
-    trainingDataFeed, classificationArray = sm.fit_sample(trainingDataFeed, classificationArray)
-    clfView = clf.fit(trainingDataFeed, classificationArray)
-    return clfView.decision_function(ds.dfAllPfoData[featureNames])
+    trainingData, classificationArray = sm.fit_sample(trainingData, classificationArray)
+    clfView = clf.fit(trainingData, classificationArray)
+    return clfView
+
+def GetBDTValues(bdts, featureViews, evalData):
+    btdValues = {}
+    for btdName in bdts:
+        view = ds.GetFeatureView(btdName)
+        btdValues[btdName] = bdts[btdName].decision_function(evalData[featureViews[view]])
+    return btdValues
 
 print("Calculating BDT values for each view")
-clf = ensemble.HistGradientBoostingClassifier()
-viewsUsed = ds.GetViewsUsed(features)
-bdtData = {}
-for view in viewsUsed:
-    bdtData["BDT" + view] = GetBDTValues(clf, view)
+featureViews = ds.GetFeatureViews(features)
+bdts = {}
 
-ds.GetTrainingPfoData(features)
+for view in featureViews:
+    clf = ensemble.HistGradientBoostingClassifier()
+    bdts["BDT" + view] = TrainBDT(clf, featureViews[view], ds.dfTrainingPfoData["all"][view])
+
+bdtValues = GetBDTValues(bdts, featureViews, ds.dfTrainingPfoData["all"]["union"])
+
 print("Calculating multi-view BDT values")
-valueMask = {
-    "BDTU": ds.trainingPreFilters["U"],
-    "BDTV": ds.trainingPreFilters["V"],
-    "BDTW": ds.trainingPreFilters["W"],
-    "BDT3D": ds.trainingPreFilters["3D"]
-}
-bdtData["BDTMulti"] = GetBDTValues(clf, 'union')
-ds.SavePfoData(pd.DataFrame(bdtData), "DecisionTreeCalculator")
+bdtMulti = TrainBDT(clf, bdtValues.keys(), bdtValues)
+bdtValues = GetBDTValues(bdts, featureViews, ds.dfTrainingPfoData["all"]["unfiltered"])
+bdtValues["bdtMulti"] = bdtMulti.decision_function(pd.DataFrame(bdtValues))
+ds.SavePfoData(pd.DataFrame(bdtValues), "DecisionTreeCalculator")
 print("Finished!")
