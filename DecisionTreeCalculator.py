@@ -69,14 +69,6 @@ features = (
     {'name': 'Moliere3D', 'algorithmName': 'MoliereRadius'},
 )
 
-# Load the training PFOs
-ds.GetTrainingPfoData(features)
-
-print("Training BDTs using the following samples:")
-for view in ds.dfTrainingPfoData["track"]:
-    print("%s: %s tracks, %s showers" % (view, len(ds.dfTrainingPfoData["track"][view]), len(ds.dfTrainingPfoData["shower"][view])))
-
-
 def TrainBDT(clf, featureNames, trainingData):
     classificationArray = trainingData.eval("isShower==0")
     trainingData = trainingData[featureNames] # Remove all irrelevant columns
@@ -93,9 +85,16 @@ def GetBDTValues(bdts, featureViews, evalData):
     for btdName in bdts:
         view = ds.GetFeatureView(btdName)
         btdValues[btdName] = bdts[btdName].decision_function(evalData[featureViews[view]])
-    return btdValues
+    return pd.DataFrame(btdValues)
 
-print("Calculating BDT values for each view")
+# Load the training PFOs
+ds.GetTrainingPfoData(features)
+
+print("\nTraining BDTs using the following samples:")
+for view in ds.dfTrainingPfoData["track"]:
+    print("%s: %s tracks, %s showers" % (view, len(ds.dfTrainingPfoData["track"][view]), len(ds.dfTrainingPfoData["shower"][view])))
+
+print("\nCalculating BDT values for each view")
 featureViews = ds.GetFeatureViews(features)
 bdts = {}
 
@@ -103,11 +102,15 @@ for view in featureViews:
     clf = ensemble.HistGradientBoostingClassifier()
     bdts["BDT" + view] = TrainBDT(clf, featureViews[view], ds.dfTrainingPfoData["all"][view])
 
-bdtValues = GetBDTValues(bdts, featureViews, ds.dfTrainingPfoData["all"]["union"])
+dfBdtValues = GetBDTValues(bdts, featureViews, ds.dfTrainingPfoData["all"]["union"])
+ds.dfTrainingPfoData["all"]["union"] = pd.concat([ds.dfTrainingPfoData["all"]["union"], dfBdtValues], axis=1, sort=False)
 
-print("Calculating multi-view BDT values")
-bdtMulti = TrainBDT(clf, bdtValues.keys(), bdtValues)
-bdtValues = GetBDTValues(bdts, featureViews, ds.dfTrainingPfoData["all"]["unfiltered"])
-bdtValues["bdtMulti"] = bdtMulti.decision_function(pd.DataFrame(bdtValues))
-ds.SavePfoData(pd.DataFrame(bdtValues), "DecisionTreeCalculator")
+print("\nCalculating multi-view BDT values")
+clf = ensemble.HistGradientBoostingClassifier()
+bdtMulti = TrainBDT(clf, dfBdtValues.columns, ds.dfTrainingPfoData["all"]["union"])
+dfBdtValues = GetBDTValues(bdts, featureViews, ds.dfTrainingPfoData["all"]["unfiltered"])
+dfBdtValues["bdtMulti"] = bdtMulti.decision_function(dfBdtValues)
+
+print("\nSaving results")
+ds.SavePfoData(dfBdtValues, "DecisionTreeCalculator")
 print("Finished!")

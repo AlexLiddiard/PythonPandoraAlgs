@@ -90,7 +90,7 @@ dfAllPfoData = None
 # Load pickle file
 def LoadPfoData(features):
     global dfAllPfoData
-    print("Loading pickle file")
+    print("Loading data from pickle files")
     algorithmNames = GetFeatureAlgorithms(features)
     algorithmNames['GeneralInfo'] = []
     featureDataArray = []
