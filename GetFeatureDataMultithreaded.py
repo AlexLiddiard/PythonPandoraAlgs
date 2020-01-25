@@ -19,7 +19,7 @@ from itertools import count
 myTestArea = "/home/epp/phuznm/Documents/Pandora/"
 rootFileDirectory = myTestArea + "/PandoraCoW/BNBNuOnly"
 outputDataFolder = myTestArea + '/PythonPandoraAlgs/TrackShowerData/'
-outputDataName = "BNBNuOnlyHit"
+outputDataName = "BNBNuOnly"
 algorithmFolder = "TrackShowerFeatures"
 algorithmNames = (
     "GeneralInfo",
