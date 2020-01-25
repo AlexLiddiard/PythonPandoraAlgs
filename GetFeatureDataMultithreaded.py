@@ -23,15 +23,15 @@ outputDataName = "BNBNuOnly400-800"
 algorithmFolder = "TrackShowerFeatures"
 algorithmNames = (
     "GeneralInfo",
-    "LinearRegression",
-    "HitBinning",
-    "ChainCreation",
-    "AngularSpan",
-    "PCAnalysis",
-    "ChargedHitBinning",
-    "ChargeStdMeanRatio",
-    "BraggPeak",
-    "MoliereRadius"
+    #"LinearRegression",
+    #"HitBinning",
+    #"ChainCreation",
+    #"AngularSpan",
+    #"PCAnalysis",
+    #"ChargedHitBinning",
+    #"ChargeStdMeanRatio",
+    #"BraggPeak",
+    #"MoliereRadius"
 )
 calculateViews = {
     "U": True,
