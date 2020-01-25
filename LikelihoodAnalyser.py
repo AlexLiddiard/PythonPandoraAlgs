@@ -56,7 +56,7 @@ def BinnedPurityEfficiencyPlot(ax, results, binEdges, pfoClass, dependenceName, 
         hs.WireBarPlot(ax, results[pfoClass]["purityEfficiency"], binEdges, heightErrors=results[pfoClass]["purityEfficiencyError"], colour='b', label="Purity*Efficiency")
     ax.legend(loc='lower center')
     ax.set_ylim(yLimits)
-    ax.set_title("Purity/Efficiency vs %s, Cutoff=%.3f, %s" % (dependenceName, cutoff, filterName if filterName is not None else pfoClass))
+    ax.set_title("Purity/Efficiency vs %s, Cutoff=%.3f, %s%s classification" % (dependenceName, cutoff, filterName + ", " if filterName is not None else "", pfoClass))
     ax.set_xlabel(dependenceName)
     ax.set_ylabel("Fraction")
 
@@ -71,10 +71,10 @@ def PlotPurityEfficiencyVsVariable(dfClass0, dfClass1, classNames, graph):
     if graph["pfoClass"] != classNames[1]:
         fig, ax = plt.subplots(figsize=(10, 7.5))
         BinnedPurityEfficiencyPlot(ax, results, graph['bins'], classNames[0], graph["dependence"], graph["cutoff"], filter.get("name", None), graph.get("showPurity", True))
-        fig.savefig(filter.get("name", classNames[0]) + "PurityEfficiencyVs" + graph["dependence"] + ".svg", format='svg', dpi=1200)
+        fig.savefig(filter.get("name", "") + classNames[0] + "PurityEfficiencyVs" + graph["dependence"] + ".svg", format='svg', dpi=1200)
         plt.show()
     if graph["pfoClass"] != classNames[0]:
         fig, ax = plt.subplots(figsize=(10, 7.5))
         BinnedPurityEfficiencyPlot(ax, results, graph['bins'], classNames[1], graph["dependence"], graph["cutoff"], filter.get("name", None), graph.get("showPurity", True))
-        fig.savefig(filter.get("name", classNames[1]) + "PurityEfficiencyVs" + graph["dependence"] + ".svg", format='svg', dpi=1200)
+        fig.savefig(filter.get("name", "") + classNames[1] + "PurityEfficiencyVs" + graph["dependence"] + ".svg", format='svg', dpi=1200)
         plt.show()

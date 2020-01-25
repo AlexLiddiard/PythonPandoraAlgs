@@ -3,7 +3,7 @@ import math as m
 import numpy as np
 from UpRootFileReader import MicroBooneGeo
 
-myTestArea = "/home/tomalex/Pandora/"
+myTestArea = "/home/jack/Documents/Pandora/"
 dataFolder = myTestArea + '/PythonPandoraAlgs/TrackShowerData/'
 dataName = "BNBNuOnly"
 random_state = 201746973
@@ -106,6 +106,7 @@ def LoadPfoData(features):
         else:
             featureDataArray.append(dfAlgorithm[algorithmNames[algorithmName]])
     dfAllPfoData = pd.concat(featureDataArray, axis=1, sort=False)
+    np.random.seed(random_state)
     shufflePermutation = np.random.permutation(len(dfAllPfoData))
     inverseShufflePermutation = invert_permutation(shufflePermutation)
     dfAllPfoData = dfAllPfoData.iloc[shufflePermutation].reset_index(drop=True) # Randomise to remove ordering bias
