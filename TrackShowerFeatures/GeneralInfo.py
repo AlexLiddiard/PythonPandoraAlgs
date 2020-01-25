@@ -8,6 +8,7 @@ def GetFeatures(pfo, calculateViews):
         'mcNuanceCode': pfo.mcNuanceCode,
         'mcPdgCode': pfo.mcPdgCode,
         'mcpMomentum': pfo.mcpMomentum,
+        'mcNeutrinoEnergy': pfo.mcNeutrinoEnergy,
         'isShower': pfo.IsShower(),
         'minCoordX': min(pfo.xCoord3D),
         'minCoordY': min(pfo.yCoord3D),

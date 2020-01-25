@@ -46,6 +46,7 @@ class PfoClass(object):
         self.mcNuanceCode = pfo.mcNuanceCode
         self.mcPdgCode = pfo.mcPdgCode
         self.mcpMomentum = pfo.mcpMomentum
+        self.mcNeutrinoEnergy = 0 # Associated data, to be set later
 
         # U view
         self.driftCoordU = np.array(pfo.driftCoordU, dtype = np.double)
@@ -84,7 +85,7 @@ class PfoClass(object):
         self.energy3D = pfo.energyThreeD
         self.nHitsPfo3D = len(self.xCoord3D)
         self.vertex3D = np.array([pfo.get("vertex[0]"), pfo.get("vertex[1]"), pfo.get("vertex[2]")], dtype = np.double)
-        self.parentVertex3D = None # To be set later
+        self.parentVertex3D = None # Associated data, to be set later
 
     # These change how the PFO is printed to the screen
     def __str__(self):
@@ -188,16 +189,16 @@ def ReadRootFile(filepath):
     file = up.open(filepath)
     tree = file["PFOs"].pandas.df(flatten=False)
     events = []        # Array containing arrays of Pfos from the same event.
-    eventPfos = []        # Array containing PfoObjects
-    currentEventId = 0    # Allows function writing to the events and eventPfos arrays to work (see below).
+    currentEventId = -1    # Allows function writing to the events and eventPfos arrays to work (see below).
 
     for index, pfo in tree.iterrows():
         PfoBeingRead = PfoClass(pfo, os.path.basename(filepath))  # Inputing the variables read from the ROOT file into the class to create the PfoObject.
         if currentEventId == pfo.eventId:
             AddPfoToEvent(eventPfos, PfoBeingRead)
         else:
-            SetAssociatedData(eventPfos)
-            events.append(eventPfos)
+            if currentEventId != -1:
+                SetAssociatedData(eventPfos)
+                events.append(eventPfos)
             eventPfos = [PfoBeingRead]
             currentEventId = pfo.eventId
 
@@ -208,16 +209,13 @@ def ReadRootFile(filepath):
 
 # Set any data that is based on hierarchy associations
 def SetAssociatedData(eventPfos):
-    for pfo in eventPfos:
-        if pfo.parentPfoId == -1:
-            continue
-        else:
-            try:
-                pfo.parentVertex3D = eventPfos[pfo.parentPfoId].vertex3D
-            except:
-                print(pfo.fileName)
-		
-
+    try:
+        neutrinoEnergy = eventPfos[0].mcpMomentum
+    except:
+        print(eventPfos)
+    for pfo in eventPfos[1:]:
+        pfo.parentVertex3D = eventPfos[pfo.parentPfoId].vertex3D
+        pfo.mcNeutrinoEnergy = neutrinoEnergy
 
 def ReadPfoFromRootFile(filepath, eventId, pfoId):
     file = up.open(filepath)
