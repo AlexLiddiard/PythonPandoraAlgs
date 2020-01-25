@@ -17,9 +17,9 @@ import numpy as np
 from itertools import count
 
 myTestArea = "/home/epp/phuznm/Documents/Pandora/"
-rootFileDirectory = myTestArea + "/PandoraCoW/BNBNuOnly0-400"
+rootFileDirectory = myTestArea + "/PandoraCoW/BNBNuOnly400-800"
 outputDataFolder = myTestArea + '/PythonPandoraAlgs/TrackShowerData/'
-outputDataName = "BNBNuOnly0-400"
+outputDataName = "BNBNuOnly400-800"
 algorithmFolder = "TrackShowerFeatures"
 algorithmNames = (
     "GeneralInfo",
