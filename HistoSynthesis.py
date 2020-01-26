@@ -36,20 +36,26 @@ def CreateHistogram(df, histogram):
     plt.show()
 
 def CreateHistogramWire(ax, df, histogram):
+    yLabel = "Probability"
+    for (name, filter, normFilter, fill) in histogram['filters']:
+        dfTemp = df
+        if filter != "":
+            dfTemp = dfTemp.query(filter)
+        binCounts, binEdges = np.histogram(dfTemp.eval(histogram['name']), bins = histogram['bins'])
+        if normFilter == "":
+            normedBinCounts = binCounts/len(dfTemp)
+        elif normFilter == "count":
+            normedBinCounts = binCounts
+            yLabel = "Count"
+        else:
+            normedBinCounts = binCounts/len(df.query(normFilter))
+        WireBarPlot(ax, normedBinCounts, binEdges, fill=fill, label=name)
+        
+    ax.set_ylabel(yLabel)
     ax.set_xlabel(histogram['name'])
     ax.set_xlim((histogram['bins'][0], histogram['bins'][-1]))
-    ax.set_ylabel("Probability")
     if 'yAxis' in histogram:
         ax.set_yscale(histogram['yAxis'])
-
-    for (name, filter, normFilter, fill) in histogram['filters']:
-        filteredDf = df.query(filter)
-        binCounts, binEdges = np.histogram(filteredDf[histogram['name']], bins = histogram['bins'])
-        if normFilter != "":
-            normedBinCounts = binCounts/len(df.query(normFilter))
-        else:
-            normedBinCounts = binCounts/len(filteredDf)
-        WireBarPlot(ax, normedBinCounts, binEdges, fill=fill, label=name)
 
     plt.tight_layout()
     plt.legend(loc='upper right', framealpha=0.5)

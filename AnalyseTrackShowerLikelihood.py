@@ -64,7 +64,7 @@ purityEfficiencyBinnedGraphs = (
         'bins': np.linspace(0, 400, num=40), 
         "pfoClass": "shower", 
         "filter": {
-            "name": "Electrons",
+            "name": "electron",
             "query": "abs(mcPdgCode)==11"
         },
         "showPurity": False
@@ -74,7 +74,7 @@ purityEfficiencyBinnedGraphs = (
         'bins': np.linspace(0, 800, num=40),
         "pfoClass": "shower",
         "filter": {
-            "name": "Photons",
+            "name": "photon",
             "query": "abs(mcPdgCode)==22"
         },
         "showPurity": False
@@ -84,7 +84,7 @@ purityEfficiencyBinnedGraphs = (
         'bins': np.linspace(0, 1, num=40),
         "pfoClass": "shower",
         "filter": {
-            "name": "Electrons",
+            "name": "electron",
             "query": "abs(mcPdgCode)==11"
         },
         "showPurity": False
@@ -94,7 +94,7 @@ purityEfficiencyBinnedGraphs = (
         'bins': np.linspace(0, 1, num=80),
         "pfoClass": "shower",
         "filter": {
-            "name": "Photons",
+            "name": "photon",
             "query": "abs(mcPdgCode)==22"
         },
         "showPurity": False
