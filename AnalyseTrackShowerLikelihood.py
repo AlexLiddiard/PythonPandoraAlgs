@@ -185,6 +185,8 @@ purityEfficiencyBinnedGraphs = (
 if __name__ == "__main__":
     tsl.features.append({'name': 'Likelihood', 'algorithmName': 'LikelihoodCalculator'})
     ds.GetPerfPfoData(tsl.features)
+    print("Analysing track/shower likelihood using the following samples:\n")
+    ds.PrintSampleInput(ds.dfPerfPfoData)
     cutoffValues, cutoffResults = la.GetBestPurityEfficiency(
         ds.dfPerfPfoData['track']['union'], 
         ds.dfPerfPfoData['shower']['union'], ('track', 'shower'),
