@@ -17,13 +17,13 @@ features = (
     {'name': 'RSquaredU', 'algorithmName': 'LinearRegression'},
     {'name': 'RSquaredV', 'algorithmName': 'LinearRegression'},
     {'name': 'RSquaredW', 'algorithmName': 'LinearRegression'},
-    #{'name': 'BinnedHitStdU', 'algorithmName': 'HitBinning'},
-    #{'name': 'BinnedHitStdV', 'algorithmName': 'HitBinning'},
-    #{'name': 'BinnedHitStdW', 'algorithmName': 'HitBinning'},
-    #{'name': 'RadialBinStdU', 'algorithmName': 'HitBinning'},
-    #{'name': 'RadialBinStdV', 'algorithmName': 'HitBinning'},
-    #{'name': 'RadialBinStdW', 'algorithmName': 'HitBinning'},
-    #{'name': 'RadialBinStd3D', 'algorithmName': 'HitBinning'},
+    {'name': 'BinnedHitStdU', 'algorithmName': 'HitBinning'},
+    {'name': 'BinnedHitStdV', 'algorithmName': 'HitBinning'},
+    {'name': 'BinnedHitStdW', 'algorithmName': 'HitBinning'},
+    {'name': 'RadialBinStdU', 'algorithmName': 'HitBinning'},
+    {'name': 'RadialBinStdV', 'algorithmName': 'HitBinning'},
+    {'name': 'RadialBinStdW', 'algorithmName': 'HitBinning'},
+    {'name': 'RadialBinStd3D', 'algorithmName': 'HitBinning'},
     {'name': 'ChainCountU', 'algorithmName': 'ChainCreation'},
     {'name': 'ChainCountV', 'algorithmName': 'ChainCreation'},
     {'name': 'ChainCountW', 'algorithmName': 'ChainCreation'},
@@ -91,8 +91,7 @@ def GetBDTValues(bdts, featureViews, evalData):
 ds.GetTrainingPfoData(features)
 
 print("\nTraining BDTs using the following samples:")
-for view in ds.dfTrainingPfoData["track"]:
-    print("%s: %s tracks, %s showers" % (view, len(ds.dfTrainingPfoData["track"][view]), len(ds.dfTrainingPfoData["shower"][view])))
+ds.PrintSampleInput(ds.dfTrainingPfoData)
 
 print("\nCalculating BDT values for each view")
 featureViews = ds.GetFeatureViews(features)

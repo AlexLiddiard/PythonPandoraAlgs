@@ -3,20 +3,20 @@ import math as m
 import numpy as np
 from UpRootFileReader import MicroBooneGeo
 
-myTestArea = "/home/jack/Documents/Pandora/"
+myTestArea = "/home/tomalex/Pandora/"
 dataFolder = myTestArea + '/PythonPandoraAlgs/TrackShowerData/'
-dataName = "BNBNuOnly"
+dataNames = ("BNBNuOnly", "BNBNuOnly0-400", "BNBNuOnly400-800")
 random_state = 201746973
 trainingFraction = 0.5
 trainingPreFilters = {
     "general": (
         'abs(mcPdgCode) != 2112',
-        'minCoordX >= @MicroBooneGeo.RangeX[0] + 10',
-        'maxCoordX <= @MicroBooneGeo.RangeX[1] - 10',
-        'minCoordY >= @MicroBooneGeo.RangeY[0] + 20',
-        'maxCoordY <= @MicroBooneGeo.RangeY[1] - 20',
-        'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
-        'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
+        #'minCoordX >= @MicroBooneGeo.RangeX[0] + 10',
+        #'maxCoordX <= @MicroBooneGeo.RangeX[1] - 10',
+        #'minCoordY >= @MicroBooneGeo.RangeY[0] + 20',
+        #'maxCoordY <= @MicroBooneGeo.RangeY[1] - 20',
+        #'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
+        #'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
     ),
     "U": (
         '(isShower==1 and purityU>=0.8) or (isShower==0 and purityU>=0.8)',
@@ -48,12 +48,12 @@ trainingPreFilters = {
 performancePreFilters = {
     "general": (
         'abs(mcPdgCode) != 2112',
-        'minCoordX >= @MicroBooneGeo.RangeX[0] + 10',
-        'maxCoordX <= @MicroBooneGeo.RangeX[1] - 10',
-        'minCoordY >= @MicroBooneGeo.RangeY[0] + 20',
-        'maxCoordY <= @MicroBooneGeo.RangeY[1] - 20',
-        'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
-        'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
+        #'minCoordX >= @MicroBooneGeo.RangeX[0] + 10',
+        #'maxCoordX <= @MicroBooneGeo.RangeX[1] - 10',
+        #'minCoordY >= @MicroBooneGeo.RangeY[0] + 20',
+        #'maxCoordY <= @MicroBooneGeo.RangeY[1] - 20',
+        #'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
+        #'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
         'nHitsU>=20 and nHitsV >= 20 and nHitsW>=20 and nHits3D>=20'
         #"nHitsU + nHitsV + nHitsW >= 100"
     ),
@@ -89,31 +89,42 @@ def ProcessFilters(filters):
 
 shufflePermutation = None
 inverseShufflePermutation = None
+dataCounts = None
 dfAllPfoData = None
 # Load pickle file
 def LoadPfoData(features):
     global dfAllPfoData
     global shufflePermutation
+    global dataCounts
     global inverseShufflePermutation
     print("Loading data from pickle files")
     algorithmNames = GetFeatureAlgorithms(features)
     algorithmNames['GeneralInfo'] = []
-    featureDataArray = []
-    for algorithmName in algorithmNames:
-        dfAlgorithm = pd.read_pickle(dataFolder + dataName + "_" + algorithmName + ".pickle")
-        if algorithmName == 'GeneralInfo':
-            featureDataArray.append(dfAlgorithm)
-        else:
-            featureDataArray.append(dfAlgorithm[algorithmNames[algorithmName]])
-    dfAllPfoData = pd.concat(featureDataArray, axis=1, sort=False)
+    dfAllPfoData = []
+    dataCounts = []
+    for dataName in dataNames:
+        featureDataArray = []
+        for algorithmName in algorithmNames:
+            dfAlgorithm = pd.read_pickle(dataFolder + dataName + "_" + algorithmName + ".pickle")
+            if algorithmName == 'GeneralInfo':
+                featureDataArray.append(dfAlgorithm)
+            else:
+                featureDataArray.append(dfAlgorithm[algorithmNames[algorithmName]])
+        
+        dfAllPfoData.append(pd.concat(featureDataArray, axis=1, sort=False))
+        dataCounts.append(len(dfAllPfoData[-1]))
+    dfAllPfoData = pd.concat(dfAllPfoData, ignore_index=True)
     np.random.seed(random_state)
     shufflePermutation = np.random.permutation(len(dfAllPfoData))
     inverseShufflePermutation = invert_permutation(shufflePermutation)
     dfAllPfoData = dfAllPfoData.iloc[shufflePermutation].reset_index(drop=True) # Randomise to remove ordering bias
 
 def SavePfoData(df, algorithmName):
-    df = df.iloc[inverseShufflePermutation].reset_index(drop=True) # Undo randomisation, to match input pickle files
-    df.to_pickle(dataFolder + dataName + "_" + algorithmName + ".pickle")
+    count = 0
+    for dataName, dataCount in zip(dataNames, dataCounts):
+        dfTemp = df.iloc[inverseShufflePermutation] # Undo randomisation, to match input pickle files
+        dfTemp[count:(count + dataCount)].reset_index(drop=True).to_pickle(dataFolder + dataName + "_" + algorithmName + ".pickle") # Undo dataframe concatenation, save the file
+        count += dataCount
 
 def GetFilteredDataframes(df, filters):
     dfs = {}
