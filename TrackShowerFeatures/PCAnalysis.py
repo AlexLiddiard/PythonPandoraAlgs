@@ -13,7 +13,7 @@ def PcaVariance2D(xCoords, yCoords):
     eigenvalues, eigenvectors = Pca((xCoords, yCoords))
     return eigenvalues[0], eigenvalues[0] / eigenvalues[1]
 
-def PcaVariance3D(xCoords, yCoords, zCoords, vertex):
+def PcaVariance3D(xCoords, yCoords, zCoords, vertex = None):
     if len(xCoords) < 3:
         return m.nan, m.nan
     eigenvalues, eigenvectors = Pca((xCoords, yCoords, zCoords), vertex)
