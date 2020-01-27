@@ -54,7 +54,7 @@ def BinnedPurityEfficiencyPlot(ax, results, binEdges, pfoClass, dependenceName, 
     if showPurity:
         hs.WireBarPlot(ax, results[pfoClass]["purity"], binEdges, heightErrors=results[pfoClass]["purityError"], colour='r', label="Purity")
         hs.WireBarPlot(ax, results[pfoClass]["purityEfficiency"], binEdges, heightErrors=results[pfoClass]["purityEfficiencyError"], colour='b', label="Purity*Efficiency")
-    ax.legend(loc='lower center')
+    ax.legend(loc='lower center', framealpha=0.5)
     ax.set_ylim(yLimits)
     ax.set_title("Purity/Efficiency vs %s, Cutoff=%.3f, %s%s classification" % (dependenceName, cutoff, filterName + " " if filterName is not None else "", pfoClass))
     ax.set_xlabel(dependenceName)
@@ -69,14 +69,18 @@ def PlotPurityEfficiencyVsVariable(dfClass0, dfClass1, classNames, graph):
 
     results = BinnedPurityEfficiency(dfClass0, dfClass1, classNames, graph["dependence"], graph['bins'], "Likelihood", graph["cutoff"], 'right')
     if graph["pfoClass"] != classNames[1]:
-        fig, ax = plt.subplots(nrows=2, ncols=1, sharex=True, figsize=(10, 7.5))
+        fig, ax = plt.subplots(nrows=2, ncols=1, sharex=True, figsize=(10, 15))
         BinnedPurityEfficiencyPlot(ax[0], results, graph['bins'], classNames[0], graph["dependence"], graph["cutoff"], filter.get("name", None), graph.get("showPurity", True))
         hs.CreateHistogramWire(ax[1], dfClass0, {"name": graph["dependence"], "bins": graph['bins'], "yAxis":"log", "filters": [(filter.get("name", "") +  " " + classNames[0], "", "count", True), ("correct " + filter.get("name", "") +  " " + classNames[0], "Likelihood<%s" % graph['cutoff'], "count", False)]})
+        if graph.get("showPurity", True):
+            hs.CreateHistogramWire(ax[1], dfClass1, {"name": graph["dependence"], "bins": graph['bins'], "yAxis":"log", "filters": [("incorrect " + filter.get("name", "") +  " " + classNames[1], "Likelihood<%s" % graph['cutoff'], "count", False)]})
         fig.savefig(filter.get("name", "") + classNames[0] + "PurityEfficiencyVs" + graph["dependence"] + ".svg", format='svg', dpi=1200)
         plt.show()
     if graph["pfoClass"] != classNames[0]:
-        fig, ax = plt.subplots(nrows=2, ncols=1, sharex=True, figsize=(10, 7.5))
+        fig, ax = plt.subplots(nrows=2, ncols=1, sharex=True, figsize=(10, 15))
         BinnedPurityEfficiencyPlot(ax[0], results, graph['bins'], classNames[1], graph["dependence"], graph["cutoff"], filter.get("name", None), graph.get("showPurity", True))
         hs.CreateHistogramWire(ax[1], dfClass1, {"name": graph["dependence"], "bins": graph['bins'], "yAxis":"log", "filters": [(filter.get("name", "") +  " " + classNames[1], "", "count", True), ("correct " + filter.get("name", "") +  " " + classNames[1], "Likelihood>%s" % graph['cutoff'], "count", False)]})
+        if graph.get("showPurity", True):
+            hs.CreateHistogramWire(ax[1], dfClass0, {"name": graph["dependence"], "bins": graph['bins'], "yAxis":"log", "filters": [("incorrect " + filter.get("name", "") +  " " + classNames[0], "Likelihood>%s" % graph['cutoff'], "count", False)]})
         fig.savefig(filter.get("name", "") + classNames[1] + "PurityEfficiencyVs" + graph["dependence"] + ".svg", format='svg', dpi=1200)
         plt.show()

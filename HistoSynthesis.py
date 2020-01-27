@@ -56,9 +56,7 @@ def CreateHistogramWire(ax, df, histogram):
     ax.set_xlim((histogram['bins'][0], histogram['bins'][-1]))
     if 'yAxis' in histogram:
         ax.set_yscale(histogram['yAxis'])
-
-    plt.tight_layout()
-    plt.legend(loc='upper right', framealpha=0.5)
+    ax.legend(loc='upper right', framealpha=0.5)
 
 def WireBarPlot(ax, heights, edges, heightErrors=None, colour=None, fill=False, label=None):
     x = np.repeat(edges, 2)
