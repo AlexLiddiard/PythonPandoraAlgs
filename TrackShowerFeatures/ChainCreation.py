@@ -4,7 +4,7 @@ import numpy as np
 import TrackShowerFeatures.LinearRegression as lr
 import TrackShowerFeatures.HitBinning as hb
 from itertools import count
-from statistics import stdev, mean
+import TrackShowerFeatures.PCAnalysis as pca
 
 # Finds the nearest neighbour of a 2D point (out of a list of points)
 # It's quite slow
@@ -18,6 +18,16 @@ def NearestPoint(pointX, pointY, pointListX, pointListY):
             shortestDistance2 = tmp
     return nearestPointIndex, shortestDistance2
 
+# 3D version.
+def NearestPoint3D(pointX, pointY, pointZ, pointListX, pointListY, pointListZ):
+    nearestPointIndex = 0
+    shortestDistance2 = m.inf
+    for i in range(0, len(pointListX)):
+        tmp = Distance23D(pointX, pointY, pointZ, pointListX[i], pointListY[i], pointListZ[i])
+        if tmp < shortestDistance2:
+            nearestPointIndex = i
+            shortestDistance2 = tmp
+    return nearestPointIndex, shortestDistance2
 
 # Searches for the nearest neighbour of a 2D point (out of a list of points)
 # It only checks points that are within a specified rectangular box (relative to the point).
@@ -91,11 +101,80 @@ def NearestPointInRectangleSimple(pointX, pointY, pointListX, pointListY, rectWi
             shortestDistance2 = distance2
     return nearestPointIndex, shortestDistance2
 
+# 3D version
+def NearestPointInCuboidSimple(pointX, pointY, pointZ, pointListX, pointListY, pointListZ, cubWidth, cubHeight, cubThickness):
+    xLow = pointX - cubWidth / 2
+    xHigh = pointX + cubWidth / 2
+    yLow = pointY - cubHeight / 2
+    yHigh = pointY + cubHeight / 2
+    zLow = pointZ - cubThickness / 2
+    zHigh = pointZ + cubThickness / 2
+    #nearestPointIndex = m.nan
+    #shortestDistance2 = m.inf
+
+    pointListX = np.array(pointListX)
+    pointListY = np.array(pointListY)
+    pointListZ = np.array(pointListZ)
+
+    pointList = np.column_stack((pointListX, pointListY, pointListZ, np.arange(len(pointListX))))
+    pointList = pointList[pointList[:,0] > xLow]
+    if len(pointList) == 0:
+        return m.nan, m.inf
+    pointList = pointList[pointList[:,0] < xHigh]
+    if len(pointList) == 0:
+        return m.nan, m.inf
+    pointList = pointList[pointList[:,1] > yLow]
+    if len(pointList) == 0:
+        return m.nan, m.inf
+    pointList = pointList[pointList[:,1] < yHigh]
+    if len(pointList) == 0:
+        return m.nan, m.inf
+    pointList = pointList[pointList[:,2] > zLow]
+    if len(pointList) == 0:
+        return m.nan, m.inf
+    pointList = pointList[pointList[:,2] < zHigh]
+    if len(pointList) == 0:
+        return m.nan, m.inf
+    distances = np.linalg.norm(pointList[:, [0, 1, 2]], axis=1)
+    i = np.argmin(distances)
+    
+
+    #for i in range(0, len(pointListX)):
+    #    xTest = pointListX[i]
+    #    yTest = pointListY[i]
+    #    zTest = pointListZ[i]
+    #    if xTest < xLow:
+    #        continue
+    #    if xTest > xHigh:
+    #        continue
+    #    if yTest < yLow:
+    #        continue
+    #    if yTest > yHigh:
+    #        continue
+    #    if zTest < zLow:
+    #        continue
+    #    if zTest > zHigh:
+    #        continue
+    #    distance2 = Distance23D(pointX, pointY, pointZ, pointListX[i], pointListY[i], pointListZ[i])
+    #    if distance2 < shortestDistance2:
+    #        nearestPointIndex = i
+    #        shortestDistance2 = distance2
+    #return nearestPointIndex, shortestDistance2
+
+    return int(pointList[i, 3]), distances[i]
+    
 # Returns the square of the separation distance of a pair of 2D points
 def Distance2(pointAX, pointAY, pointBX, pointBY):
     deltaX = pointAX - pointBX
     deltaY = pointAY - pointBY
     return deltaX * deltaX + deltaY * deltaY
+
+# 3D version
+def Distance23D(pointAX, pointAY, pointAZ, pointBX, pointBY, pointBZ):
+    deltaX = pointAX - pointBX
+    deltaY = pointAY - pointBY
+    deltaZ = pointAZ - pointBZ
+    return deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ
 
 # Rotates points A and B by an angle (given by sin, cos) and then checks if the point B has a greater
 # x component than A. If so then returns true, otherwise false.
@@ -103,7 +182,7 @@ def Distance2(pointAX, pointAY, pointBX, pointBY):
 def RotateCompareX(xA, yA, xB, yB, sin, cos):
     return (xA - xB) * sin + (yA - yB) * cos
 
-# Creates a list of points that form a chain. Each point pair in the chan has a
+# Creates a list of points that form a chain. Each point pair in the chain has a
 # squared separation smaller than maxSeparation2.
 # The chain starts with the first point in the input list
 # The chain ends when no more nearby points can be found.
@@ -127,6 +206,30 @@ def CreatePointChain1(pointListX, pointListY, maxSeparation2):
             nearbyPoints = False
     return chainX, chainY, chainLength
 
+# 3D version
+def Create3DPointChain1(pointListX, pointListY, pointListZ, maxSeparation2):
+    currentX = pointListX.pop(0)
+    currentY = pointListY.pop(0)
+    currentZ = pointListZ.pop(0)
+    chainX = [currentX]
+    chainY = [currentY]
+    chainZ = [currentZ]
+    chainLength = 0
+    nearbyPoints = True
+    while (nearbyPoints):
+        nearestPointIndex, distance2 = NearestPoint3D(currentX, currentY, currentZ, pointListX, pointListY, pointListZ)
+        if distance2 < maxSeparation2:
+            currentX = pointListX.pop(nearestPointIndex)
+            currentY = pointListY.pop(nearestPointIndex)
+            currentZ = pointListZ.pop(nearestPointIndex)
+            chainX.append(currentX)
+            chainY.append(currentY)
+            chainZ.append(currentZ)
+            chainLength += m.sqrt(distance2)
+        else:
+            nearbyPoints = False
+    return chainX, chainY, chainZ, chainLength
+
 # Using a square instead of a circle to limit the max separation
 # A bit more efficient than original version
 def CreatePointChain2(pointListX, pointListY, rectWidth, rectHeight):
@@ -148,6 +251,29 @@ def CreatePointChain2(pointListX, pointListY, rectWidth, rectHeight):
             nearbyPoints = False
     return chainX, chainY, chainLength, m.sqrt(Distance2(chainX[0], chainY[0], chainX[-1], chainY[-1]))
 
+# 3D version
+def Create3DPointChain2(pointListX, pointListY, pointListZ, cubWidth, cubHeight, cubThickness):
+    currentX = pointListX.pop(0)
+    currentY = pointListY.pop(0)
+    currentZ = pointListZ.pop(0)
+    chainX = [currentX]
+    chainY = [currentY]
+    chainZ = [currentZ]
+    chainLength = 0
+    nearbyPoints = True
+    while (nearbyPoints):
+        nearestPointIndex, distance2 = NearestPointInCuboidSimple(currentX, currentY, currentZ, pointListX, pointListY, pointListZ, cubWidth, cubHeight, cubThickness)
+        if not m.isnan(nearestPointIndex):
+            currentX = pointListX.pop(nearestPointIndex)
+            currentY = pointListY.pop(nearestPointIndex)
+            currentZ = pointListZ.pop(nearestPointIndex)
+            chainX.append(currentX)
+            chainY.append(currentY)
+            chainZ.append(currentZ)
+            chainLength += m.sqrt(distance2)
+        else:
+            nearbyPoints = False
+    return chainX, chainY, chainZ, chainLength, m.sqrt(Distance23D(chainX[0], chainY[0], chainZ[0], chainX[-1], chainY[-1], chainZ[-1]))
 # Same as above, but with an intelligent placement of the square based on local correlation
 # Less efficient than previous version
 def CreatePointChain3(pointListX, pointListY, rectWidth, rectHeight, rectOffsetX, rectOffestY, squareSideLength, localCorrelationPoints):
@@ -186,8 +312,6 @@ def CreatePointChain3(pointListX, pointListY, rectWidth, rectHeight, rectOffsetX
     avgRSquared = sumRSquared / nRSquared if nRSquared > 0 else m.nan
     return chainX, chainY, chainLength, m.sqrt(Distance2(chainX[0], chainY[0], chainX[-1], chainY[-1])), avgRSquared
 
-
-
 def SlidingPearsonRSquared(chainX, chainY, pointsPerSlide):
     chainX, chainY = np.array(chainX), np.array(chainY)
     if len(chainX) <= pointsPerSlide:
@@ -196,11 +320,24 @@ def SlidingPearsonRSquared(chainX, chainY, pointsPerSlide):
         chainRSquareds = []
         n = len(chainX) - pointsPerSlide + 1
         for i in range(n):
-            subChainX = chainX[i:i+pointsPerSlide]
-            subChainY = chainY[i:i+pointsPerSlide]
+            subChainX = chainX[i: i + pointsPerSlide]
+            subChainY = chainY[i: i + pointsPerSlide]
             chainRSquareds.append(lr.OLS(subChainX, subChainY)[2])
-        return mean(chainRSquareds), stdev(chainRSquareds)
+        return np.mean(chainRSquareds), np.std(chainRSquareds)
 
+def SlidingPCA3D(chainX, chainY, chainZ, pointsPerSlide):
+    chainX, chainY, chainZ = np.array(chainX), np.array(chainY), np.array(chainZ)
+    if len(chainX) <= pointsPerSlide:
+        return pca.PcaVariance3D(chainX, chainY, chainZ)[1], m.nan
+    else:
+        chainRSquareds = []
+        n = len(chainX) - pointsPerSlide + 1
+        for i in range(n):
+            subChainX = chainX[i: i + pointsPerSlide]
+            subChainY = chainY[i: i + pointsPerSlide]
+            subChainZ = chainZ[i: i + pointsPerSlide]
+            chainRSquareds.append(pca.PcaVariance3D(subChainX, subChainY, subChainZ)[1])
+        return mean(chainRSquareds), stdev(chainRSquareds)
 
 def GetChainInfoAdvanced(driftCoord, wireCoord, rectWidth, rectHeight, rectOffsetX, rectOffestY, squareSideLength, localCorrelationPoints):
     chainCount = 0
@@ -254,11 +391,45 @@ def GetChainInfoSimple(driftCoord, wireCoord, squareSideLength, localCorrelation
         avgStdR2 = mean(stdR2s)
     return chainCount, avgLengthRatio, avgAvgR2, stdLengthRatio, avgStdR2
 
+def Get3DChainInfoSimple(xCoord, yCoord, zCoord, cubeSideLength, localCorrelationPoints):
+    chainCount = 0
+    avgAvgR2 = m.nan
+    avgStdR2 = m.nan
+    avgLengthRatio = m.nan
+    stdLengthRatio = m.nan
+    lengthRatios = []
+    avgR2s = []
+    stdR2s = []
+    while xCoord:    # While pfo hit list is not empty
+        chainX, chainY, chainZ, chainLength, chainDisplacement = Create3DPointChain2(xCoord, yCoord, zCoord, cubeSideLength, cubeSideLength, cubeSideLength)
+        avgR2, stdR2 = 0, 0 #SlidingPCA3D(chainX, chainY, chainZ, localCorrelationPoints)
+        if not m.isnan(avgR2):
+            avgR2s.append(avgR2)
+        if not m.isnan(stdR2):
+            stdR2s.append(stdR2)
+        if chainLength != 0:
+            lengthRatios.append(chainDisplacement / chainLength)
+        chainCount += 1
+    nLengthRatios = len(lengthRatios)
+    nAvgR2s = len(avgR2s)
+    nStdR2s = len(stdR2s)
+    if nLengthRatios > 0:
+        avgLengthRatio = np.mean(lengthRatios)
+    if nLengthRatios > 1:
+        stdLengthRatio = np.std(lengthRatios)
+    if nAvgR2s > 0:
+        avgAvgR2 = np.mean(avgR2s)
+    if nStdR2s > 0:
+        avgStdR2 = np.mean(stdR2s)
+    return chainCount, avgLengthRatio, avgAvgR2, stdLengthRatio, avgStdR2
 
-def GetFeatures(pfo, calculateViews, rectWidth=10, rectHeight=2.5, rectOffsetX=2.5, rectOffestY=0, squareSideLength=5, localCorrelationPoints=5):
+def GetFeatures(pfo, calculateViews, rectWidth=10, rectHeight=2.5, rectOffsetX=2.5, rectOffestY=0, squareSideLength=5, cubeSideLength=5, localCorrelationPoints=5):
     # Advanced chain creation
     #chainCount, avgLengthRatio, avgChainRSquareds = GetChainInfoAdvanced(pfo.driftCoordW.tolist(), pfo.wireCoordW.tolist(), rectWidth, rectHeight, rectOffsetX, rectOffestY, squareSideLength, localCorrelationPoints)
     featureDict = {}
+    #if calculateViews["3D"]:
+    #    chainCount, avgLengthRatio, avgAvgR2, stdLengthRatio, avgStdR2 = Get3DChainInfoSimple(pfo.xCoord3D.tolist(), pfo.yCoord3D.tolist(), pfo.zCoord3D.tolist(), cubeSideLength, localCorrelationPoints)
+    #    featureDict.update({ "ChainCount3D": chainCount, "ChainRatioAvg3D": avgLengthRatio, "ChainRSquaredAvg3D": avgAvgR2, "ChainRatioStd3D": stdLengthRatio, "ChainRSquaredStd3D": avgStdR2 })
     if calculateViews["U"]:
         chainCount, avgLengthRatio, avgAvgR2, stdLengthRatio, avgStdR2 = GetChainInfoSimple(pfo.driftCoordU.tolist(), pfo.wireCoordU.tolist(), squareSideLength, localCorrelationPoints)
         featureDict.update({ "ChainCountU": chainCount, "ChainRatioAvgU": avgLengthRatio, "ChainRSquaredAvgU": avgAvgR2, "ChainRatioStdU": stdLengthRatio, "ChainRSquaredStdU": avgStdR2 })
