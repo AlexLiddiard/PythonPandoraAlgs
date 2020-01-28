@@ -180,7 +180,7 @@ def PlotPurityEfficiencyVsCutoff(featureName, classNames, cutoffValues, cutoffRe
 
 def CorrelationMatrix(featureNames, viewsUsed, preFilters, pfoData):
     dataCorrFilters = [preFilters[x] for x in viewsUsed]
-    dfPfoDataCorr = pfoData["all"]["general"].query("(" + ") and (".join(dataCorrFilters) + ")")
+    dfPfoDataCorr = pfoData.query("(" + ") and (".join(dataCorrFilters) + ")")
     rMatrix = dfPfoDataCorr[featureNames].corr()
     rSquaredMatrix = rMatrix * rMatrix
     sn.heatmap(rSquaredMatrix, annot=True, annot_kws={"size": 20}, cmap="Blues")
