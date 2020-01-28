@@ -337,7 +337,7 @@ def SlidingPCA3D(chainX, chainY, chainZ, pointsPerSlide):
             subChainY = chainY[i: i + pointsPerSlide]
             subChainZ = chainZ[i: i + pointsPerSlide]
             chainRSquareds.append(pca.PcaVariance3D(subChainX, subChainY, subChainZ)[1])
-        return mean(chainRSquareds), stdev(chainRSquareds)
+        return np.mean(chainRSquareds), np.std(chainRSquareds)
 
 def GetChainInfoAdvanced(driftCoord, wireCoord, rectWidth, rectHeight, rectOffsetX, rectOffestY, squareSideLength, localCorrelationPoints):
     chainCount = 0
@@ -351,9 +351,9 @@ def GetChainInfoAdvanced(driftCoord, wireCoord, rectWidth, rectHeight, rectOffse
             avgR2s.append(avgR2)
         chainCount += 1
     if lengthRatios:
-        avgLengthRatio = mean(lengthRatios)
-        avgAvgR2 = mean(avgR2s)
-        stdLengthRatio = stdev(lengthRatios)
+        avgLengthRatio = np.mean(lengthRatios)
+        avgAvgR2 = np.mean(avgR2s)
+        stdLengthRatio = np.std(lengthRatios)
     else:
         avgLengthRatio = m.nan
         avgAvgR2 = m.nan
@@ -382,13 +382,13 @@ def GetChainInfoSimple(driftCoord, wireCoord, squareSideLength, localCorrelation
     nAvgR2s = len(avgR2s)
     nStdR2s = len(stdR2s)
     if nLengthRatios > 0:
-        avgLengthRatio = mean(lengthRatios)
+        avgLengthRatio = np.mean(lengthRatios)
     if nLengthRatios > 1:
-        stdLengthRatio = stdev(lengthRatios)
+        stdLengthRatio = np.std(lengthRatios)
     if nAvgR2s > 0:
-        avgAvgR2 = mean(avgR2s)
+        avgAvgR2 = np.mean(avgR2s)
     if nStdR2s > 0:
-        avgStdR2 = mean(stdR2s)
+        avgStdR2 = np.mean(stdR2s)
     return chainCount, avgLengthRatio, avgAvgR2, stdLengthRatio, avgStdR2
 
 def Get3DChainInfoSimple(xCoord, yCoord, zCoord, cubeSideLength, localCorrelationPoints):
