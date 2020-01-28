@@ -83,7 +83,7 @@ purityEfficiency = {
 }
 
 # Load the pickle file.
-ds.dfPerfPfoData = ds.GetFilteredPfoData(ds.performancePreFilters, features, portion=(ds.trainingFraction, 1))
+ds.dfPerfPfoData = ds.GetFilteredPfoData(filters=ds.performancePreFilters, features=features, dataSources=ds.allDataSources)
 
 print("Analysing features using the following samples:\n")
 ds.PrintSampleInput(ds.dfPerfPfoData)

@@ -74,7 +74,7 @@ if __name__ == "__main__":
     
     # Calculate likelihood values
     print("Calculating likelihood values")
-    likelihoodValues = lc.CalculateLikelihoodValues(ds.dfTrainingPfoData["track"], ds.dfTrainingPfoData["shower"], ds.dfAllPfoData, ('track', 'shower'), features, ds.performancePreFilters)
+    likelihoodValues = lc.CalculateLikelihoodValues(ds.dfTrainingPfoData["track"], ds.dfTrainingPfoData["shower"], ds.dfInputPfoData["all"], ('track', 'shower'), features, ds.performancePreFilters)
     dfLikelihood = pd.DataFrame({"Likelihood": likelihoodValues})
 
     # Save the results

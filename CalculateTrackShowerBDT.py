@@ -63,7 +63,7 @@ ds.GetTrainingPfoData(features)
 print("\nTraining BDTs using the following samples:")
 ds.PrintSampleInput(ds.dfTrainingPfoData)
 
-dfBdtValues = bdt.GetAllBDTData(ds.dfTrainingPfoData["all"], ds.dfAllPfoData, ds.GetFeatureViews(features), "isShower==0")
+dfBdtValues = bdt.GetAllBDTData(ds.dfTrainingPfoData["all"], ds.dfInputPfoData["all"], ds.GetFeatureViews(features), "isShower==0")
 
 print("\nSaving results")
 ds.SavePfoData(dfBdtValues, "DecisionTreeCalculator")

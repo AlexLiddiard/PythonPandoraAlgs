@@ -43,6 +43,6 @@ def GetAllBDTData(trainingPfoData, allPfoData, featureViews, class0query):
     print("\nTraining multi-view BDT")
     clf = ensemble.HistGradientBoostingClassifier()
     bdtMulti = TrainBDT(clf, dfBdtValues.columns, trainingPfoData["union"], trainingPfoData["union"].eval(class0query))
-    dfBdtValues = GetBDTValues(bdts, featureViews, ds.dfAllPfoData)
+    dfBdtValues = GetBDTValues(bdts, featureViews, allPfoData)
     dfBdtValues["BDTMulti"] = bdtMulti.decision_function(dfBdtValues)
     return dfBdtValues

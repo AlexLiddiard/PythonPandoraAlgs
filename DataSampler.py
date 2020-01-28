@@ -5,9 +5,18 @@ from UpRootFileReader import MicroBooneGeo
 
 myTestArea = "/home/tomalex/Pandora/"
 dataFolder = myTestArea + '/PythonPandoraAlgs/TrackShowerData/'
-trainingDataNames = ("BNBNuOnly", "BNBNuOnly400-800")#, "BNBNuOnly0-400")
-performanceDataNames = ("BNBNuOnly",)
-allDataNames = list(dict.fromkeys(trainingDataNames + performanceDataNames))
+
+# "DataSourceName": (data start fraction, data end fraction)
+#  where e.g. data start fraction = (data start position) / (# of samples)
+trainingDataSources = {
+    "BNBNuOnly": (0, 0.5),
+    "BNBNuOnly400-800": (0, 1),
+    "BNBNuOnly0-400": (0, 1)
+}
+performanceDataSources = {
+    "BNBNuOnly": (0.5, 1),
+}
+allDataSources = dict.fromkeys(list(trainingDataSources) + list(performanceDataSources))
 random_state = 201746973
 trainingFraction = 0.5
 trainingPreFilters = {
@@ -89,22 +98,15 @@ def ProcessFilters(filters):
     filters["union"] = "(" + ") or (".join(viewFilters) + ")"
     filters["intersection"] = "(" + ") and (".join(viewFilters) + ")"
 
-shufflePermutation = None
-inverseShufflePermutation = None
-dataCounts = None
-dfAllPfoData = None
+dfInputPfoData = None
 # Load pickle file
 def LoadPfoData(features):
-    global dfAllPfoData
-    global shufflePermutation
-    global dataCounts
-    global inverseShufflePermutation
+    global dfInputPfoData
     print("Loading data from pickle files")
     algorithmNames = GetFeatureAlgorithms(features)
     algorithmNames['GeneralInfo'] = []
-    dfAllPfoData = []
-    dataCounts = []
-    for dataName in allDataNames:
+    dfInputPfoData = {}
+    for dataName in allDataSources:
         featureDataArray = []
         for algorithmName in algorithmNames:
             dfAlgorithm = pd.read_pickle(dataFolder + dataName + "_" + algorithmName + ".pickle")
@@ -113,21 +115,16 @@ def LoadPfoData(features):
             else:
                 featureDataArray.append(dfAlgorithm[algorithmNames[algorithmName]])
         
-        dfAllPfoData.append(pd.concat(featureDataArray, axis=1, sort=False))
-        dfAllPfoData[-1]["dataName"] = dataName
-        dataCounts.append(len(dfAllPfoData[-1]))
-    dfAllPfoData = pd.concat(dfAllPfoData, ignore_index=True)
-    np.random.seed(random_state)
-    shufflePermutation = np.random.permutation(len(dfAllPfoData))
-    inverseShufflePermutation = invert_permutation(shufflePermutation)
-    dfAllPfoData = dfAllPfoData.iloc[shufflePermutation].reset_index(drop=True) # Randomise to remove ordering bias
+        dfInputPfoData[dataName] = pd.concat(featureDataArray, axis=1, sort=False)
+    dfInputPfoData["all"] = pd.concat(dfInputPfoData.values(), ignore_index=True)
+    #np.random.seed(random_state)
 
 def SavePfoData(df, algorithmName):
-    count = 0
-    for dataName, dataCount in zip(allDataNames, dataCounts):
-        dfTemp = df.iloc[inverseShufflePermutation] # Undo randomisation, to match input pickle files
-        dfTemp[count:(count + dataCount)].reset_index(drop=True).to_pickle(dataFolder + dataName + "_" + algorithmName + ".pickle") # Undo dataframe concatenation, save the file
-        count += dataCount
+    position = 0
+    for dataName in allDataSources:
+        length = len(dfInputPfoData[dataName])
+        df[position:(position + length)].reset_index(drop=True).to_pickle(dataFolder + dataName + "_" + algorithmName + ".pickle") # Undo dataframe concatenation, save the file
+        position += length
 
 def GetFilteredDataframes(df, filters):
     dfs = {}
@@ -137,14 +134,23 @@ def GetFilteredDataframes(df, filters):
     dfs["intersection"] = df.query("(" + ") and (".join(filters.values()) + ")").copy().reset_index(drop=True)
     return dfs
 
-def GetFilteredPfoData(filters, features, portion=(0, 1), dataNames=None):
-    if dfAllPfoData is None:
+def GetFilteredPfoData(dataSources, filters, features):
+    if dfInputPfoData is None:
         LoadPfoData(features)
     usedViewFilters = {key:filters[key] for key in GetFeatureViews(features)}
+
+    tempData = []
+    for dataName in dataSources:
+        dfTemp = dfInputPfoData[dataName]
+        np.random.seed(random_state)
+        dfTemp = dfTemp.sample(frac=1, random_state=random_state)
+        portion = dataSources[dataName]
+        if portion is not None:
+            dfTemp = dfTemp[m.floor(len(dfTemp) * portion[0]):m.floor(len(dfTemp) * portion[1])].copy().reset_index(drop=True)
+        tempData.append(dfTemp)
+    
     filteredPfoData = {"all": {}, "track": {}, "shower": {}}
-    filteredPfoData["all"]["unfiltered"] = dfAllPfoData[m.floor(len(dfAllPfoData) * portion[0]):m.floor(len(dfAllPfoData) * portion[1])].copy().reset_index(drop=True)
-    if dataNames is not None:
-        filteredPfoData["all"]["unfiltered"] = filteredPfoData["all"]["unfiltered"].query("dataName in @dataNames")
+    filteredPfoData["all"]["unfiltered"] = pd.concat(tempData)
     filteredPfoData["all"]["general"] = filteredPfoData["all"]["unfiltered"].query(filters["general"]).copy().reset_index(drop=True)
     filteredPfoData["all"].update(GetFilteredDataframes(filteredPfoData["all"]["general"], usedViewFilters))
     filteredPfoData["shower"]["general"] = filteredPfoData["all"]["general"].query("isShower==1").copy().reset_index(drop=True)
@@ -157,13 +163,13 @@ dfTrainingPfoData = None
 def GetTrainingPfoData(features):
     global dfTrainingPfoData
     print("Getting training PFOs")
-    dfTrainingPfoData = GetFilteredPfoData(filters=trainingPreFilters, features=features, portion=(0, trainingFraction), dataNames=trainingDataNames)
+    dfTrainingPfoData = GetFilteredPfoData(filters=trainingPreFilters, features=features, dataSources=trainingDataSources)
 
 dfPerfPfoData = None
 def GetPerfPfoData(features):
     global dfPerfPfoData
     print("Getting performance PFOs")
-    dfPerfPfoData = GetFilteredPfoData(filters=performancePreFilters, features=features, portion=(trainingFraction, 1), dataNames=performanceDataNames)
+    dfPerfPfoData = GetFilteredPfoData(filters=performancePreFilters, features=features, dataSources=performanceDataSources)
 
 def GetFeatureView(featureName):
     if featureName.endswith("3D"):
@@ -197,14 +203,6 @@ def PrintSampleInput(pfoData):
         print(className + ":")
         for view in pfoData[className]:
             print("\t%s: %s PFOs" % (view, len(pfoData[className][view])))
-
-def invert_permutation(p):
-    '''The argument p is assumed to be some permutation of 0, 1, ..., len(p)-1. 
-    Returns an array s, where s[i] gives the index of i in p.
-    '''
-    s = np.empty(p.size, p.dtype)
-    s[p] = np.arange(p.size)
-    return s
 
 # Initialise prefilters
 ProcessFilters(trainingPreFilters)
