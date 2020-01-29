@@ -195,7 +195,7 @@ def CorrelationMatrix(featureNames, viewsUsed, preFilters, pfoData):
 
 if __name__ == "__main__":
     ds.LoadPfoData(cfg.features)
-    
+
     for feature in cfg.features:
         dfPfoData = ds.GetFilteredPfoData("all", "all", "performance", ds.GetFeatureView(feature["name"]))
         dfTrackData = ds.GetFilteredPfoData("performance", gc.classNames[0], "performance", ds.GetFeatureView(feature["name"]))
@@ -207,4 +207,4 @@ if __name__ == "__main__":
             PlotPurityEfficiencyVsCutoff(feature["name"], ("track", "shower"), cutoffValues, cutoffResults)
 
     dfPfoData = ds.GetFilteredPfoData("all", "all", "performance", "general")
-    CorrelationMatrix([feature['name'] for feature in cfg.features], ds.GetFeatureViews(cfg.features), dsc.performancePreFilters, dfPfoData)
+    CorrelationMatrix([feature['name'] for feature in cfg.features], ds.GetFeatureViews(cfg.features), dsc.preFilters["performance"], dfPfoData)

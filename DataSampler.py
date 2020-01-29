@@ -29,12 +29,12 @@ def LoadPfoData(features):
 
 def SavePfoData(dfData, algorithmName):
     position = 0
-    for dataName in cfg.allDataSources:
-        length = len(dfInputPfoData[dataName])
+    for dataName in cfg.dataSources["all"]:
+        length = len(dfInputPfoData.query("dataName==@dataName"))
         dfData[position:(position + length)].reset_index(drop=True).to_pickle(bc.dataFolderFull + "/" + dataName + "_" + algorithmName + ".pickle") # Undo dataframe concatenation, save the file
         position += length
 
-def GetFilteredPfoData(dataSource, className, filterClass, filterName):
+def GetFilteredPfoData(dataSource, pfoClass, filterClass, filterName):
     # Data source filtering
     dfPfoData = []
     for dataName, portion in cfg.dataSources[dataSource].items():
@@ -45,8 +45,8 @@ def GetFilteredPfoData(dataSource, className, filterClass, filterName):
     dfPfoData = pd.concat(dfPfoData, ignore_index=True)    
 
     # Class filtering
-    if className != "all":
-        dfPfoData = dfPfoData.query(gc.classQueries[className])
+    if pfoClass != "all":
+        dfPfoData = dfPfoData.query(gc.classQueries[pfoClass])
 
     # View/other filtering
     if filterName == "unfiltered":
