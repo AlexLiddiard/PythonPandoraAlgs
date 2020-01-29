@@ -67,8 +67,8 @@ features = [
 
 if __name__ == "__main__":
     # Get data samples
-    ds.GetTrainingPfoData(features)
-    ds.GetPerfPfoData(features)
+    ds.GetTrainingPfoData(classes=ds.classes, features=features)
+    ds.GetPerfPfoData(classes=ds.classes, features=features)
     print("Training likelihood using the following samples:")
     ds.PrintSampleInput(ds.dfTrainingPfoData)
     

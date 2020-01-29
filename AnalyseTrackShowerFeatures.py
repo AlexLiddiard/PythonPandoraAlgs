@@ -1,6 +1,9 @@
 import FeatureAnalyser as fa
 import DataSampler as ds
+import TrackShowerSampling as tss
 import numpy as np
+
+classes = ["track", "shower"]
 
 features = (
     #{'name': 'RSquaredU', 'algorithmName': 'LinearRegression', 'bins': np.linspace(0, 1, num=50), 'cutDirection': 'left'},
@@ -43,7 +46,7 @@ features = (
     #{'name': 'PcaRatioU', 'algorithmName': 'PCAnalysis', 'bins': np.linspace(0, 0.4, num=50), 'cutDirection': 'right'},
     #{'name': 'PcaRatioV', 'algorithmName': 'PCAnalysis', 'bins': np.linspace(0, 0.4, num=50), 'cutDirection': 'right'},
     #{'name': 'PcaRatioW', 'algorithmName': 'PCAnalysis', 'bins': np.linspace(0, 0.4, num=50), 'cutDirection': 'right'},
-    #{'name': 'PcaRatio3D', 'algorithmName': 'PCAnalysis', 'bins': np.linspace(0, 1, num=50), 'cutDirection': 'right'},
+    {'name': 'PcaRatio3D', 'algorithmName': 'PCAnalysis', 'bins': np.linspace(0, 1, num=50), 'cutDirection': 'right'},
     #{'name': 'ChargedBinnedHitStdU', 'algorithmName': 'ChargedHitBinning', 'bins': np.linspace(0, 100, num=25), 'cutDirection': 'right'},
     #{'name': 'ChargedBinnedHitStdV', 'algorithmName': 'ChargedHitBinning', 'bins': np.linspace(0, 100, num=25), 'cutDirection': 'right'},
     #{'name': 'ChargedBinnedHitStdW', 'algorithmName': 'ChargedHitBinning', 'bins': np.linspace(0, 100, num=25), 'cutDirection': 'right'},
@@ -62,7 +65,7 @@ features = (
     #{'name': 'BDT3D', 'algorithmName': 'DecisionTreeCalculator', 'bins': np.linspace(-10, 15, num = 200), 'cutDirection': 'left'},
     #{'name': 'BDTMulti', 'algorithmName': 'DecisionTreeCalculator', 'bins': np.linspace(-10, 15, num = 200), 'cutDirection': 'left'},
     #{'name': 'Likelihood', 'algorithmName': 'LikelihoodCalculator', 'bins': np.linspace(0, 1, num = 200), 'cutDirection': 'right'},
-    {'name': 'mcpMomentum', 'algorithmName': 'GeneralInfo', 'bins': np.linspace(0, 0.3, num = 100), 'cutDirection': 'left'},
+    #{'name': 'mcpMomentum', 'algorithmName': 'GeneralInfo', 'bins': np.linspace(0, 0.3, num = 100), 'cutDirection': 'left'},
 )
 
 featureHistogram = {
@@ -83,19 +86,25 @@ purityEfficiency = {
 }
 
 # Load the pickle file.
-ds.dfPerfPfoData = ds.GetFilteredPfoData(filters=ds.performancePreFilters, features=features, dataSources=ds.allDataSources)
+ds.LoadPfoData(tss.dataFolder, tss.allDataSources, features)
 
-print("Analysing features using the following samples:\n")
-ds.PrintSampleInput(ds.dfPerfPfoData)
+#print("Analysing features using the following samples:\n")
+#ds.PrintSampleInput(ds.dfPerfPfoData)
 
 for feature in features:
-    dfPfoData = ds.dfPerfPfoData["all"][ds.GetFeatureView(feature["name"])]
-    dfTrackData = ds.dfPerfPfoData["track"][ds.GetFeatureView(feature["name"])]
-    dfShowerData = ds.dfPerfPfoData["shower"][ds.GetFeatureView(feature["name"])]
-    cutoffValues, cutoffResults = fa.GetBestPurityEfficiency(dfTrackData, dfShowerData, ("track", "shower"), feature, purityEfficiency["nTestCuts"])
+    #dfPfoData = ds.dfPerfPfoData["all"][ds.GetFeatureView(feature["name"])]
+    #dfTrackData = ds.dfPerfPfoData["track"][ds.GetFeatureView(feature["name"])]
+    #dfShowerData = ds.dfPerfPfoData["shower"][ds.GetFeatureView(feature["name"])]
+    dfPfoData = ds.GetFilteredPfoData(tss.allDataSources, tss.classQueries, tss.performancePreFilters, "all", ds.GetFeatureView(feature["name"]))
+    dfTrackData = ds.GetFilteredPfoData(tss.allDataSources, tss.classQueries, tss.performancePreFilters, tss.classNames[0], ds.GetFeatureView(feature["name"]))
+    print(len(dfTrackData))
+    dfShowerData = ds.GetFilteredPfoData(tss.allDataSources, tss.classQueries, tss.performancePreFilters, tss.classNames[1], ds.GetFeatureView(feature["name"]))
+    print(len(dfShowerData))
+    cutoffValues, cutoffResults = fa.GetBestPurityEfficiency(dfTrackData, dfShowerData, tss.classNames, feature, purityEfficiency["nTestCuts"])
     if featureHistogram["plot"]:
         fa.PlotVariableHistogram(dfPfoData, ("track", "shower"), feature, featureHistogram, cutoffResults[4])
     if purityEfficiency["plot"]:        
         fa.PlotPurityEfficiencyVsCutoff(feature["name"], ("track", "shower"), cutoffValues, cutoffResults)
 
-fa.CorrelationMatrix([feature['name'] for feature in features], ds.GetFeatureViews(features), ds.performancePreFilters, ds.dfPerfPfoData)
+dfPfoData = ds.GetFilteredPfoData(tss.allDataSources, tss.classQueries, tss.performancePreFilters, "all", "general")
+fa.CorrelationMatrix([feature['name'] for feature in features], ds.GetFeatureViews(features), tss.performancePreFilters, dfPfoData)
