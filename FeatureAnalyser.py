@@ -6,6 +6,10 @@ import math as m
 from UpRootFileReader import MicroBooneGeo
 from HistoSynthesis import CreateHistogramWire
 import DataSampler as ds
+import BaseConfig as bc
+import FeatureAnalysisConfig as cfg
+import GeneralConfig as gc
+import DataSamplingConfig as dsc
 
 def GetFeatureView(featureName):
     if featureName.endswith("3D"):
@@ -141,16 +145,16 @@ def PlotVariableHistogram(dfPfoData, classNames, variable, variableHistogram, be
     plt.savefig('%s distribution for %s' % (variable['name'], ', '.join((filter[0] for filter in variable['filters'])) + '.svg'), format='svg', dpi=1200)
     plt.show()
 
-def GetBestPurityEfficiency(dfClass0Data, dfClass1Data, classNames, variable, nTestCuts):
+def GetBestPurityEfficiency(dfClass0Data, dfClass1Data, variable, nTestCuts):
     cutoffValues = np.linspace(variable["bins"][0], variable["bins"][-1], nTestCuts)
     cutoffResults = OptimiseCutoff(dfClass0Data, dfClass1Data, variable['name'], cutoffValues, variable['cutDirection'])
 
     # Printing results for optimal purity and efficiency
     print("Performance results for %s:" % variable['name'])
-    print("\nOptimal %s cutoff %.3f" % (classNames[0], cutoffResults[0]))
-    PrintPurityEfficiency(dfClass0Data, dfClass1Data, classNames, variable['name'], cutoffResults[0], variable['cutDirection'])
-    print("\nOptimal %s cutoff %.3f" % (classNames[1], cutoffResults[4]))
-    PrintPurityEfficiency(dfClass0Data, dfClass1Data, classNames, variable['name'], cutoffResults[4], variable['cutDirection'])
+    print("\nOptimal %s cutoff %.3f" % (gc.classNames[0], cutoffResults[0]))
+    PrintPurityEfficiency(dfClass0Data, dfClass1Data, gc.classNames, variable['name'], cutoffResults[0], variable['cutDirection'])
+    print("\nOptimal %s cutoff %.3f" % (gc.classNames[1], cutoffResults[4]))
+    PrintPurityEfficiency(dfClass0Data, dfClass1Data, gc.classNames, variable['name'], cutoffResults[4], variable['cutDirection'])
     return cutoffValues, cutoffResults
 
 def PlotPurityEfficiencyVsCutoff(featureName, classNames, cutoffValues, cutoffResults):
@@ -188,3 +192,19 @@ def CorrelationMatrix(featureNames, viewsUsed, preFilters, pfoData):
     plt.tight_layout()
     plt.savefig("FeatureRSquaredMatrix.svg", format='svg', dpi=1200)
     plt.show()
+
+if __name__ == "__main__":
+    ds.LoadPfoData(cfg.features)
+    
+    for feature in cfg.features:
+        dfPfoData = ds.GetFilteredPfoData("all", "all", "performance", ds.GetFeatureView(feature["name"]))
+        dfTrackData = ds.GetFilteredPfoData("performance", gc.classNames[0], "performance", ds.GetFeatureView(feature["name"]))
+        dfShowerData = ds.GetFilteredPfoData("performance", gc.classNames[1], "performance", ds.GetFeatureView(feature["name"]))
+        cutoffValues, cutoffResults = GetBestPurityEfficiency(dfTrackData, dfShowerData, feature, cfg.purityEfficiency["nTestCuts"])
+        if cfg.featureHistogram["plot"]:
+            PlotVariableHistogram(dfPfoData, ("track", "shower"), feature, cfg.featureHistogram, cutoffResults[4])
+        if cfg.purityEfficiency["plot"]:        
+            PlotPurityEfficiencyVsCutoff(feature["name"], ("track", "shower"), cutoffValues, cutoffResults)
+
+    dfPfoData = ds.GetFilteredPfoData("all", "all", "performance", "general")
+    CorrelationMatrix([feature['name'] for feature in cfg.features], ds.GetFeatureViews(cfg.features), dsc.performancePreFilters, dfPfoData)
