@@ -1,6 +1,6 @@
 ############################################## BDT CALCULATOR CONFIGURATION ##################################################
 
-features = (
+features = [
     {'name': 'RSquaredU', 'algorithmName': 'LinearRegression'},
     {'name': 'RSquaredV', 'algorithmName': 'LinearRegression'},
     {'name': 'RSquaredW', 'algorithmName': 'LinearRegression'},
@@ -54,4 +54,4 @@ features = (
     {'name': 'BraggPeakW', 'algorithmName': 'BraggPeak'},
     {'name': 'BraggPeak3D', 'algorithmName': 'BraggPeak'},
     {'name': 'Moliere3D', 'algorithmName': 'MoliereRadius'},
-)
+]

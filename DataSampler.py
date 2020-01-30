@@ -46,7 +46,7 @@ def GetFilteredPfoData(dataSource, pfoClass, filterClass, filterName):
 
     # Class filtering
     if pfoClass != "all":
-        dfPfoData = dfPfoData.query(gc.classQueries[pfoClass])
+        dfPfoData = dfPfoData.query(gc.classes[pfoClass])
 
     # View/other filtering
     if filterName == "unfiltered":

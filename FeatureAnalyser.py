@@ -120,18 +120,24 @@ def OptimiseCutoff(dfClass0Data, dfClass1Data, variableName, testCutoffs, class1
         bestClass1Cutoff, class1Efficiencies, class1Purities, class1PurityEfficiencies
     )
 
-def PrintPurityEfficiency(dfClass0Data, dfClass1Data, classNames, predictorName, cutoff, cutDirection='right'):
+def PrintPurityEfficiency(dfClass0Data, dfClass1Data, classNames, predictorName, cutoff, cutDirection='right', showPurity=True, pfoClass="both"):
     dfClass0Variable = dfClass0Data[predictorName]
     dfClass1Variable =  dfClass1Data[predictorName]
-    print(
-        (classNames[0] + " Efficiency %.3f+-%.3f\n" +
-        classNames[0] + " Purity %.3f+-%.3f\n" +
-        classNames[0] + " Purity * Efficiency %.3f+-%.3f\n" +
-        classNames[1] + " Efficiency %.3f+-%.3f\n" +
-        classNames[1] + " Purity %.3f+-%.3f\n" +
-        classNames[1] + " Purity * Efficiency %.3f+-%.3f")
-    % PurityEfficiency(dfClass0Variable, dfClass1Variable, cutoff, cutDirection)
-    )
+    results = PurityEfficiency(dfClass0Variable, dfClass1Variable, cutoff, cutDirection)
+    if pfoClass != classNames[1]:
+        print(classNames[0] + " Efficiency %.3f+-%.3f" % results[0:2])
+        if showPurity:
+            print((
+                classNames[0] + " Purity %.3f+-%.3f\n" +
+                classNames[0] + " Purity * Efficiency %.3f+-%.3f"
+            ) % results[2:6])
+    if pfoClass != classNames[0]:
+        print(classNames[1] + " Efficiency %.3f+-%.3f" % results[6:8])
+        if showPurity:
+            print((
+                classNames[1] + " Purity %.3f+-%.3f\n" +
+                classNames[1] + " Purity * Efficiency %.3f+-%.3f"
+            ) % results[8:12])
 
 def PlotVariableHistogram(dfPfoData, classNames, variable, variableHistogram, bestCutoff = None):
     variable['filters'] = variableHistogram["filters"]
@@ -145,16 +151,16 @@ def PlotVariableHistogram(dfPfoData, classNames, variable, variableHistogram, be
     plt.savefig('%s distribution for %s' % (variable['name'], ', '.join((filter[0] for filter in variable['filters'])) + '.svg'), format='svg', dpi=1200)
     plt.show()
 
-def GetBestPurityEfficiency(dfClass0Data, dfClass1Data, variable, nTestCuts):
+def GetBestPurityEfficiency(dfClass0Data, dfClass1Data, variable, nTestCuts, showPurity=True):
     cutoffValues = np.linspace(variable["bins"][0], variable["bins"][-1], nTestCuts)
     cutoffResults = OptimiseCutoff(dfClass0Data, dfClass1Data, variable['name'], cutoffValues, variable['cutDirection'])
 
     # Printing results for optimal purity and efficiency
     print("Performance results for %s:" % variable['name'])
     print("\nOptimal %s cutoff %.3f" % (gc.classNames[0], cutoffResults[0]))
-    PrintPurityEfficiency(dfClass0Data, dfClass1Data, gc.classNames, variable['name'], cutoffResults[0], variable['cutDirection'])
+    PrintPurityEfficiency(dfClass0Data, dfClass1Data, gc.classNames, variable['name'], cutoffResults[0], variable['cutDirection'], showPurity)
     print("\nOptimal %s cutoff %.3f" % (gc.classNames[1], cutoffResults[4]))
-    PrintPurityEfficiency(dfClass0Data, dfClass1Data, gc.classNames, variable['name'], cutoffResults[4], variable['cutDirection'])
+    PrintPurityEfficiency(dfClass0Data, dfClass1Data, gc.classNames, variable['name'], cutoffResults[4], variable['cutDirection'], showPurity)
     return cutoffValues, cutoffResults
 
 def PlotPurityEfficiencyVsCutoff(featureName, classNames, cutoffValues, cutoffResults):

@@ -1,7 +1,7 @@
 import numpy as np
 
-predictor = {"name": "Likelihood", "algorithmName": "LikelihoodCalculator", "range": (0, 1)}
-#predictor = {"name": "BDTMulti", "algorithmName": "BDTCalculator", "range": (-10, 10)}
+#predictor = {"name": "Likelihood", "algorithmName": "LikelihoodCalculator", "range": (0, 1), 'cutDirection': 'right'}
+predictor = {"name": "BDTMulti", "algorithmName": "BDTCalculator", "range": (-10, 10), 'cutDirection': 'left'}
 
 predictorHistograms = (
     {

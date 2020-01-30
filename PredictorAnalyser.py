@@ -6,8 +6,9 @@ from UpRootFileReader import MicroBooneGeo
 import HistoSynthesis as hs
 from itertools import count
 import DataSampler as ds
-from FeatureAnalyser import GetBestPurityEfficiency, PlotVariableHistogram, PlotPurityEfficiencyVsCutoff, PurityEfficiency
+from FeatureAnalyser import GetBestPurityEfficiency, PlotVariableHistogram, PlotPurityEfficiencyVsCutoff, PurityEfficiency, PrintPurityEfficiency
 import BaseConfig as bc
+import GeneralConfig as gc
 import PredictorAnalyserConfig as pac
 import importlib
 pcc = importlib.import_module(pac.predictor["algorithmName"] + "Config") # Get config for the predictor calculation, e.g. LikelihoodCalculatorConfig
@@ -63,14 +64,21 @@ def BinnedPurityEfficiencyPlot(ax, results, binEdges, pfoClass, dependenceName, 
     ax.set_xlabel(dependenceName)
     ax.set_ylabel("Fraction")
 
-def PlotPurityEfficiencyVsVariable(dfClass0, dfClass1, classNames, predictorName, graph):
+def PlotPurityEfficiencyVsVariable(dfClass0, dfClass1, classNames, predictor, graph):
+    if predictor["cutDirection"] == "right":
+        inequalities = ("<", ">")
+    else:
+        inequalities = (">", "<")
+
     filter = graph.get("filter", {})
     query = filter.get("query", None)
     if query is not None:
         dfClass0 = dfClass0.query(query)
         dfClass1 = dfClass1.query(query)
-
-    results = BinnedPurityEfficiency(dfClass0, dfClass1, classNames, graph["dependence"], graph['bins'], predictorName, graph["cutoff"], 'right')
+        # Print overall results for filtered data
+        print("\nOverall efficiency/purity for " + filter["name"] + " classification:")
+        PrintPurityEfficiency(dfClass0, dfClass1, gc.classNames, predictor["name"], graph['cutoff'], predictor["cutDirection"], graph.get("showPurity", True), graph["pfoClass"])
+    results = BinnedPurityEfficiency(dfClass0, dfClass1, classNames, graph["dependence"], graph['bins'], predictor["name"], graph["cutoff"], predictor["cutDirection"])
     if graph["pfoClass"] != classNames[1]:
         fig, ax = plt.subplots(nrows=2, ncols=1, sharex=True, figsize=(10, 15))
         BinnedPurityEfficiencyPlot(ax[0], results, graph['bins'], classNames[0], graph["dependence"], graph["cutoff"], filter.get("name", None), graph.get("showPurity", True))
@@ -81,7 +89,7 @@ def PlotPurityEfficiencyVsVariable(dfClass0, dfClass1, classNames, predictorName
                 "yAxis":"log", 
                 "filters": (
                     (filter.get("name", "") +  " " + classNames[0], "", "count", True),
-                    ("correct " + filter.get("name", "") +  " " + classNames[0], predictorName + "<" + + graph['cutoff'], "count", False)
+                    ("correct " + filter.get("name", "") +  " " + classNames[0], predictor["name"] + inequalities[0] + str(graph['cutoff']), "count", False)
                 )
             })
         if graph.get("showPurity", True):
@@ -91,7 +99,7 @@ def PlotPurityEfficiencyVsVariable(dfClass0, dfClass1, classNames, predictorName
                 "bins": graph['bins'],
                 "yAxis":"log",
                 "filters": (
-                    ("incorrect " + filter.get("name", "") +  " " + classNames[1], predictorName + "<" + + graph['cutoff'], "count", False)
+                    ("incorrect " + filter.get("name", "") +  " " + classNames[1], predictor["name"] + inequalities[0] + str(graph['cutoff']), "count", False),
                 )
             })
         fig.savefig(filter.get("name", "") + classNames[0] + "PurityEfficiencyVs" + graph["dependence"] + ".svg", format='svg', dpi=1200)
@@ -99,44 +107,44 @@ def PlotPurityEfficiencyVsVariable(dfClass0, dfClass1, classNames, predictorName
     if graph["pfoClass"] != classNames[0]:
         fig, ax = plt.subplots(nrows=2, ncols=1, sharex=True, figsize=(10, 15))
         BinnedPurityEfficiencyPlot(ax[0], results, graph['bins'], classNames[1], graph["dependence"], graph["cutoff"], filter.get("name", None), graph.get("showPurity", True))
-        hs.CreateHistogramWire(ax[1], dfClass0, 
+        hs.CreateHistogramWire(ax[1], dfClass1, 
             {
                 "name": graph["dependence"], 
                 "bins": graph['bins'], 
                 "yAxis":"log", 
                 "filters": (
                     (filter.get("name", "") +  " " + classNames[1], "", "count", True),
-                    ("correct " + filter.get("name", "") +  " " + classNames[1], predictorName + ">" + + graph['cutoff'], "count", False)
+                    ("correct " + filter.get("name", "") +  " " + classNames[1], predictor["name"] + inequalities[1] + str(graph['cutoff']), "count", False)
                 )
             })
         if graph.get("showPurity", True):
-            hs.CreateHistogramWire(ax[1], dfClass1, 
+            hs.CreateHistogramWire(ax[1], dfClass0, 
             {
                 "name": graph["dependence"],
                 "bins": graph['bins'],
                 "yAxis":"log",
                 "filters": (
-                    ("incorrect " + filter.get("name", "") +  " " + classNames[0], predictorName + ">" + + graph['cutoff'], "count", False)
+                    ("incorrect " + filter.get("name", "") +  " " + classNames[0], predictor["name"] + inequalities[1] + str(graph['cutoff']), "count", False),
                 )
             })
         fig.savefig(filter.get("name", "") + classNames[1] + "PurityEfficiencyVs" + graph["dependence"] + ".svg", format='svg', dpi=1200)
         plt.show()
 
 if __name__ == "__main__":
-    pcc.features.append({'name': 'Likelihood', 'algorithmName': 'LikelihoodCalculator'})
-    ds.GetPerfPfoData(pcc.features)
-    cutoffValues, cutoffResults = la.GetBestPurityEfficiency(
-        ds.dfPerfPfoData['track']['union'], 
-        ds.dfPerfPfoData['shower']['union'], ('track', 'shower'),
-        {'name': 'Likelihood', 'bins': (0, 1), 'cutDirection': 'right'},
-        pac.purityEfficiencyVsCutoffGraph['nTestCuts'])
+    pcc.features.append(pac.predictor)
+    ds.LoadPfoData(pcc.features)
+    dfPerfDataAll = ds.GetFilteredPfoData("performance", "all", "performance", "union")
+    dfPerfDataClass0 = ds.GetFilteredPfoData("performance", gc.classNames[0], "performance", "union")
+    dfPerfDataClass1 = ds.GetFilteredPfoData("performance", gc.classNames[1], "performance", "union")
+    pac.predictor["bins"] = pac.predictor["range"]
+    cutoffValues, cutoffResults = GetBestPurityEfficiency(dfPerfDataClass0, dfPerfDataClass1, pac.predictor, pac.purityEfficiencyVsCutoffGraph['nTestCuts'])
 
     for histogram in pac.predictorHistograms:
-        histogram['name'] = 'Likelihood'
-        PlotVariableHistogram(ds.dfPerfPfoData['all']['union'], ('track', 'shower'), {'name': 'Likelihood', 'cutDirection': 'right'}, histogram, cutoffResults[4])
+        histogram['name'] = pac.predictor["name"]
+        PlotVariableHistogram(dfPerfDataAll, gc.classNames, pac.predictor, histogram, cutoffResults[4])
 
-    PlotPurityEfficiencyVsCutoff("Likelihood", ("track", "shower"), cutoffValues, cutoffResults)
+    PlotPurityEfficiencyVsCutoff("Likelihood", gc.classNames, cutoffValues, cutoffResults)
     
-    for graph in purityEfficiencyBinnedGraphs:
+    for graph in pac.purityEfficiencyBinnedGraphs:
         graph["cutoff"] = cutoffResults[4]
-        PlotPurityEfficiencyVsVariable(ds.dfPerfPfoData["track"]['union'], ds.dfPerfPfoData["shower"]["union"], ("track", "shower"), graph)
+        PlotPurityEfficiencyVsVariable(dfPerfDataClass0, dfPerfDataClass1, gc.classNames, pac.predictor, graph)

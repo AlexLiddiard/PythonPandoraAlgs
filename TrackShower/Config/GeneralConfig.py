@@ -6,8 +6,10 @@ import numpy as np
 myTestArea = "/home/tomalex/Pandora/"
 pythonFolder = "/PythonPandoraAlgs/"
 classNames = ("track", "shower")
-classQueries = {
-    "track": "isShower==0",
-    "shower": "isShower==1"
-}
+classQueries = ("isShower==0", "isShower==1")
 random_state = 201746973
+
+
+classes = {}
+for (className, classQuery)  in zip(classNames, classQueries):
+    classes[className] = classQuery

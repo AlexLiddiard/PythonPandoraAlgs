@@ -12,6 +12,9 @@ from imblearn.over_sampling import SMOTE as smt
 from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
 from imblearn.over_sampling import RandomOverSampler as ros
+import BaseConfig as bc
+import BDTCalculatorConfig as bcc
+import GeneralConfig as gc
 
 def TrainBDT(clf, featureNames, trainingData, classificationArray):
     trainingData = trainingData[featureNames] # Remove all irrelevant columns
@@ -30,19 +33,26 @@ def GetBDTValues(bdts, featureViews, evalData):
         btdValues[btdName] = bdts[btdName].decision_function(evalData[featureViews[view]])
     return pd.DataFrame(btdValues)
 
-def GetAllBDTData(trainingPfoData, allPfoData, featureViews, class0query):
+if __name__ == "__main__":
+    # Load the training PFOs
+    ds.LoadPfoData(bcc.features)
     bdts = {}
+    featureViews = ds.GetFeatureViews(bcc.features)
     for view in featureViews:
+        dfTrainingPfoData = ds.GetFilteredPfoData("training", "all", "training", view)
         print("\nTraining BDT for " + view + " view")
         clf = ensemble.HistGradientBoostingClassifier()
-        bdts["BDT" + view] = TrainBDT(clf, featureViews[view], trainingPfoData[view], trainingPfoData[view].eval(class0query))
+        bdts["BDT" + view] = TrainBDT(clf, featureViews[view], dfTrainingPfoData, dfTrainingPfoData.eval(gc.classQueries[0]))
 
-    dfBdtValues = GetBDTValues(bdts, featureViews, trainingPfoData["union"])
-    trainingPfoData["union"] = pd.concat([trainingPfoData["union"], dfBdtValues], axis=1, sort=False)
+    dfTrainingPfoData = ds.GetFilteredPfoData("training", "all", "training", "union")
+    dfBdtValues = GetBDTValues(bdts, featureViews, dfTrainingPfoData)
+    trainingPfoData = pd.concat([dfTrainingPfoData, dfBdtValues], axis=1, sort=False)
 
     print("\nTraining multi-view BDT")
     clf = ensemble.HistGradientBoostingClassifier()
-    bdtMulti = TrainBDT(clf, dfBdtValues.columns, trainingPfoData["union"], trainingPfoData["union"].eval(class0query))
-    dfBdtValues = GetBDTValues(bdts, featureViews, allPfoData)
+    bdtMulti = TrainBDT(clf, dfBdtValues.columns, trainingPfoData, trainingPfoData.eval(gc.classQueries[0]))
+    dfBdtValues = GetBDTValues(bdts, featureViews, ds.dfInputPfoData)
     dfBdtValues["BDTMulti"] = bdtMulti.decision_function(dfBdtValues)
-    return dfBdtValues
+    print("\nSaving results")
+    ds.SavePfoData(dfBdtValues, "BDTCalculator")
+    print("Finished!")
