@@ -6,33 +6,12 @@ predictor = {"name": "BDTMulti", "algorithmName": "BDTCalculator", "range": (-10
 predictorHistograms = (
     {
         'filters': (
-            ('Showers', 'isShower==1', '', True),
-            ('Tracks', 'isShower==0', '', True)
+            ('Electrons', 'isElectron==1', '', True),
+            ('Photons', 'isElectron==0', '', True)
         ),
         'bins': np.linspace(*predictor["range"], num=25),
         'yAxis': 'log',
-        'cutoff': 'shower'
-    },
-    {
-        'filters': (
-            ('Showers', 'isShower==1', '', True),
-            ('Electrons + Positrons', 'abs(mcPdgCode)==11', 'isShower==1', False),
-            ('Photons', 'abs(mcPdgCode)==22', 'isShower==1', False)
-        ),
-        'bins': np.linspace(*predictor["range"], num=25),
-        'yAxis': 'log',
-        'cutoff': 'shower'
-    },
-    {
-        'filters': (
-            ('Tracks', 'isShower==0', '', True),
-            ('Protons', 'abs(mcPdgCode)==2212', 'isShower==0', False),
-            ('Muons', 'abs(mcPdgCode)==13', 'isShower==0', False),
-            ('Charged Pions', 'abs(mcPdgCode)==211', 'isShower==0', False)
-        ),
-        'bins': np.linspace(*predictor["range"], num=25),
-        'yAxis': 'log',
-        'cutoff': 'track'
+        'cutoff': 'electron'
     },
 )
 
@@ -58,46 +37,6 @@ purityEfficiencyBinnedGraphs = (
         "dependence": "completenessW", 
         'bins': np.linspace(0, 1, num=40), 
         "pfoClass": "both"
-    },
-    {
-        "dependence": "nHitsU+nHitsV+nHitsW", 
-        'bins': np.linspace(0, 400, num=40), 
-        "pfoClass": "shower", 
-        "filter": {
-            "name": "electron",
-            "query": "abs(mcPdgCode)==11"
-        },
-        "showPurity": False
-    },
-    {
-        "dependence": "nHitsU+nHitsV+nHitsW",
-        'bins': np.linspace(0, 800, num=40),
-        "pfoClass": "shower",
-        "filter": {
-            "name": "photon",
-            "query": "abs(mcPdgCode)==22"
-        },
-        "showPurity": False
-    },
-    {
-        "dependence": "mcpMomentum",
-        'bins': np.linspace(0, 1, num=40),
-        "pfoClass": "shower",
-        "filter": {
-            "name": "electron",
-            "query": "abs(mcPdgCode)==11"
-        },
-        "showPurity": False
-    },
-    {
-        "dependence": "mcpMomentum",
-        'bins': np.linspace(0, 1, num=80),
-        "pfoClass": "shower",
-        "filter": {
-            "name": "photon",
-            "query": "abs(mcPdgCode)==22"
-        },
-        "showPurity": False
     },
     {
         "dependence": "mcpMomentum",

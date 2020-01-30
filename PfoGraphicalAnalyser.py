@@ -6,6 +6,7 @@ import matplotlib.colors
 import numpy as np
 import random as rnd
 import pandas as pd
+import BaseConfig as bc
 from UpRootFileReader import MicroBooneGeo
 
 myTestArea = "/home/tomalex/Pandora"
@@ -162,7 +163,7 @@ def DisplayPfo(pfo, wireView = "W", additionalInfo = None, showTitle = True):
     plt.xlabel('DriftCoord%s (cm)' % wireView)
     plt.ylabel('WireCoord%s (cm)' % wireView)
     plt.tight_layout()
-    plt.savefig('%s, EventId %d, PfoId %d.svg' % (pfo.fileName, pfo.eventId, pfo.pfoId), format='svg', dpi=1200)
+    plt.savefig(bc.figureFolderFull + '/%s, EventId %d, PfoId %d.svg' % (pfo.fileName, pfo.eventId, pfo.pfoId), format='svg', dpi=1200)
     plt.show()
 
 def RandomPfoView(filePaths):

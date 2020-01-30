@@ -102,7 +102,7 @@ def PlotPurityEfficiencyVsVariable(dfClass0, dfClass1, classNames, predictor, gr
                     ("incorrect " + filter.get("name", "") +  " " + classNames[1], predictor["name"] + inequalities[0] + str(graph['cutoff']), "count", False),
                 )
             })
-        fig.savefig(filter.get("name", "") + classNames[0] + "PurityEfficiencyVs" + graph["dependence"] + ".svg", format='svg', dpi=1200)
+        fig.savefig(bc.figureFolderFull + "/" + filter.get("name", "") + classNames[0] + "PurityEfficiencyVs" + graph["dependence"] + ".svg", format='svg', dpi=1200)
         plt.show()
     if graph["pfoClass"] != classNames[0]:
         fig, ax = plt.subplots(nrows=2, ncols=1, sharex=True, figsize=(10, 15))
@@ -127,7 +127,7 @@ def PlotPurityEfficiencyVsVariable(dfClass0, dfClass1, classNames, predictor, gr
                     ("incorrect " + filter.get("name", "") +  " " + classNames[0], predictor["name"] + inequalities[1] + str(graph['cutoff']), "count", False),
                 )
             })
-        fig.savefig(filter.get("name", "") + classNames[1] + "PurityEfficiencyVs" + graph["dependence"] + ".svg", format='svg', dpi=1200)
+        fig.savefig(bc.figureFolderFull + "/" + filter.get("name", "") + classNames[1] + "PurityEfficiencyVs" + graph["dependence"] + ".svg", format='svg', dpi=1200)
         plt.show()
 
 if __name__ == "__main__":

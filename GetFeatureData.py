@@ -30,7 +30,7 @@ if __name__ == "__main__":
         idx = None
         for i, algorithmName in zip(count(0), cfg.algorithmNames):
             df = pd.concat([result[i] for result in results]).reset_index(drop=True)
-            df.to_pickle(bc.analysisFolder + "/PickleData/" + cfg.outputDataName + "_" + algorithmName + ".pickle")
+            df.to_pickle(bc.dataFolderFull + "/" + cfg.outputDataName + "_" + algorithmName + ".pickle")
         print('\nFinished!')
     else:
         print('No ROOT files found!')

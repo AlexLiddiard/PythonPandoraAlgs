@@ -62,10 +62,10 @@ def PurityEfficiency(dfClass0Variable, dfClass1Variable, cutOff, class1CutDirect
         class1Efficiency, class1EfficiencyError, class1Purity, class1PurityError, class1PurityEfficiency, class1PurityEfficiencyError
     )
 
-def GraphCutoffLine(ax, classNames, cutoff, arrows=False, flipArrows=False):
+def GraphCutoffLine(ax, classNames, cutoff, arrows=False, class0direction="right"):
     ax.axvline(cutoff)
     if arrows:
-        if not flipArrows:
+        if class0direction == "right":
             ax.annotate(
                 classNames[0], xy=(cutoff, 0.93), xycoords=ax.get_xaxis_transform(), ha="right", va="center",
                 xytext=(-18,0), textcoords="offset points", bbox={'boxstyle': "larrow", 'fc': 'C1', 'ec': 'C1', 'alpha': 0.5}, fontsize=20
@@ -147,8 +147,8 @@ def PlotVariableHistogram(dfPfoData, classNames, variable, variableHistogram, be
     fig, ax = plt.subplots(figsize=(10, 7.5))
     CreateHistogramWire(ax, dfPfoData, variable)
     if bestCutoff is not None:
-        GraphCutoffLine(ax, classNames, bestCutoff, True, variable['cutDirection'] == 'left')
-    plt.savefig('%s distribution for %s' % (variable['name'], ', '.join((filter[0] for filter in variable['filters'])) + '.svg'), format='svg', dpi=1200)
+        GraphCutoffLine(ax, classNames, bestCutoff, True, variable['cutDirection'])
+    plt.savefig(bc.figureFolderFull + '/%s distribution for %s' % (variable['name'], ', '.join((filter[0] for filter in variable['filters'])) + '.svg'), format='svg', dpi=1200)
     plt.show()
 
 def GetBestPurityEfficiency(dfClass0Data, dfClass1Data, variable, nTestCuts, showPurity=True):
@@ -185,7 +185,7 @@ def PlotPurityEfficiencyVsCutoff(featureName, classNames, cutoffValues, cutoffRe
         bx2.set_ylabel("Fraction")
 
         plt.tight_layout()
-        plt.savefig("PurityEfficiencyVs%sCutoff.svg" % featureName, format='svg', dpi=1200)
+        plt.savefig(bc.figureFolderFull + "/PurityEfficiencyVs%sCutoff.svg" % featureName, format='svg', dpi=1200)
         plt.show()
 
 def CorrelationMatrix(featureNames, viewsUsed, preFilters, pfoData):
@@ -196,7 +196,7 @@ def CorrelationMatrix(featureNames, viewsUsed, preFilters, pfoData):
     sn.heatmap(rSquaredMatrix, annot=True, annot_kws={"size": 20}, cmap="Blues")
     plt.xticks(rotation=45, ha="right", rotation_mode="anchor")
     plt.tight_layout()
-    plt.savefig("FeatureRSquaredMatrix.svg", format='svg', dpi=1200)
+    plt.savefig(bc.figureFolderFull + "/FeatureRSquaredMatrix.svg", format='svg', dpi=1200)
     plt.show()
 
 if __name__ == "__main__":
@@ -204,13 +204,13 @@ if __name__ == "__main__":
 
     for feature in cfg.features:
         dfPfoData = ds.GetFilteredPfoData("all", "all", "performance", ds.GetFeatureView(feature["name"]))
-        dfTrackData = ds.GetFilteredPfoData("performance", gc.classNames[0], "performance", ds.GetFeatureView(feature["name"]))
-        dfShowerData = ds.GetFilteredPfoData("performance", gc.classNames[1], "performance", ds.GetFeatureView(feature["name"]))
-        cutoffValues, cutoffResults = GetBestPurityEfficiency(dfTrackData, dfShowerData, feature, cfg.purityEfficiency["nTestCuts"])
+        dfClass0Data = ds.GetFilteredPfoData("performance", gc.classNames[0], "performance", ds.GetFeatureView(feature["name"]))
+        dfClass1Data = ds.GetFilteredPfoData("performance", gc.classNames[1], "performance", ds.GetFeatureView(feature["name"]))
+        cutoffValues, cutoffResults = GetBestPurityEfficiency(dfClass0Data, dfClass1Data, feature, cfg.purityEfficiency["nTestCuts"])
         if cfg.featureHistogram["plot"]:
-            PlotVariableHistogram(dfPfoData, ("track", "shower"), feature, cfg.featureHistogram, cutoffResults[4])
+            PlotVariableHistogram(dfPfoData, gc.classNames, feature, cfg.featureHistogram, cutoffResults[4])
         if cfg.purityEfficiency["plot"]:        
-            PlotPurityEfficiencyVsCutoff(feature["name"], ("track", "shower"), cutoffValues, cutoffResults)
+            PlotPurityEfficiencyVsCutoff(feature["name"], gc.classNames, cutoffValues, cutoffResults)
 
     dfPfoData = ds.GetFilteredPfoData("all", "all", "performance", "general")
     CorrelationMatrix([feature['name'] for feature in cfg.features], ds.GetFeatureViews(cfg.features), dsc.preFilters["performance"], dfPfoData)
