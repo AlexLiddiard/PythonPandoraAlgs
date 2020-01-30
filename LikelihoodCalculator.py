@@ -3,15 +3,14 @@ import pandas as pd
 import math as m
 import BaseConfig as bc
 import DataSampler as ds
-import LikelihoodCalculationConfig as cfg
+import LikelihoodCalculatorConfig as cfg
 import GeneralConfig as gc
-import DataSamplingConfig as dsc
+import DataSamplerConfig as dsc
 from UpRootFileReader import MicroBooneGeo
 
 delta = 1e-12
 
 def CalculateLikelihoodValues(features):
-    #ds.dfTrainingPfoData["track"], ds.dfTrainingPfoData["shower"], ds.dfInputPfoData["all"], 
     probabilities = ({}, {})
     featureViews = ds.GetFeatureViews(features)
     for featureView, featureNames in featureViews.items():

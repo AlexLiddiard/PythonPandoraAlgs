@@ -1,12 +1,15 @@
 import numpy as np
 
-likelihoodHistograms = (
+predictor = {"name": "Likelihood", "algorithmName": "LikelihoodCalculator", "range": (0, 1)}
+#predictor = {"name": "BDTMulti", "algorithmName": "BDTCalculator", "range": (-10, 10)}
+
+predictorHistograms = (
     {
         'filters': (
             ('Showers', 'isShower==1', '', True),
             ('Tracks', 'isShower==0', '', True)
         ),
-        'bins': np.linspace(0, 1, num=25),
+        'bins': np.linspace(*predictor["range"], num=25),
         'yAxis': 'log',
         'cutoff': 'shower'
     },
@@ -16,7 +19,7 @@ likelihoodHistograms = (
             ('Electrons + Positrons', 'abs(mcPdgCode)==11', 'isShower==1', False),
             ('Photons', 'abs(mcPdgCode)==22', 'isShower==1', False)
         ),
-        'bins': np.linspace(0, 1, num=25),
+        'bins': np.linspace(*predictor["range"], num=25),
         'yAxis': 'log',
         'cutoff': 'shower'
     },
@@ -27,7 +30,7 @@ likelihoodHistograms = (
             ('Muons', 'abs(mcPdgCode)==13', 'isShower==0', False),
             ('Charged Pions', 'abs(mcPdgCode)==211', 'isShower==0', False)
         ),
-        'bins': np.linspace(0, 1, num=25),
+        'bins': np.linspace(*predictor["range"], num=25),
         'yAxis': 'log',
         'cutoff': 'track'
     },

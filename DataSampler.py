@@ -3,7 +3,7 @@ import math as m
 import numpy as np
 import BaseConfig as bc
 from UpRootFileReader import MicroBooneGeo
-import DataSamplingConfig as cfg
+import DataSamplerConfig as cfg
 import GeneralConfig as gc
 
 dfInputPfoData = None
