@@ -1,10 +1,12 @@
+import matplotlib as mpl
 import sys
 
 ############################################## BASE CONFIGURATION ##################################################
 
-myTestArea = "/home/alexliddiard/Desktop/Pandora/"
+myTestArea = "/home/jack/Documents/Pandora/"
 pythonFolder = "PythonPandoraAlgs"
 analysisFolder = "ElectronPhoton"
+pyplotBackend = 'TkAgg'
 
 pythonFolderFull = myTestArea + "/" + pythonFolder
 analysisFolderFull = myTestArea + "/" + "/" + analysisFolder
@@ -20,3 +22,4 @@ sys.path.append(pythonFolderFull)
 sys.path.append(analysisFolderFull)
 sys.path.append(featureAlgsFolderFull)
 sys.path.append(configFolderFull)
+mpl.use(pyplotBackend)

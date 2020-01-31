@@ -1,3 +1,4 @@
+import BaseConfig as bc
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -6,7 +7,6 @@ import math as m
 from UpRootFileReader import MicroBooneGeo
 from HistoSynthesis import CreateHistogramWire
 import DataSampler as ds
-import BaseConfig as bc
 import GeneralConfig as gc
 import DataSamplerConfig as dsc
 import FeatureAnalyserConfig as cfg
