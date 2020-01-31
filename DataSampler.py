@@ -53,9 +53,18 @@ def GetFilteredPfoData(dataSource, pfoClass, filterClass, filterName):
 
     # View/other filtering
     if filterName == "unfiltered":
-        return dfPfoData.reset_index(drop=True)
-    dfPfoData = dfPfoData.query(cfg.preFilters[filterClass]["general"])
-    return dfPfoData.query(cfg.preFilters[filterClass][filterName]).reset_index(drop=True)
+        dfPfoData = dfPfoData.reset_index(drop=True)
+    else:
+        dfPfoData = dfPfoData.query(cfg.preFilters[filterClass]["general"])
+        dfPfoData = dfPfoData.query(cfg.preFilters[filterClass][filterName]).reset_index(drop=True)
+    print((
+        "Got %s PFOs satisfying the following filter options" +
+        "\n\tData source: %s" +
+        "\n\tPFO class: %s" +
+        "\n\tFilter class: %s" +
+        "\n\tFilter name: %s"
+    ) % (len(dfPfoData), dataSource, pfoClass, filterClass, filterName))
+    return dfPfoData
 
 def GetFeatureView(featureName):
     if featureName.endswith("3D"):
