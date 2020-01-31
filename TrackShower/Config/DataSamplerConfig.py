@@ -1,6 +1,6 @@
 import BaseConfig as bc
 
-############################################## DATA SAMPLING CONFIGURATION ##################################################
+############################################## DATA SAMPLER CONFIGURATION ##################################################
 
 # "DataSourceName": (data start fraction, data end fraction)
 #  where e.g. data start fraction = (data start position) / (# of samples)

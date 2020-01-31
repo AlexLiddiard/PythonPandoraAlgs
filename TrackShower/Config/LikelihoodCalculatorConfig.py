@@ -1,6 +1,6 @@
 import numpy as np
 
-############################################## LIKELIHOOD CONFIGURATION ##################################################
+############################################## LIKELIHOOD CALCULATOR CONFIGURATION ##################################################
 
 features = [
     #{'name': 'RSquaredU', 'algorithmName': 'LinearRegression', 'pdfBins': np.linspace(0, 1, num=50)},

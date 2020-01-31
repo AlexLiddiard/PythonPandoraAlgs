@@ -1,9 +1,11 @@
-from PythonPandoraAlgs import BaseConfig as bc
+import BaseConfig as bc
+
+############################################## GET FEATURE DATA CONFIGURATION ##################################################
 
 rootFileDirectory = bc.myTestArea + "/PythonPandoraAlgs/ROOT Files/BNBNuOnly"
 outputDataName = "BNBNuOnly2000"
 
-algorithmNames = (
+algorithmNames = [
     "GeneralInfo",
     "LinearRegression",
     "HitBinning",
@@ -14,7 +16,7 @@ algorithmNames = (
     "ChargeStdMeanRatio",
     "BraggPeak",
     "MoliereRadius"
-)
+]
 
 calculateViews = {
     "U": True,

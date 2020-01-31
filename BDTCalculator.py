@@ -13,8 +13,8 @@ from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
 from imblearn.over_sampling import RandomOverSampler as ros
 import BaseConfig as bc
-import BDTCalculatorConfig as bcc
 import GeneralConfig as gc
+import BDTCalculatorConfig as cfg
 
 def TrainBDT(clf, featureNames, trainingData, classificationArray):
     trainingData = trainingData[featureNames] # Remove all irrelevant columns
@@ -35,9 +35,9 @@ def GetBDTValues(bdts, featureViews, evalData):
 
 if __name__ == "__main__":
     # Load the training PFOs
-    ds.LoadPfoData(bcc.features)
+    ds.LoadPfoData(cfg.features)
     bdts = {}
-    featureViews = ds.GetFeatureViews(bcc.features)
+    featureViews = ds.GetFeatureViews(cfg.features)
     for view in featureViews:
         dfTrainingPfoData = ds.GetFilteredPfoData("training", "all", "training", view)
         print("\nTraining BDT for " + view + " view")

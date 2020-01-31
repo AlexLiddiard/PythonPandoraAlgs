@@ -6,71 +6,10 @@ import matplotlib.colors
 import numpy as np
 import random as rnd
 import pandas as pd
+import DataSampler as ds
 import BaseConfig as bc
+import PfoGraphicalAnalyserConfig as cfg
 from UpRootFileReader import MicroBooneGeo
-
-myTestArea = "/home/tomalex/Pandora"
-rootFileDirectory = myTestArea + "/PythonPandoraAlgs/ROOT Files"
-inputPickleFile = myTestArea + '/PythonPandoraAlgs/featureDataTemp.bz2'
-usePickleFile = True
-pfoFilters = (
-    #### PFO selection ####
-    #"isShower==0 and Likelihood>0.001 and abs(mcpEnergy - 1.05) < 0.05",
-    "mcPdgCode==2212 and mcpEnergy < 1",
-    #'AngularSpanW > 2',
-    #'Likelihood > 0.89 and nHitsW > 200 and isShower != 1', # shower-like muons/protons/etc. with many hits
-    #'likelihood > 0.89 and absPdgCode==2212' # shower-like protons
-    #'likelihood < 0.89 and absPdgCode==11' # track-like electrons
-    #'BinnedHitStdW==0' # BinnedHitStd anomaly
-
-    #### Pre-filters ####
-    #'purityU>=0.5',
-    #'purityV>=0.5',
-    #'purityW>=0.8',
-    #'completenessU>=0.5',
-    #'completenessV>=0.5',
-    #'completenessW>=0.8',
-    #'(nHitsU>=10 and nHitsV>=10) or (nHitsU>=10 and nHitsW>=10) or (nHitsV>=10 and nHitsW>=10)',
-    #'nHitsU + nHitsV + nHitsW >= 100',
-    #'nHitsU>=20',
-    #'nHitsV>=20',
-    'nHitsW>=20',
-    'minCoordX >= @MicroBooneGeo.RangeX[0] + 10',
-    'maxCoordX <= @MicroBooneGeo.RangeX[1] - 10',
-    'minCoordY >= @MicroBooneGeo.RangeY[0] + 20',
-    'maxCoordY <= @MicroBooneGeo.RangeY[1] - 20',
-    'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
-    'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
-
-)
-additionalInfo = [
-    #'BinnedHitStdU',
-    #'ChainRatioAvgU',
-    #'ChainRSquaredStdU',
-    #'AngularSpanU',
-    #'BinnedHitStdV',
-    #'ChainRatioAvgV',
-    #'ChainRSquaredStdV',
-    #'AngularSpanV',
-    #'BinnedHitStdW',
-    #'ChainRatioAvgW',
-    #'ChainRSquaredStdW',
-    #'AngularSpanW',
-    #'Likelihood'
-]
-wireView = "W"
-showTitle = True
-
-plotStyle = {
-    'font.size': 15,
-    'legend.fontsize': 'xx-large',
-    'figure.figsize': (13,10),
-    'axes.labelsize': 'xx-large',
-    'axes.titlesize':'xx-large',
-    'xtick.labelsize':'xx-large',
-    'ytick.labelsize':'xx-large'
-}
-plt.rcParams.update(plotStyle)
 
 # From given axes limits, calculate new limits that give a square region.
 # The square region encloses the old (rectangular) region and shares the same centre point.
@@ -175,7 +114,7 @@ def RandomPfoView(filePaths):
             for pfo in eventPfos:
                 if pfo.monteCarloPDGW == 0:
                     continue
-                DisplayPfo(pfo, wireView)
+                DisplayPfo(pfo, cfg.view)
 
 def SelectivePfoView(filePaths, dfPfoData, pfoFilters):
     nameToPathDict = FileNameToFilePath(filePaths)
@@ -188,7 +127,7 @@ def SelectivePfoView(filePaths, dfPfoData, pfoFilters):
     for index, pfoData in dfPfoData.iterrows():
         filePath = nameToPathDict[pfoData.fileName]
         pfo = rdr.ReadPfoFromRootFile(filePath, pfoData.eventId, pfoData.pfoId)
-        DisplayPfo(pfo, wireView, pfoData[additionalInfo], showTitle)
+        DisplayPfo(pfo, cfg.view, pfoData[cfg.additionalInfo], cfg.showTitle)
 
 
 def FileNameToFilePath(filePaths):
@@ -198,10 +137,12 @@ def FileNameToFilePath(filePaths):
     return nameToPathDict
 
 if __name__ == "__main__":
-    filePaths =  glob.glob(rootFileDirectory + '/**/*.root', recursive=True)
-    if usePickleFile:
-        dfPfoFeatureData = pd.read_pickle(inputPickleFile)
-        SelectivePfoView(filePaths, dfPfoFeatureData, pfoFilters)
+    plt.rcParams.update(cfg.plotStyle)
+    filePaths =  glob.glob(cfg.rootFileDirectory + '/**/*.root', recursive=True)
+    if cfg.useDataSample:
+        ds.LoadPfoData()
+        dfPfoData = ds.GetFilteredPfoData(*cfg.dataSample.values())
+        SelectivePfoView(filePaths, dfPfoData, cfg.filters)
     else:
         RandomPfoView(filePaths)
     print('\nFinished!')

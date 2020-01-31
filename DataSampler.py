@@ -1,27 +1,31 @@
 import pandas as pd
 import math as m
 import numpy as np
-import BaseConfig as bc
+import os
 from UpRootFileReader import MicroBooneGeo
-import DataSamplerConfig as cfg
+import BaseConfig as bc
 import GeneralConfig as gc
+import DataSamplerConfig as cfg
 
 dfInputPfoData = None
 # Load pickle file
-def LoadPfoData(features):
+def LoadPfoData(features=None):
     global dfInputPfoData
     print("Loading data from pickle files")
-    algorithmNames = GetFeatureAlgorithms(features)
-    algorithmNames['GeneralInfo'] = []
+    if features is not None:
+        algorithmNames = GetFeatureAlgorithms(features)
+        algorithmNames['GeneralInfo'] = None
+    else:
+        algorithmNames = GetAllDataAlgorithms(bc.dataFolderFull, cfg.dataSources["all"])
     dfInputPfoData = []
     for dataName in cfg.dataSources["all"]:
         featureDataArray = []
-        for algorithmName in algorithmNames:
-            dfAlgorithm = pd.read_pickle(bc.dataFolderFull+ "/" + dataName + "_" + algorithmName + ".pickle")
-            if algorithmName == 'GeneralInfo':
-                featureDataArray.append(dfAlgorithm)
+        for algorithmName, featureNames in algorithmNames.items():
+            dfAlgorithm = pd.read_pickle(bc.dataFolderFull + "/" + dataName + "_" + algorithmName + ".pickle")
+            if featureNames is not None:
+                featureDataArray.append(dfAlgorithm[featureNames])
             else:
-                featureDataArray.append(dfAlgorithm[algorithmNames[algorithmName]])
+                featureDataArray.append(dfAlgorithm)
         
         dfInputPfoData.append(pd.concat(featureDataArray, axis=1, sort=False))
         dfInputPfoData[-1]["dataName"] = dataName
@@ -45,8 +49,7 @@ def GetFilteredPfoData(dataSource, pfoClass, filterClass, filterName):
     dfPfoData = pd.concat(dfPfoData, ignore_index=True)    
 
     # Class filtering
-    if pfoClass != "all":
-        dfPfoData = dfPfoData.query(gc.classes[pfoClass])
+    dfPfoData = dfPfoData.query(gc.classes[pfoClass])
 
     # View/other filtering
     if filterName == "unfiltered":
@@ -68,6 +71,20 @@ def GetFeatureAlgorithms(features):
             algorithmNames[feature['algorithmName']] = []
         algorithmNames[feature['algorithmName']].append(feature['name'])
     return algorithmNames
+
+# Find the names of all algorithm data sets, starting with a given base name.
+# If multiple base names, it will return the intersection of the names from each.
+def GetAllDataAlgorithms(dataFolder, dataNames):
+    if len(dataNames) == 0:
+        return []
+    algorithmNames = {}
+    for fileName in os.listdir(dataFolder):
+        for dataName in dataNames:
+            if os.path.isfile(os.path.join(dataFolder, fileName)) and fileName.startswith(dataName):
+                algorithmName = os.path.splitext(fileName[len(dataName) + 1:])[0]
+                algorithmNames[algorithmName] = algorithmNames.get(algorithmName, 0) + 1
+    return dict.fromkeys([algorithmName for algorithmName in algorithmNames if algorithmNames[algorithmName] == len(dataNames)])
+
 
 def GetFeatureNames(features):
     return [feature['name'] for feature in features]

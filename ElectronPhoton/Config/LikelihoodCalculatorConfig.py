@@ -1,6 +1,6 @@
 import numpy as np
 
-############################################## LIKELIHOOD CONFIGURATION ##################################################
+############################################## LIKELIHOOD CALCULATOR CONFIGURATION ##################################################
 
 features = [
     {'name': 'InitialdEdxU', 'algorithmName': 'InitialdEdx', 'bins': np.linspace(0, 5, num = 200), 'cutDirection': 'left'},

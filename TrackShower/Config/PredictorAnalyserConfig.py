@@ -1,9 +1,11 @@
 import numpy as np
 
+############################################## PREDICTOR ANALYSER CONFIGURATION ##################################################
+
 #predictor = {"name": "Likelihood", "algorithmName": "LikelihoodCalculator", "range": (0, 1), 'cutDirection': 'right'}
 predictor = {"name": "BDTMulti", "algorithmName": "BDTCalculator", "range": (-10, 10), 'cutDirection': 'left'}
 
-predictorHistograms = (
+predictorHistograms = [
     {
         'filters': (
             ('Showers', 'isShower==1', '', True),
@@ -34,10 +36,10 @@ predictorHistograms = (
         'yAxis': 'log',
         'cutoff': 'track'
     },
-)
+]
 
 purityEfficiencyVsCutoffGraph = {'nTestCuts': 1001}
-purityEfficiencyBinnedGraphs = (
+purityEfficiencyBinnedGraphs = [
     {
         "dependence":
         "nHitsU+nHitsV+nHitsW",
@@ -179,4 +181,4 @@ purityEfficiencyBinnedGraphs = (
         },
         "showPurity": True
     },
-)
+]

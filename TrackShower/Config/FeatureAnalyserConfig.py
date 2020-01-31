@@ -1,8 +1,8 @@
 import numpy as np
 
-############################################## FEATURE ANALYSIS CONFIGURATION ##################################################
+############################################## FEATURE ANALYSER CONFIGURATION ##################################################
 
-features = (
+features = [
     #{'name': 'RSquaredU', 'algorithmName': 'LinearRegression', 'bins': np.linspace(0, 1, num=50), 'cutDirection': 'left'},
     #{'name': 'RSquaredV', 'algorithmName': 'LinearRegression', 'bins': np.linspace(0, 1, num=50), 'cutDirection': 'left'},
     #{'name': 'RSquaredW', 'algorithmName': 'LinearRegression', 'bins': np.linspace(0, 1, num=50), 'cutDirection': 'left'},
@@ -63,7 +63,7 @@ features = (
     #{'name': 'BDTMulti', 'algorithmName': 'DecisionTreeCalculator', 'bins': np.linspace(-10, 15, num = 200), 'cutDirection': 'left'},
     {'name': 'Likelihood', 'algorithmName': 'LikelihoodCalculator', 'bins': np.linspace(0, 1, num = 200), 'cutDirection': 'right'},
     #{'name': 'mcpMomentum', 'algorithmName': 'GeneralInfo', 'bins': np.linspace(0, 0.3, num = 100), 'cutDirection': 'left'},
-)
+]
 
 featureHistogram = {
     "plot": True,

@@ -1,9 +1,9 @@
 import numpy as np
 import math as m
 
-############################################## FEATURE ANALYSIS CONFIGURATION ##################################################
+############################################## FEATURE ANALYSER CONFIGURATION ##################################################
 
-features = (
+features = [
     {'name': 'InitialdEdxU', 'algorithmName': 'InitialdEdx', 'bins': np.linspace(0, 50000, num = 200), 'cutDirection': 'left'},
     {'name': 'InitialdEdxV', 'algorithmName': 'InitialdEdx', 'bins': np.linspace(0, 50000, num = 200), 'cutDirection': 'left'},
     {'name': 'InitialdEdxW', 'algorithmName': 'InitialdEdx', 'bins': np.linspace(0, 50000, num = 200), 'cutDirection': 'left'},
@@ -20,13 +20,13 @@ features = (
     #{'name': 'BDTMulti', 'algorithmName': 'DecisionTreeCalculator', 'bins': np.linspace(-10, 15, num = 200), 'cutDirection': 'left'},
     #{'name': 'Likelihood', 'algorithmName': 'LikelihoodCalculator', 'bins': np.linspace(0, 1, num = 200), 'cutDirection': 'right'},
     {'name': 'mcpMomentum', 'algorithmName': 'GeneralInfo', 'bins': np.linspace(0, 0.3, num = 100), 'cutDirection': 'left'},
-)
+]
 
 featureHistogram = {
     "plot": True,
     "filters": (
-        ("Electrons", "isElectron==1", "", True), 
-        ("Photons", "isElectron==0", "", True),
+        ("Electrons", "abs(mcPdgCode)==11", "", True), 
+        ("Photons", "abs(mcPdgCode)==22", "", True),
     )   
 }
 

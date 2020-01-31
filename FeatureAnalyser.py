@@ -7,9 +7,9 @@ from UpRootFileReader import MicroBooneGeo
 from HistoSynthesis import CreateHistogramWire
 import DataSampler as ds
 import BaseConfig as bc
-import FeatureAnalyserConfig as cfg
 import GeneralConfig as gc
 import DataSamplerConfig as dsc
+import FeatureAnalyserConfig as cfg
 
 def GetFeatureView(featureName):
     if featureName.endswith("3D"):

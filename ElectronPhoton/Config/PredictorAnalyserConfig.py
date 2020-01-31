@@ -1,22 +1,24 @@
 import numpy as np
 
+############################################## PREDICTOR ANALYSER CONFIGURATION ##################################################
+
 #predictor = {"name": "Likelihood", "algorithmName": "LikelihoodCalculator", "range": (0, 1), 'cutDirection': 'right'}
 predictor = {"name": "BDTMulti", "algorithmName": "BDTCalculator", "range": (-10, 10), 'cutDirection': 'left'}
 
-predictorHistograms = (
+predictorHistograms = [
     {
         'filters': (
-            ('Electrons', 'isElectron==1', '', True),
-            ('Photons', 'isElectron==0', '', True)
+            ('Electrons', 'abs(mcPdgCode)==11', '', True),
+            ('Photons', 'abs(mcPdgCode)==22', '', True)
         ),
         'bins': np.linspace(*predictor["range"], num=25),
         'yAxis': 'log',
         'cutoff': 'electron'
     },
-)
+]
 
 purityEfficiencyVsCutoffGraph = {'nTestCuts': 1001}
-purityEfficiencyBinnedGraphs = (
+purityEfficiencyBinnedGraphs = [
     {
         "dependence":
         "nHitsU+nHitsV+nHitsW",
@@ -118,4 +120,4 @@ purityEfficiencyBinnedGraphs = (
         },
         "showPurity": True
     },
-)
+]
