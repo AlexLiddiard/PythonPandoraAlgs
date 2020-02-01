@@ -6,9 +6,10 @@ rootFileDirectory = bc.myTestArea + "/PythonPandoraAlgs/ROOT Files/BNBNuOnly"
 outputDataName = "BNBNuOnly2000"
 
 algorithmNames = [
-    "GeneralInfo",
-    "InitialdEdx",
-    "AngularSpan",
+    #"GeneralInfo",
+    #"InitialdEdx",
+    #"AngularSpan",
+    "SegmentedPca",
 ]
 
 calculateViews = {

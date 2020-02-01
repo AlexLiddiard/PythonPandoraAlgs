@@ -1,3 +1,4 @@
+import BaseConfig as bc
 import pandas as pd
 import concurrent.futures as cf
 from tqdm import tqdm
@@ -6,7 +7,6 @@ import UpRootFileReader
 import importlib
 import numpy as np
 from itertools import count
-import BaseConfig as bc
 import GetFeatureDataConfig as cfg
 algorithms = [importlib.import_module(algorithm) for algorithm in cfg.algorithmNames]
 

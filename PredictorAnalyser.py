@@ -1,3 +1,4 @@
+import BaseConfig as bc
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -7,7 +8,6 @@ import HistoSynthesis as hs
 from itertools import count
 import DataSampler as ds
 from FeatureAnalyser import GetBestPurityEfficiency, PlotVariableHistogram, PlotPurityEfficiencyVsCutoff, PurityEfficiency, PrintPurityEfficiency
-import BaseConfig as bc
 import GeneralConfig as gc
 import PredictorAnalyserConfig as pac
 import importlib

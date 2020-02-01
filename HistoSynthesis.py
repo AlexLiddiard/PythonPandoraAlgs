@@ -1,6 +1,6 @@
+import BaseConfig as bc
 import numpy as np
 import matplotlib.pyplot as plt
-import BaseConfig as bc
 import HistoSynthesisConfig as cfg
 
 plt.rcParams.update(cfg.plotStyle)

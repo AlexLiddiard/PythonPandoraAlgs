@@ -1,3 +1,4 @@
+import BaseConfig as bc
 from sklearn import tree
 from sklearn import ensemble
 from sklearn.experimental import enable_hist_gradient_boosting
@@ -12,7 +13,6 @@ from imblearn.over_sampling import SMOTE as smt
 from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
 from imblearn.over_sampling import RandomOverSampler as ros
-import BaseConfig as bc
 import GeneralConfig as gc
 import BDTCalculatorConfig as cfg
 

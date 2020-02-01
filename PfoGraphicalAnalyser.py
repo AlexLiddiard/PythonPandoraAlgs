@@ -1,3 +1,4 @@
+import BaseConfig as bc
 import os
 import glob
 import UpRootFileReader as rdr
@@ -7,7 +8,6 @@ import numpy as np
 import random as rnd
 import pandas as pd
 import DataSampler as ds
-import BaseConfig as bc
 import PfoGraphicalAnalyserConfig as cfg
 from UpRootFileReader import MicroBooneGeo
 

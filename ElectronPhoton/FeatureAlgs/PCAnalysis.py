@@ -7,44 +7,45 @@ tolerance = 1e-5
 def ZeroCorrect(values):
     values[np.abs(values) < tolerance] = 0
 
-def PcaVariance2D(xCoords, yCoords):
-    if len(xCoords) < 3:
+def PcaVariance(coordSets, vertex=None):
+    if len(coordSets[0]) < 3:
         return m.nan, m.nan
-    eigenvalues, eigenvectors = Pca((xCoords, yCoords))
-    return eigenvalues[0], eigenvalues[0] / eigenvalues[1]
+    eigenvalues = Pca(coordSets, vertex, False)
+    axialVariance = eigenvalues[:-1].sum()
+    return axialVariance, axialVariance / eigenvalues[-1] / (len(coordSets) - 1)
 
-def PcaVariance3D(xCoords, yCoords, zCoords, vertex = None):
-    if len(xCoords) < 3:
-        return m.nan, m.nan
-    eigenvalues, eigenvectors = Pca((xCoords, yCoords, zCoords), vertex)
-    axialVariance = m.sqrt(eigenvalues[0] + eigenvalues[1])
-    return axialVariance, axialVariance / m.sqrt(eigenvalues[2])
-
-def PcaReduce(coordSets, intercept = None):
+def PcaReduce(coordSets, intercept=None):
     if len(coordSets[0]) == 0:
         return coordSets
-    if type(intercept) == type(None):
+    if intercept is None:
         intercept = np.mean(coordSets, axis=1)
     intercept = np.reshape(intercept, (-1, 1))
     if len(coordSets[0]) == 1:
         return coordSets - intercept
-    eigenvalues, eigenvectors = Pca(coordSets, intercept)
+    eigenvectors = Pca(coordSets, intercept)[1]
     reducedCoordSets = np.flip(eigenvectors.transpose(), 0) @ (coordSets - intercept)
     return reducedCoordSets
 
-def Pca(coordSets, intercept = None):
-    if type(intercept) == type(None):
+def Pca(coordSets, intercept = None, withVectors=True):
+    if intercept is None:
         intercept = np.mean(coordSets, axis=1)
     dimensions = len(coordSets)
     ncoords = len(coordSets[0])
-    pcamatrix = np.zeros((dimensions, dimensions), dtype='double')
+    covmatrix = np.zeros((dimensions, dimensions), dtype='double')
     for i in range(0, dimensions):
         for j in range(i, dimensions):
-            pcamatrix[i, j] = pcamatrix[j, i] = np.sum((coordSets[i] - intercept[i]) * (coordSets[j] - intercept[j])) / (ncoords - 1)
-    eigenvalues, eigenvectors = np.linalg.eig(pcamatrix)
+            covmatrix[i, j] = covmatrix[j, i] = np.sum((coordSets[i] - intercept[i]) * (coordSets[j] - intercept[j])) / (ncoords - 1)
+    return GetEigenValues(covmatrix)
+
+def GetEigenValues(covmatrix, withVectors=True):
+    eigenvalues, eigenvectors = np.linalg.eigh(covmatrix)
     ZeroCorrect(eigenvalues)
-    order = eigenvalues.argsort()
-    return np.real(eigenvalues[order]), np.real(eigenvectors[:,order]) # numpy can sometimes return a complex matrix for no apparent reason!
+    if withVectors:
+        order = eigenvalues.argsort()
+        return eigenvalues[order].real, eigenvectors[:,order].real # numpy can sometimes return a complex matrix for no apparent reason!
+    else:
+        eigenvalues.sort()
+        return eigenvalues.real
 
 def GetFeatures(pfo, calculateViews):
     PcaReduce((pfo.driftCoordW, pfo.wireCoordW))
