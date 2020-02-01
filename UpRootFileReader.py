@@ -2,6 +2,7 @@
 import uproot as up
 import numpy as np
 import os
+import PfoVertexFinder as pvf
 
 # This class defines the data associated with each PFO.
 class PfoClass(object):
@@ -57,6 +58,7 @@ class PfoClass(object):
         self.nHitsMcpU = pfo.nHitsMcpU
         self.nHitsMatchU = pfo.nHitsMatchU
         self.vertexU = np.array([pfo.get("vertex[0]"), 0.5 * pfo.get("vertex[2]") - 0.8660254 * pfo.get("vertex[1]")], dtype = np.double)
+        self.interactionVertexU = None
 
         # V view
         self.driftCoordV = np.array(pfo.driftCoordV, dtype = np.double)
@@ -67,6 +69,7 @@ class PfoClass(object):
         self.nHitsMcpV = pfo.nHitsMcpV
         self.nHitsMatchV = pfo.nHitsMatchV
         self.vertexV = np.array([pfo.get("vertex[0]"), 0.5 * pfo.get("vertex[2]") + 0.8660254 * pfo.get("vertex[1]")], dtype = np.double)
+        self.interactionVertexV = None
 
         # W view
         self.driftCoordW = np.array(pfo.driftCoordW, dtype = np.double)
@@ -77,6 +80,7 @@ class PfoClass(object):
         self.nHitsMcpW = pfo.nHitsMcpW
         self.nHitsMatchW = pfo.nHitsMatchW
         self.vertexW = np.array([pfo.get("vertex[0]"), pfo.get("vertex[2]")], dtype = np.double)
+        self.interactionVertexW = None
 
         # 3D view
         self.xCoord3D = pfo.xCoordThreeD
@@ -85,7 +89,7 @@ class PfoClass(object):
         self.energy3D = pfo.energyThreeD
         self.nHitsPfo3D = len(self.xCoord3D)
         self.vertex3D = np.array([pfo.get("vertex[0]"), pfo.get("vertex[1]"), pfo.get("vertex[2]")], dtype = np.double)
-        self.parentVertex3D = None # Associated data, to be set later
+        self.interactionVertex3D = None
 
     # These change how the PFO is printed to the screen
     def __str__(self):
@@ -209,12 +213,20 @@ def ReadRootFile(filepath):
 
 # Set any data that is based on hierarchy associations
 def SetAssociatedData(eventPfos):
-    try:
-        neutrinoEnergy = eventPfos[0].mcpMomentum
-    except:
-        print(eventPfos)
+    neutrinoEnergy = eventPfos[0].mcpMomentum
     for pfo in eventPfos[1:]:
-        pfo.parentVertex3D = eventPfos[pfo.parentPfoId].vertex3D
+        parentPfo = eventPfos[pfo.parentPfoId]
+        if pfo.heirarchyTier == 1:
+            pfo.interactionVertexU = parentPfo.vertexU
+            pfo.interactionVertexV = parentPfo.vertexV
+            pfo.interactionVertexW = parentPfo.vertexW
+            pfo.interactionVertex3D = parentPfo.vertex3D
+        elif pfo.heirarchyTier > 1:
+            pfo.interactionVertexU = pvf.InteractionVertex2D(pfo.vertexU, pfo.driftCoordU, pfo.wireCoordU, parentPfo.vertexU, parentPfo.driftCoordU, parentPfo.wireCoordU, pfo.nHitsPfoU, parentPfo.nHitsPfoU)
+            pfo.interactionVertexV = pvf.InteractionVertex2D(pfo.vertexV, pfo.driftCoordV, pfo.wireCoordV, parentPfo.vertexV, parentPfo.driftCoordV, parentPfo.wireCoordV, pfo.nHitsPfoV, parentPfo.nHitsPfoV)
+            pfo.interactionVertexW = pvf.InteractionVertex2D(pfo.vertexW, pfo.driftCoordW, pfo.wireCoordW, parentPfo.vertexW, parentPfo.driftCoordW, parentPfo.wireCoordW, pfo.nHitsPfoW, parentPfo.nHitsPfoW)
+            pfo.interactionVertex3D = pvf.InteractionVertex3D(pfo.vertex3D, pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, parentPfo.vertex3D, parentPfo.xCoord3D, parentPfo.yCoord3D, parentPfo.zCoord3D, pfo.nHitsPfo3D, parentPfo.nHitsPfo3D)
+        
         pfo.mcNeutrinoEnergy = neutrinoEnergy
 
 def ReadPfoFromRootFile(filepath, eventId, pfoId):

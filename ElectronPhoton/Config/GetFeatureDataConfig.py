@@ -10,6 +10,7 @@ algorithmNames = [
     #"InitialdEdx",
     #"AngularSpan",
     "SegmentedPca",
+    "VertexSeparation",
 ]
 
 calculateViews = {
