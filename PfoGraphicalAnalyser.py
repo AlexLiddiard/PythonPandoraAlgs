@@ -118,7 +118,8 @@ def RandomPfoView(filePaths):
 
 def SelectivePfoView(filePaths, dfPfoData, pfoFilters):
     nameToPathDict = FileNameToFilePath(filePaths)
-    dfPfoData = dfPfoData.query(' and '.join(pfoFilters))
+    if len(pfoFilters) > 0:
+        dfPfoData = dfPfoData.query(' and '.join(pfoFilters))
     nPFOs = len(dfPfoData)
     dfPfoData = dfPfoData.query('fileName in @nameToPathDict')
     nPFOsAvailable = len(dfPfoData)

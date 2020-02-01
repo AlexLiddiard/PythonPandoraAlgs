@@ -9,7 +9,8 @@ algorithmNames = [
     #"GeneralInfo",
     #"InitialdEdx",
     #"AngularSpan",
-    "SegmentedPca",
+    "TestDeDx1",
+    #"TestDeDx2",
     "VertexSeparation",
 ]
 
