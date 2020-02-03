@@ -66,15 +66,16 @@ preFilters = {
             'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
             'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
             'nHitsU>=20 and nHitsV >= 20 and nHitsW>=20 and nHits3D>=20',
-            #'mcNuanceCode != 1000', # ????????????????????????
-            #'mcNuanceCode != 1001', #CCQE
-            #'mcNuanceCode != 1002', #NCQE
-            #'mcNuanceCode not in (1003, 1004, 1005)', #CCRES
-            #'mcNuanceCode not in (1006, 1007, 1008, 1009)', #NCRES
-            #'mcNuanceCode != 1091', #CCDIS
-            'mcNuanceCode != 1092', #NCDIS
-            #'mcNuanceCode != 1096', #NCCOH
+            #'mcNuanceCode == 1000', # ????????????????????????
+            #'mcNuanceCode == 1001', #CCQE
+            #'mcNuanceCode == 1002', #NCQE
+            #'mcNuanceCode in (1003, 1004, 1005)', #CCRES
+            #'mcNuanceCode in (1006, 1007, 1008, 1009)', #NCRES
+            #'mcNuanceCode == 1091', #CCDIS
+            #'mcNuanceCode == 1092', #NCDIS
+            #'mcNuanceCode == 1096', #NCCOH
             #'mcNuanceCode == 1097', #CCCOH
+            #'mcNuanceCode == 1098', #e-Nu_e scatter
             #'mcNuanceCode not in (1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1091, 1092, 1096, 1097)', #Other
             #"nHitsU + nHitsV + nHitsW >= 100"
         ),
