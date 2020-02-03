@@ -13,13 +13,13 @@ def GetInitialDeDx(pfo, coordSets, vertex, charge, rectWidth, rectLength, dxstep
     calohits = calohits[:, lCoordLowerBound]
     calohits = calohits[:, calohits[0] <= rectLength]
     calohits = calohits[:, np.abs(calohits[1]) < rectWidth / 2]
-
+    '''
     if abs(pfo.mcPdgCode) == 11:
         plt.axes().set_aspect('equal')
         plt.scatter(reducedCoords[0], reducedCoords[1])
         plt.scatter(calohits[0], calohits[1])
         plt.show()
-
+    '''
     medianCharge = np.median(calohits[2])
     return medianCharge / rectLength * len(calohits[2])
 

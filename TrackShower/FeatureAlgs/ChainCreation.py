@@ -328,7 +328,7 @@ def SlidingPearsonRSquared(chainX, chainY, pointsPerSlide):
 def SlidingPCA3D(chainX, chainY, chainZ, pointsPerSlide):
     chainX, chainY, chainZ = np.array(chainX), np.array(chainY), np.array(chainZ)
     if len(chainX) <= pointsPerSlide:
-        return pca.PcaVariance3D(chainX, chainY, chainZ)[1], m.nan
+        return pca.PcaVariance((chainX, chainY, chainZ))[1], m.nan
     else:
         chainRSquareds = []
         n = len(chainX) - pointsPerSlide + 1
@@ -336,7 +336,7 @@ def SlidingPCA3D(chainX, chainY, chainZ, pointsPerSlide):
             subChainX = chainX[i: i + pointsPerSlide]
             subChainY = chainY[i: i + pointsPerSlide]
             subChainZ = chainZ[i: i + pointsPerSlide]
-            chainRSquareds.append(pca.PcaVariance3D(subChainX, subChainY, subChainZ)[1])
+            chainRSquareds.append(pca.PcaVariance((subChainX, subChainY, subChainZ))[1])
         return np.mean(chainRSquareds), np.std(chainRSquareds)
 
 def GetChainInfoAdvanced(driftCoord, wireCoord, rectWidth, rectHeight, rectOffsetX, rectOffestY, squareSideLength, localCorrelationPoints):

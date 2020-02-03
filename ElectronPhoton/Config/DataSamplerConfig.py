@@ -6,14 +6,14 @@ import BaseConfig as bc
 #  where e.g. data start fraction = (data start position) / (# of samples)
 dataSources = {
     "training": {
-        "BNBNuOnly2000": (0, 0.5),
+        #"BNBNuOnly2000": (0, 0.5),
         #"BNBNuOnly": (0, 0.5),
         #"BNBNuOnly400-800": (0, 1),
         #"BNBNuOnly0-400": (0, 1)
     },
     "performance": {
-        "BNBNuOnly2000": (0.5, 1),
-        #"BNBNuOnly": (0.5, 1),
+        #"BNBNuOnly2000": (0.5, 1),
+        "BNBNuOnly": (0.5, 1),
         #"BNBNuOnly400-800": (0, 1),
         #"BNBNuOnly0-400": (0, 1)
     }
@@ -65,7 +65,17 @@ preFilters = {
             'maxCoordY <= @MicroBooneGeo.RangeY[1] - 20',
             'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
             'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
-            'nHitsU>=20 and nHitsV >= 20 and nHitsW>=20 and nHits3D>=20'
+            'nHitsU>=20 and nHitsV >= 20 and nHitsW>=20 and nHits3D>=20',
+            #'mcNuanceCode != 1000', # ????????????????????????
+            #'mcNuanceCode != 1001', #CCQE
+            #'mcNuanceCode != 1002', #NCQE
+            #'mcNuanceCode not in (1003, 1004, 1005)', #CCRES
+            #'mcNuanceCode not in (1006, 1007, 1008, 1009)', #NCRES
+            #'mcNuanceCode != 1091', #CCDIS
+            'mcNuanceCode != 1092', #NCDIS
+            #'mcNuanceCode != 1096', #NCCOH
+            #'mcNuanceCode == 1097', #CCCOH
+            #'mcNuanceCode not in (1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1091, 1092, 1096, 1097)', #Other
             #"nHitsU + nHitsV + nHitsW >= 100"
         ),
         "U": (

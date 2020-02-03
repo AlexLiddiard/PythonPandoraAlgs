@@ -36,12 +36,13 @@ def GetInitialDeDx(pfo, coordSets, charge, maxTransVar, vertex=None):
     distance = np.linalg.norm(lineSegmentForwards[:,-1] - lineSegmentForwards[:,0])
     medianCharge = np.median(charge[:len(lineSegmentForwards)])
 
+    '''
     if abs(pfo.mcPdgCode) == 11:
         plt.axes().set_aspect('equal')
         plt.scatter(reducedCoords[0], reducedCoords[1])
         plt.scatter(lineSegmentForwards[0], lineSegmentForwards[1])
         plt.show()
-
+    '''
     return medianCharge * len(lineSegmentForwards) / distance
 
 
@@ -64,7 +65,7 @@ def GetInitialStraightSegment(coordSets, maxTransVar):
     if count > 3:
         return coordSets[:,:count - 1]
 
-def GetFeatures(pfo, calculateViews, maxRms=0.2):
+def GetFeatures(pfo, calculateViews, maxRms=0.1):
     featureDict = {}
     if calculateViews["U"]:
         featureDict.update({ "TestDeDxU" : GetInitialDeDx(pfo, (pfo.driftCoordU, pfo.wireCoordU), pfo.energyU, maxRms * maxRms, pfo.vertexU)})
