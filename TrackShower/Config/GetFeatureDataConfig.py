@@ -7,15 +7,15 @@ outputDataName = "BNBNuOnly2000"
 
 algorithmNames = [
     "GeneralInfo",
-    "LinearRegression",
-    "HitBinning",
-    "ChainCreation",
-    "AngularSpan",
+    #"LinearRegression",
+    #"HitBinning",
+    #"ChainCreation",
+    #"AngularSpan",
     "PCAnalysis",
-    "ChargedHitBinning",
-    "ChargeStdMeanRatio",
-    "BraggPeak",
-    "MoliereRadius"
+    #"ChargedHitBinning",
+    #"ChargeStdMeanRatio",
+    #"BraggPeak",
+    #"MoliereRadius"
 ]
 
 calculateViews = {

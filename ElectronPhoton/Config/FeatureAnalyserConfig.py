@@ -23,16 +23,19 @@ features = [
     #{'name': 'TestDeDx2U', 'algorithmName': 'TestDeDx2', 'bins': np.linspace(0, 1200, num=50), 'cutDirection': 'left'},
     #{'name': 'TestDeDx2V', 'algorithmName': 'TestDeDx2', 'bins': np.linspace(0, 1200, num=50), 'cutDirection': 'left'},
     #{'name': 'TestDeDx2W', 'algorithmName': 'TestDeDx2', 'bins': np.linspace(0, 1200, num=50), 'cutDirection': 'left'},
+    {'name': 'dedxU', 'algorithmName': 'NewInitialDeDx', 'bins': np.linspace(0, 100, num=50), 'cutDirection': 'left'},
+    {'name': 'dedxV', 'algorithmName': 'NewInitialDeDx', 'bins': np.linspace(0, 100, num=50), 'cutDirection': 'left'},
+    {'name': 'dedxW', 'algorithmName': 'NewInitialDeDx', 'bins': np.linspace(0, 100, num=50), 'cutDirection': 'left'},
     #{'name': 'BDTU', 'algorithmName': 'DecisionTreeCalculator', 'bins': np.linspace(-10, 15, num = 200), 'cutDirection': 'left'},
     #{'name': 'BDTV', 'algorithmName': 'DecisionTreeCalculator', 'bins': np.linspace(-10, 15, num = 200), 'cutDirection': 'left'},
     #{'name': 'BDTW', 'algorithmName': 'DecisionTreeCalculator', 'bins': np.linspace(-10, 15, num = 200), 'cutDirection': 'left'},
     #{'name': 'BDT3D', 'algorithmName': 'DecisionTreeCalculator', 'bins': np.linspace(-10, 15, num = 200), 'cutDirection': 'left'},
     #{'name': 'BDTMulti', 'algorithmName': 'DecisionTreeCalculator', 'bins': np.linspace(-10, 15, num = 200), 'cutDirection': 'left'},
     #{'name': 'Likelihood', 'algorithmName': 'LikelihoodCalculator', 'bins': np.linspace(0, 1, num = 200), 'cutDirection': 'right'},
-    {'name': 'mcpMomentum', 'algorithmName': 'GeneralInfo', 'bins': np.linspace(0, 0.6, num = 50), 'cutDirection': 'left'},
-    {'name': 'nHitsW', 'algorithmName': 'GeneralInfo', 'bins': np.linspace(0, 600, num=50), 'cutDirection': 'left'},
-    {'name': 'purityW', 'algorithmName': 'GeneralInfo', 'bins': np.linspace(0, 1, num=50), 'cutDirection': 'left'},
-    {'name': 'completenessW', 'algorithmName': 'GeneralInfo', 'bins': np.linspace(0, 1, num=50), 'cutDirection': 'left'},
+    #{'name': 'mcpMomentum', 'algorithmName': 'GeneralInfo', 'bins': np.linspace(0, 0.6, num = 50), 'cutDirection': 'left'},
+    #{'name': 'nHitsW', 'algorithmName': 'GeneralInfo', 'bins': np.linspace(0, 600, num=50), 'cutDirection': 'left'},
+    #{'name': 'purityW', 'algorithmName': 'GeneralInfo', 'bins': np.linspace(0, 1, num=50), 'cutDirection': 'left'},
+    #{'name': 'completenessW', 'algorithmName': 'GeneralInfo', 'bins': np.linspace(0, 1, num=50), 'cutDirection': 'left'},
 ]
 
 featureHistogram = {

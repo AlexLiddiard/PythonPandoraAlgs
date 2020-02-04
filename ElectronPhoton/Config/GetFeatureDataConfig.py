@@ -9,9 +9,10 @@ algorithmNames = [
     #"GeneralInfo",
     #"InitialdEdx",
     #"AngularSpan",
-    "TestDeDx1",
+    #"TestDeDx1",
     #"TestDeDx2",
-    "VertexSeparation",
+    #"VertexSeparation",
+    "NewInitialDeDx",
 ]
 
 calculateViews = {
