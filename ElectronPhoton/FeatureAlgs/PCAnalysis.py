@@ -30,9 +30,9 @@ def PcaReduce(coordSets, intercept=None):
 # coordSets = [[x coords], [y coords], ...]
 # normed = are the basis vectors normed?
 # translation = [x coord, y coord, ...]
-def ChangeCoordBasis(basisVectors, coordSets, normed=False, translation=None):
-    if translation is not None:
-        coordSets -= np.reshape(translation, (-1, 1))
+def ChangeCoordBasis(coordSets, basisVectors, normed=False, preTranslation=None):
+    if preTranslation is not None:
+        coordSets += np.reshape(preTranslation, (-1, 1))
     if not normed:
         basisVectors /= np.linalg.norm(basisVectors, axis=0).reshape(-1, 1)
     return np.transpose(basisVectors) @ coordSets

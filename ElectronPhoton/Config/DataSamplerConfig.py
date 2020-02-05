@@ -6,14 +6,14 @@ import BaseConfig as bc
 #  where e.g. data start fraction = (data start position) / (# of samples)
 dataSources = {
     "training": {
-        #"BNBNuOnly2000": (0, 0.5),
+        "BNBNuOnly2000": (0, 0.5),
         #"BNBNuOnly": (0, 0.5),
         #"BNBNuOnly400-800": (0, 1),
         #"BNBNuOnly0-400": (0, 1)
     },
     "performance": {
-        #"BNBNuOnly2000": (0.5, 1),
-        "BNBNuOnly": (0.5, 1),
+        "BNBNuOnly2000": (0.5, 1),
+        #"BNBNuOnly": (0.5, 1),
         #"BNBNuOnly400-800": (0, 1),
         #"BNBNuOnly0-400": (0, 1)
     }
