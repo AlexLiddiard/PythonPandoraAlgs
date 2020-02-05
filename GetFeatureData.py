@@ -26,8 +26,6 @@ if __name__ == "__main__":
     if filePaths:
         with cf.ProcessPoolExecutor() as executor:
             results = list(tqdm(executor.map(ProcessFile, filePaths), total=len(filePaths)))
-
-        idx = None
         for i, algorithmName in zip(count(0), cfg.algorithmNames):
             df = pd.concat([result[i] for result in results]).reset_index(drop=True)
             df.to_pickle(bc.dataFolderFull + "/" + cfg.outputDataName + "_" + algorithmName + ".pickle")

@@ -1,6 +1,7 @@
 import math as m
 import numpy as np
 import PCAnalysis as pca
+import matplotlib.pyplot as plt
 
 # Gets all 3D hits within a 4 cm radius of the vertex, and returns the PCA eigenvector which has the largest corresponding eigenvalue.
 def GetInitialDirection(xCoords, yCoords, zCoords, vertex, sphereRadius = 4):
@@ -20,7 +21,7 @@ def ProjectEigenvector(eigenvector, view):
         eigenvector = [eigenvector[0], 0.5 * eigenvector[2] + 0.8660254 * eigenvector[1]]
         return eigenvector
     if view == 'W':
-        eigenvector = [eigenvector[0], eigenvector[1]]
+        eigenvector = [eigenvector[0], eigenvector[2]]
         return eigenvector
 
 
@@ -46,19 +47,24 @@ def GetDeDx(xCoords3D, yCoords3D, zCoords3D, vertex3D, view2D, driftCoords2D, dr
     if showerLongDirection3D is None:
         return m.nan
     showerLongDirection2D = ProjectEigenvector(showerLongDirection3D, view2D)
-    scaleFactor = np.linalg.norm(showerLongDirection2D) / np.linalg.norm(showerLongDirection3D)
-    showerLongDirection2Dnormed = np.divide(showerLongDirection2D, np.linalg.norm(showerLongDirection2D))
+    showerLongDirection2Dmag = np.linalg.norm(showerLongDirection2D)
+    if showerLongDirection2Dmag == 0:
+        return m.nan
+    showerLongDirection2Dnormed = np.divide(showerLongDirection2D, showerLongDirection2Dmag)
     basisVectors = np.row_stack((showerLongDirection2Dnormed, [showerLongDirection2Dnormed[1], -showerLongDirection2Dnormed[0]]))
     reducedCoords = pca.ChangeCoordBasis((driftCoords2D, wireCoords2D), basisVectors, normed=True, preTranslation=-vertex2D)
-    filt = Get2dHitsInRectangle(reducedCoords[0], reducedCoords[1], (0, rectangleWidth/2), rectangleWidth, rectangleLength * scaleFactor)
+    filt = Get2dHitsInRectangle(reducedCoords[0], reducedCoords[1], (0, rectangleWidth/2), rectangleWidth, rectangleLength * showerLongDirection2Dmag)
     if filt.sum() == 0:
         return np.nan
     driftCoordErrorsInrectangle = driftCoordErrors2D[filt]
     chargesInRectangle = charges2D[filt]
     lCoordErrors = GetLongitudinalError(driftCoordErrorsInrectangle, wireCoordError2D, showerLongDirection2Dnormed)
-    dedxs = chargesInRectangle / lCoordErrors
-    dedx = np.median(dedxs) * scaleFactor
-    return dedx
+    dedxs1 = chargesInRectangle / lCoordErrors
+    dedx1 = np.median(dedxs1) * showerLongDirection2Dmag
+
+    #dedxs2 = chargesInRectangle / wireCoordError
+    #dedx2 = np.median(dedxs2) * abs(showerLongDirection2D[1])
+    return dedx1
     
 def GetFeatures(pfo, calculateViews, sphereRadius=4, rectangleWidth=1, rectangleLength=4):
     featureDict = {}
