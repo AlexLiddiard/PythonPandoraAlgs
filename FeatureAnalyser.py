@@ -204,8 +204,8 @@ if __name__ == "__main__":
 
     for feature in cfg.features:
         dfPfoData = ds.GetFilteredPfoData("all", "all", "performance", ds.GetFeatureView(feature["name"]))
-        dfClass0Data = ds.GetFilteredPfoData("all", gc.classNames[0], "performance", ds.GetFeatureView(feature["name"]))
-        dfClass1Data = ds.GetFilteredPfoData("all", gc.classNames[1], "performance", ds.GetFeatureView(feature["name"]))
+        dfClass0Data = ds.GetFilteredPfoData("performance", gc.classNames[0], "performance", ds.GetFeatureView(feature["name"]))
+        dfClass1Data = ds.GetFilteredPfoData("performance", gc.classNames[1], "performance", ds.GetFeatureView(feature["name"]))
         cutoffValues, cutoffResults = GetBestPurityEfficiency(dfClass0Data, dfClass1Data, feature, cfg.purityEfficiency["nTestCuts"])
         if cfg.featureHistogram["plot"]:
             PlotVariableHistogram(dfPfoData, gc.classNames, feature, cfg.featureHistogram, cutoffResults[4])
