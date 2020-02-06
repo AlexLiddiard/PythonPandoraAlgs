@@ -10,6 +10,7 @@ def GetFeatures(pfo, calculateViews):
         'mcpMomentum': pfo.mcpMomentum,
         'nuMcPdgCode': pfo.nuMcPdgCode,
         'nuMcpMomentum': pfo.nuMcpMomentum,
+        'hierarchyTier': pfo.hierarchyTier,
         'minCoordX': min(pfo.xCoord3D),
         'minCoordY': min(pfo.yCoord3D),
         'minCoordZ': min(pfo.zCoord3D),

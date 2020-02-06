@@ -41,7 +41,7 @@ class PfoClass(object):
         self.pfoId = pfo.pfoId
         self.parentPfoId = pfo.parentPfoId
         self.daughterPfoIds = np.array(pfo.daughterPfoIds)
-        self.heirarchyTier = pfo.hierarchyTier
+        self.hierarchyTier = pfo.hierarchyTier
 
         # Simulation info
         self.mcNuanceCode = pfo.mcNuanceCode
@@ -218,12 +218,12 @@ def SetAssociatedData(eventPfos):
     nuMcPdgCode = eventPfos[0].mcPdgCode
     for pfo in eventPfos[1:]:
         parentPfo = eventPfos[pfo.parentPfoId]
-        if pfo.heirarchyTier == 1:
+        if pfo.hierarchyTier == 1:
             pfo.interactionVertexU = parentPfo.vertexU
             pfo.interactionVertexV = parentPfo.vertexV
             pfo.interactionVertexW = parentPfo.vertexW
             pfo.interactionVertex3D = parentPfo.vertex3D
-        elif pfo.heirarchyTier > 1:
+        elif pfo.hierarchyTier > 1:
             pfo.interactionVertexU = pvf.InteractionVertex2D(pfo.vertexU, pfo.driftCoordU, pfo.wireCoordU, parentPfo.vertexU, parentPfo.driftCoordU, parentPfo.wireCoordU, pfo.nHitsPfoU, parentPfo.nHitsPfoU)
             pfo.interactionVertexV = pvf.InteractionVertex2D(pfo.vertexV, pfo.driftCoordV, pfo.wireCoordV, parentPfo.vertexV, parentPfo.driftCoordV, parentPfo.wireCoordV, pfo.nHitsPfoV, parentPfo.nHitsPfoV)
             pfo.interactionVertexW = pvf.InteractionVertex2D(pfo.vertexW, pfo.driftCoordW, pfo.wireCoordW, parentPfo.vertexW, parentPfo.driftCoordW, parentPfo.wireCoordW, pfo.nHitsPfoW, parentPfo.nHitsPfoW)
