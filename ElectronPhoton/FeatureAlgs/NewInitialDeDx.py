@@ -66,7 +66,7 @@ def GetDeDx(xCoords3D, yCoords3D, zCoords3D, vertex3D, view2D, driftCoords2D, dr
     #dedx2 = np.median(dedxs2) * abs(showerLongDirection2D[1])
     return dedx1
     
-def GetFeatures(pfo, calculateViews, sphereRadius=5, rectangleWidth=1, rectangleLength=5):
+def GetFeatures(pfo, calculateViews, sphereRadius=4, rectangleWidth=1, rectangleLength=4):
     featureDict = {}
     dedx = m.nan
     if calculateViews["U"]:
