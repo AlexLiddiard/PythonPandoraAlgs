@@ -1,12 +1,15 @@
 ############################################## BDT CALCULATOR CONFIGURATION ##################################################
 
 features = [
-    {'name': 'InitialdEdxU', 'algorithmName': 'InitialdEdx'},
-    {'name': 'InitialdEdxV', 'algorithmName': 'InitialdEdx'},
-    {'name': 'InitialdEdxW', 'algorithmName': 'InitialdEdx'},
-    {'name': 'InitialdEdx3D', 'algorithmName': 'InitialdEdx'},
-    {'name': 'LongitudinalSpanU', 'algorithmName': 'AngularSpan'},
-    {'name': 'LongitudinalSpanV', 'algorithmName': 'AngularSpan'},
-    {'name': 'LongitudinalSpanW', 'algorithmName': 'AngularSpan'},
-    {'name': 'LongitudinalSpan3D', 'algorithmName': 'AngularSpan'},
+    {'name': 'TotalChargeU', 'algorithmName': 'TotalCharge'},
+    {'name': 'TotalChargeV', 'algorithmName': 'TotalCharge'},
+    {'name': 'TotalChargeW', 'algorithmName': 'TotalCharge'},
+    {'name': 'TotalCharge3D', 'algorithmName': 'TotalCharge'},
+    {'name': 'VertexSepU', 'algorithmName': 'VertexSeparation'},
+    {'name': 'VertexSepV', 'algorithmName': 'VertexSeparation'},
+    {'name': 'VertexSepW', 'algorithmName': 'VertexSeparation'},
+    {'name': 'VertexSep3D', 'algorithmName': 'VertexSeparation'},
+    {'name': 'dedxU', 'algorithmName': 'NewInitialDeDx'},
+    {'name': 'dedxV', 'algorithmName': 'NewInitialDeDx'},
+    {'name': 'dedxW', 'algorithmName': 'NewInitialDeDx'},
 ]

@@ -6,12 +6,12 @@ rootFileDirectory = bc.myTestArea + "/PythonPandoraAlgs/ROOT Files/BNBNuOnly"
 outputDataName = "BNBNuOnly2000"
 
 algorithmNames = [
-    #"GeneralInfo",
-    #"InitialdEdx",
+    "GeneralInfo",
+    "TotalCharge",
     #"AngularSpan",
     #"TestDeDx1",
     #"TestDeDx2",
-    #"VertexSeparation",
+    "VertexSeparation",
     "NewInitialDeDx",
 ]
 
