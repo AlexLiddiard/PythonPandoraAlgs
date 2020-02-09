@@ -96,7 +96,7 @@ def DisplayPfo(pfo, wireView = "W", additionalInfo = None, showTitle = True):
         plt.title(
             '%s\nEventId = %d, PfoId = %d, Hierarchy = %d\n%s (%s), Purity = %.2f, Completeness = %.2f' %
             (pfo.fileName,
-            pfo.eventId, pfo.pfoId, pfo.heirarchyTier,
+            pfo.eventId, pfo.pfoId, pfo.hierarchyTier,
             pfo.TrueParticle(), 'Track' if pfo.IsShower()==0 else 'Shower', purity, completeness)
         )
     plt.xlabel('DriftCoord%s (cm)' % wireView)
@@ -112,7 +112,7 @@ def RandomPfoView(filePaths):
         rnd.shuffle(events)
         for eventPfos in events:
             for pfo in eventPfos:
-                if pfo.monteCarloPDGW == 0:
+                if pfo.mcPdgCode == 0:
                     continue
                 DisplayPfo(pfo, cfg.view)
 
@@ -145,6 +145,7 @@ if __name__ == "__main__":
         dfPfoData = ds.GetFilteredPfoData(*cfg.dataSample.values())
         SelectivePfoView(filePaths, dfPfoData, cfg.filters)
     else:
+        print(filePaths)
         RandomPfoView(filePaths)
     print('\nFinished!')
 

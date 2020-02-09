@@ -55,8 +55,8 @@ def PurityEfficiency(dfClass0Variable, dfClass1Variable, cutOff, class1CutDirect
     class1EfficiencyError = m.sqrt(class1Efficiency * (1 - class1Efficiency) / sumClass1)
     class0PurityError = PurityError(class0Efficiency, class0EfficiencyError, class1Efficiency, class1EfficiencyError, sumClass0, sumClass1)
     class1PurityError = PurityError(class1Efficiency, class1EfficiencyError, class0Efficiency, class0EfficiencyError, sumClass1, sumClass0)
-    class0PurityEfficiencyError = PurityEfficiencyError(class0PurityEfficiency, class0PurityError, class0Efficiency, class0EfficiencyError)
-    class1PurityEfficiencyError = PurityEfficiencyError(class1PurityEfficiency, class1PurityError, class1Efficiency, class1EfficiencyError)
+    class0PurityEfficiencyError = PurityEfficiencyError(class0Purity, class0PurityError, class0Efficiency, class0EfficiencyError)
+    class1PurityEfficiencyError = PurityEfficiencyError(class1Purity, class1PurityError, class1Efficiency, class1EfficiencyError)
     return (
         class0Efficiency, class0EfficiencyError, class0Purity, class0PurityError, class0PurityEfficiency, class0PurityEfficiencyError, 
         class1Efficiency, class1EfficiencyError, class1Purity, class1PurityError, class1PurityEfficiency, class1PurityEfficiencyError
@@ -175,7 +175,7 @@ def PlotPurityEfficiencyVsCutoff(featureName, classNames, cutoffValues, cutoffRe
         GraphCutoffLine(bx2, classNames, cutoffResults[4])
 
         bx1.set_ylim([0, 1])
-        bx1.set_title("Purity/Efficiency vs %s Cutoff — %s" % (featureName, classNames[0]))
+        bx1.set_title("Purity/Efficiency vs %s Cutoff — %s" %(featureName, classNames[0]))
         bx1.set_xlabel(featureName + " Cutoff")
         bx1.set_ylabel("Fraction")
 
