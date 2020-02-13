@@ -8,7 +8,7 @@ dataSources = {
     "training": {
         "BNBNuOnly": (0, 0.5),
         "BNBNuOnly400-800": (0, 1),
-        "BNBNuOnly0-400": (0, 1)
+        #"BNBNuOnly0-400": (0, 1)
     },
     "performance": {
         "BNBNuOnly": (0.5, 1),
@@ -62,7 +62,7 @@ preFilters = {
 
     "performance": {
         "general": (
-            'abs(mcPdgCode) != 2112',
+            #'abs(mcPdgCode) != 2112',
             'minCoordX >= @MicroBooneGeo.RangeX[0] + 10',
             'maxCoordX <= @MicroBooneGeo.RangeX[1] - 10',
             'minCoordY >= @MicroBooneGeo.RangeY[0] + 20',
@@ -75,23 +75,23 @@ preFilters = {
         "U": (
             #'purityU>=0.8',
             #'completenessU>=0.8',
-            'nHitsU>=20',
+            'nHitsU>=0',
         ),
         "V": (
             #'purityV>=0.8',
             #'completenessV>=0.8',
-            'nHitsV>=20',
+            'nHitsV>=0',
         ),
         "W": (
             #'purityW>=0.8',
             #'completenessW>=0.8',
-            'nHitsW>=20',
+            'nHitsW>=0',
         ),
         "3D":
         (
             #'purityU>=0.8 and purityV>=0.8 and purityW>=0.8',
             #'completenessU>=0.8 and completenessV>=0.8 and completenessW>=0.8',
-            'nHits3D>=20',
+            'nHits3D>=0',
         )
     }
 }

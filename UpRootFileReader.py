@@ -49,7 +49,8 @@ class PfoClass(object):
         self.mcpMomentum = pfo.mcpMomentum
         self.nuMcPdgCode = 0 # Associated data, to be set later
         self.nuMcpMomentum = 0 # Associated data, to be set later
-
+        self.mcHierarchyTier = pfo.mcHierarchyTier
+        
         # U view
         self.driftCoordU = np.array(pfo.driftCoordU, dtype = np.double)
         self.driftCoordErrU = np.array(pfo.driftCoordErrorU, dtype = np.double)

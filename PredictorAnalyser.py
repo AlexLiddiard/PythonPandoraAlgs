@@ -60,7 +60,7 @@ def BinnedPurityEfficiencyPlot(ax, results, binEdges, pfoClass, dependenceName, 
         hs.WireBarPlot(ax, results[pfoClass]["purityEfficiency"], binEdges, heightErrors=results[pfoClass]["purityEfficiencyError"], colour='b', label="Purity*Efficiency")
     ax.legend(loc='lower center', framealpha=0.5)
     ax.set_ylim(yLimits)
-    ax.set_title("Purity/Efficiency vs %s\nCutoff=%.3f, %s%s classification" % (dependenceName, cutoff, filterName + " " if filterName is not None else "", pfoClass))
+    #ax.set_title("Purity/Efficiency vs %s\nCutoff=%.3f, %s%s classification" % (dependenceName, cutoff, filterName + " " if filterName is not None else "", pfoClass))
     ax.set_xlabel(dependenceName)
     ax.set_ylabel("Fraction")
 
@@ -136,7 +136,14 @@ if __name__ == "__main__":
     dfPerfDataAll = ds.GetFilteredPfoData("performance", "all", "performance", "union")
     dfPerfDataClass0 = ds.GetFilteredPfoData("performance", gc.classNames[0], "performance", "union")
     dfPerfDataClass1 = ds.GetFilteredPfoData("performance", gc.classNames[1], "performance", "union")
-    pac.predictor["bins"] = pac.predictor["range"]
+    fixedCutoff = pac.predictor.get("fixedCutoff", None)
+    if fixedCutoff is None:
+        pac.predictor["bins"] = pac.predictor["range"]
+    else:
+        print("Fixed cutoff specified, overriding purity * efficiency optimisation.")
+        pac.predictor["bins"] = [fixedCutoff, fixedCutoff]
+        pac.purityEfficiencyVsCutoffGraph['nTestCuts'] = 1
+
     cutoffValues, cutoffResults = GetBestPurityEfficiency(dfPerfDataClass0, dfPerfDataClass1, pac.predictor, pac.purityEfficiencyVsCutoffGraph['nTestCuts'])
 
     for histogram in pac.predictorHistograms:

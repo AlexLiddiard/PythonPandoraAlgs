@@ -15,7 +15,7 @@ def ProcessFile(filePath):
     algorithmData = [[] for i in range(len(algorithms))]
     for eventPfos in events:
         for pfo in eventPfos:
-            if abs(pfo.mcPdgCode) in (0, 14, 12) or pfo.nHitsPfo3D == 0:
+            if pfo.mcPdgCode == 0 or pfo.nHitsPfo3D == 0:
                 continue
             for data, algorithm in zip(algorithmData, algorithms):
                 data.append(algorithm.GetFeatures(pfo, cfg.calculateViews))

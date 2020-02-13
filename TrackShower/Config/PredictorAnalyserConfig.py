@@ -2,14 +2,24 @@ import numpy as np
 
 ############################################## PREDICTOR ANALYSER CONFIGURATION ##################################################
 
-#predictor = {"name": "Likelihood", "algorithmName": "LikelihoodCalculator", "range": (0, 1), 'cutDirection': 'right'}
-predictor = {"name": "BDTMulti", "algorithmName": "BDTCalculator", "range": (-10, 10), 'cutDirection': 'left'}
+predictor = {"name": "Likelihood", "algorithmName": "LikelihoodCalculator", "range": (0, 1), 'cutDirection': 'right'}#, 'fixedCutoff': 0.5}
+#predictor = {"name": "BDTMulti", "algorithmName": "BDTCalculator", "range": (-10, 10), 'cutDirection': 'left'}
 
 predictorHistograms = [
     {
         'filters': (
-            ('Showers', 'isShower==1', '', True),
-            ('Tracks', 'isShower==0', '', True)
+            ('Showers', 'isShower==1', 'isShower in (0, 1)', True),
+            ('Tracks', 'isShower==0', 'isShower in (0, 1)', True)
+        ),
+        'bins': np.linspace(*predictor["range"], num=50),
+        'yAxis': 'log',
+        'cutoff': 'shower'
+    },
+    {
+        'filters': (
+            ('Showers', 'isShower==1', 'isShower in (0, 1)', True),
+            ('Electrons + Positrons', 'abs(mcPdgCode)==11', 'isShower in (0, 1)', False),
+            ('Photons', 'abs(mcPdgCode)==22', 'isShower in (0, 1)', False)
         ),
         'bins': np.linspace(*predictor["range"], num=25),
         'yAxis': 'log',
@@ -17,20 +27,10 @@ predictorHistograms = [
     },
     {
         'filters': (
-            ('Showers', 'isShower==1', '', True),
-            ('Electrons + Positrons', 'abs(mcPdgCode)==11', 'isShower==1', False),
-            ('Photons', 'abs(mcPdgCode)==22', 'isShower==1', False)
-        ),
-        'bins': np.linspace(*predictor["range"], num=25),
-        'yAxis': 'log',
-        'cutoff': 'shower'
-    },
-    {
-        'filters': (
-            ('Tracks', 'isShower==0', '', True),
-            ('Protons', 'abs(mcPdgCode)==2212', 'isShower==0', False),
-            ('Muons', 'abs(mcPdgCode)==13', 'isShower==0', False),
-            ('Charged Pions', 'abs(mcPdgCode)==211', 'isShower==0', False)
+            ('Tracks', 'isShower in (0, 1)', '', True),
+            ('Protons', 'abs(mcPdgCode)==2212', 'isShower in (0, 1)', False),
+            ('Muons', 'abs(mcPdgCode)==13', 'isShower in (0, 1)', False),
+            ('Charged Pions', 'abs(mcPdgCode)==211', 'isShower in (0, 1)', False)
         ),
         'bins': np.linspace(*predictor["range"], num=25),
         'yAxis': 'log',
@@ -43,7 +43,7 @@ purityEfficiencyBinnedGraphs = [
     {
         "dependence":
         "nHitsU+nHitsV+nHitsW",
-        'bins': np.linspace(60, 1400, num=40),
+        'bins': np.linspace(0, 1400, num=40),
         "pfoClass": "both"
     },
     {
@@ -103,7 +103,7 @@ purityEfficiencyBinnedGraphs = [
     },
     {
         "dependence": "mcpMomentum",
-        'bins': np.linspace(0, 1, num=80),
+        'bins': np.linspace(0, 1, num=40),
         "pfoClass": "both",
         "filter": {
             "name": "CCQE",
@@ -123,7 +123,7 @@ purityEfficiencyBinnedGraphs = [
     },
     {
         "dependence": "mcpMomentum",
-        'bins': np.linspace(0, 1, num=80),
+        'bins': np.linspace(0, 0.6, num=40),
         "pfoClass": "both",
         "filter": {
             "name": "CCRES",

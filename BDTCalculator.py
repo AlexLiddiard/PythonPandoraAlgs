@@ -16,7 +16,8 @@ from imblearn.over_sampling import RandomOverSampler as ros
 import GeneralConfig as gc
 import BDTCalculatorConfig as cfg
 
-def TrainBDT(clf, featureNames, trainingData, classificationArray):
+def TrainBDT(featureNames, trainingData, classificationArray):
+    clf = ensemble.HistGradientBoostingClassifier()
     trainingData = trainingData[featureNames] # Remove all irrelevant columns
     imp = IterativeImputer()
     imp.fit(trainingData)
@@ -41,18 +42,24 @@ if __name__ == "__main__":
     for view in featureViews:
         dfTrainingPfoData = ds.GetFilteredPfoData("training", "all", "training", view)
         print("\nTraining BDT for " + view + " view")
-        clf = ensemble.HistGradientBoostingClassifier()
-        bdts["BDT" + view] = TrainBDT(clf, featureViews[view], dfTrainingPfoData, dfTrainingPfoData.eval(gc.classQueries[0]))
+        bdts["BDT" + view] = TrainBDT(featureViews[view], dfTrainingPfoData, dfTrainingPfoData.eval(gc.classQueries[0]))
 
     dfTrainingPfoData = ds.GetFilteredPfoData("training", "all", "training", "union")
     dfBdtValues = GetBDTValues(bdts, featureViews, dfTrainingPfoData)
     trainingPfoData = pd.concat([dfTrainingPfoData, dfBdtValues], axis=1, sort=False)
 
-    print("\nTraining multi-view BDT")
-    clf = ensemble.HistGradientBoostingClassifier()
-    bdtMulti = TrainBDT(clf, dfBdtValues.columns, trainingPfoData, trainingPfoData.eval(gc.classQueries[0]))
+    print("\nTraining BDTMulti")
+    # BDTMulti
+    bdtMulti = TrainBDT(dfBdtValues.columns, trainingPfoData, trainingPfoData.eval(gc.classQueries[0]))
     dfBdtValues = GetBDTValues(bdts, featureViews, ds.dfInputPfoData)
     dfBdtValues["BDTMulti"] = bdtMulti.decision_function(dfBdtValues)
+
+    #print("\nTraining BDTAll")
+    # BDTAll
+    #featureNames = ds.GetFeatureNames(cfg.features)
+    #bdtAll = TrainBDT(featureNames, dfTrainingPfoData, dfTrainingPfoData.eval(gc.classQueries[0]))
+    #dfBdtValues["BDTAll"] = bdtAll.decision_function(ds.dfInputPfoData[featureNames])
+
     print("\nSaving results")
     ds.SavePfoData(dfBdtValues, "BDTCalculator")
     print("Finished!")

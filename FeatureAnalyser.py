@@ -208,7 +208,7 @@ if __name__ == "__main__":
         dfClass1Data = ds.GetFilteredPfoData("performance", gc.classNames[1], "performance", ds.GetFeatureView(feature["name"]))
         cutoffValues, cutoffResults = GetBestPurityEfficiency(dfClass0Data, dfClass1Data, feature, cfg.purityEfficiency["nTestCuts"])
         if cfg.featureHistogram["plot"]:
-            PlotVariableHistogram(dfPfoData, gc.classNames, feature, cfg.featureHistogram, cutoffResults[4])
+            PlotVariableHistogram(dfPfoData, gc.classNames, feature, cfg.featureHistogram, cutoffResults[4] if feature.get("plotCutoff", True) else None)
         if cfg.purityEfficiency["plot"]:
             PlotPurityEfficiencyVsCutoff(feature["name"], gc.classNames, cutoffValues, cutoffResults)
 
