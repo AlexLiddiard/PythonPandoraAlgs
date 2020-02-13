@@ -65,7 +65,7 @@ def GetInitialStraightSegment(coordSets, maxTransVar):
     if count > 3:
         return coordSets[:,:count - 1]
 
-def GetFeatures(pfo, calculateViews, maxRms=0.1):
+def GetFeatures(pfo, calculateViews, maxRms=0.15):
     featureDict = {}
     if calculateViews["U"]:
         featureDict.update({ "TestDeDxU" : GetInitialDeDx(pfo, (pfo.driftCoordU, pfo.wireCoordU), pfo.energyU, maxRms * maxRms, pfo.vertexU)})

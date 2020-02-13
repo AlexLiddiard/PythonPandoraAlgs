@@ -23,7 +23,7 @@ def PcaReduce(coordSets, intercept=None):
     if len(coordSets[0]) == 1:
         return coordSets - intercept
     eigenvectors = Pca(coordSets, intercept)[1]
-    reducedCoordSets = ChangeCoordBasis(np.flip(eigenvectors, 1), coordSets, True, -intercept)
+    reducedCoordSets = ChangeCoordBasis(coordSets, np.flip(eigenvectors, 1), True, -intercept)
     return reducedCoordSets
 
 # basisVectors = [[basis vector x coords], [basis vector y coords], ...]
@@ -34,7 +34,7 @@ def ChangeCoordBasis(coordSets, basisVectors, normed=False, preTranslation=None)
     if preTranslation is not None:
         coordSets += np.reshape(preTranslation, (-1, 1))
     if not normed:
-        basisVectors /= np.linalg.norm(basisVectors, axis=0).reshape(-1, 1)
+        basisVectors /= np.linalg.norm(basisVectors, axis=0).reshape(-1, 1)  
     return np.transpose(basisVectors) @ coordSets
 
 def Pca(coordSets, intercept = None, withVectors=True):
@@ -57,6 +57,18 @@ def GetEigenValues(covmatrix, withVectors=True):
     else:
         eigenvalues.sort()
         return eigenvalues.real
+
+def FindOutliers(coordSets, intercept = None, fraction=0.85):
+    reducedCoordSets = PcaReduce(coordSets, intercept)
+    tCoordSets = reducedCoordSets[1:]
+    tDistance = np.linalg.norm(tCoordSets, axis=0)
+    sort = tDistance.argsort()
+    index = int(len(coordSets[0]) * fraction)
+    filter = np.repeat(True, len(coordSets[0]))
+    print(index)
+    print(sort[index:])
+    filter[sort[index:]] = False
+    return filter
 
 def GetFeatures(pfo, calculateViews):
     PcaReduce((pfo.driftCoordW, pfo.wireCoordW))
