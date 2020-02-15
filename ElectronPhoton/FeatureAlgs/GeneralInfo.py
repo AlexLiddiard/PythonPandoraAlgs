@@ -10,6 +10,7 @@ def GetFeatures(pfo, calculateViews):
         'mcpMomentum': pfo.mcpMomentum,
         'nuMcPdgCode': pfo.nuMcPdgCode,
         'nuMcpMomentum': pfo.nuMcpMomentum,
+        'mcHierarchyTier': pfo.mcHierarchyTier,
         'hierarchyTier': pfo.hierarchyTier,
         'minCoordX': min(pfo.xCoord3D),
         'minCoordY': min(pfo.yCoord3D),
@@ -22,20 +23,26 @@ def GetFeatures(pfo, calculateViews):
         pfoDataDict.update({
         'nHitsU': pfo.nHitsPfoU,
         'purityU': pfo.PurityU(),
-        'completenessU': pfo.CompletenessU()
+        'completenessU': pfo.CompletenessU(),
+        #'hierarchyTierU': pfo.hierarchyTier,
         })
     if calculateViews["V"]:
         pfoDataDict.update({
         'nHitsV': pfo.nHitsPfoV,
         'purityV': pfo.PurityV(),
-        'completenessV': pfo.CompletenessV()
+        'completenessV': pfo.CompletenessV(),
+        #'hierarchyTierV': pfo.hierarchyTier,
         })
     if calculateViews["W"]:
         pfoDataDict.update({
         'nHitsW': pfo.nHitsPfoW,
         'purityW': pfo.PurityW(),
-        'completenessW': pfo.CompletenessW()
+        'completenessW': pfo.CompletenessW(),
+        #'hierarchyTierW': pfo.hierarchyTier,
         })
     if calculateViews["3D"]:
-        pfoDataDict.update({'nHits3D': pfo.nHitsPfo3D})
+        pfoDataDict.update({
+        'nHits3D': pfo.nHitsPfo3D,
+        #'hierarchyTier3D': pfo.hierarchyTier,
+        })
     return pfoDataDict

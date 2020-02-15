@@ -3,7 +3,6 @@ import pandas as pd
 import math as m
 import numpy as np
 import os
-from UpRootFileReader import MicroBooneGeo
 import GeneralConfig as gc
 import DataSamplerConfig as cfg
 
@@ -52,11 +51,14 @@ def GetFilteredPfoData(dataSource, pfoClass, filterClass, filterName):
     dfPfoData = dfPfoData.query(gc.classes[pfoClass])
 
     # View/other filtering
-    if filterName == "unfiltered":
-        dfPfoData = dfPfoData.reset_index(drop=True)
-    else:
-        dfPfoData = dfPfoData.query(cfg.preFilters[filterClass]["general"])
-        dfPfoData = dfPfoData.query(cfg.preFilters[filterClass][filterName]).reset_index(drop=True)
+    if filterName != "unfiltered":
+        if cfg.preFilters[filterClass]["general"] != "":
+            dfPfoData = dfPfoData.query(cfg.preFilters[filterClass]["general"])
+        if cfg.preFilters[filterClass][filterName] != "":
+            print(cfg.preFilters[filterClass][filterName])
+            dfPfoData = dfPfoData.query(cfg.preFilters[filterClass][filterName])
+    dfPfoData = dfPfoData.reset_index(drop=True)
+
     print((
         "Got %s PFOs satisfying the following filter options" +
         "\n\tData source: %s" +

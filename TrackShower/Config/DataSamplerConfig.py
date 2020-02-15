@@ -1,4 +1,5 @@
 import BaseConfig as bc
+from UpRootFileReader import MicroBooneGeo
 
 ############################################## DATA SAMPLER CONFIGURATION ##################################################
 
@@ -6,12 +7,12 @@ import BaseConfig as bc
 #  where e.g. data start fraction = (data start position) / (# of samples)
 dataSources = {
     "training": {
-        "BNBNuOnly": (0, 0.5),
-        "BNBNuOnly400-800": (0, 1),
+        "BNBNuOnly": (0, 1),
+        #"BNBNuOnly400-800": (0, 1),
         #"BNBNuOnly0-400": (0, 1)
     },
     "performance": {
-        "BNBNuOnly": (0.5, 1),
+        "BNBNuOnly": (0, 1),
         #"BNBNuOnly400-800": (0, 1),
         #"BNBNuOnly0-400": (0, 1)
     }
@@ -63,47 +64,54 @@ preFilters = {
     "performance": {
         "general": (
             #'abs(mcPdgCode) != 2112',
-            'minCoordX >= @MicroBooneGeo.RangeX[0] + 10',
-            'maxCoordX <= @MicroBooneGeo.RangeX[1] - 10',
-            'minCoordY >= @MicroBooneGeo.RangeY[0] + 20',
-            'maxCoordY <= @MicroBooneGeo.RangeY[1] - 20',
-            'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
-            'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
-            'nHitsU>=20 and nHitsV >= 20 and nHitsW>=20 and nHits3D>=20'
+            #'minCoordX >= @MicroBooneGeo.RangeX[0] + 10',
+            #'maxCoordX <= @MicroBooneGeo.RangeX[1] - 10',
+            #'minCoordY >= @MicroBooneGeo.RangeY[0] + 20',
+            #'maxCoordY <= @MicroBooneGeo.RangeY[1] - 20',
+            #'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
+            #'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
+            #'nHitsU>=20 and nHitsV >= 20 and nHitsW>=20 and nHits3D>=20'
             #"nHitsU + nHitsV + nHitsW >= 100"
         ),
         "U": (
             #'purityU>=0.8',
             #'completenessU>=0.8',
-            'nHitsU>=0',
+            #'nHitsU>=0',
         ),
         "V": (
             #'purityV>=0.8',
             #'completenessV>=0.8',
-            'nHitsV>=0',
+            #'nHitsV>=0',
         ),
         "W": (
             #'purityW>=0.8',
             #'completenessW>=0.8',
-            'nHitsW>=0',
+            #'nHitsW>=0',
         ),
         "3D":
         (
             #'purityU>=0.8 and purityV>=0.8 and purityW>=0.8',
             #'completenessU>=0.8 and completenessV>=0.8 and completenessW>=0.8',
-            'nHits3D>=0',
+            #'nHits3D>=0',
         )
     }
 }
 
 ############################################## CONFIGURATION PROCESSING ##################################################
+def CombineFilters(filterList, logicalOperator):
+    combinedFilter = ""
+    for filter in filterList:
+        if filter != "":
+            combinedFilter += " %s %s" % (logicalOperator, filter) if combinedFilter != "" else filter
+    return combinedFilter
+
 def ProcessFilters(filterClasses):
     for filterClass in filterClasses:
         for filter in filterClasses[filterClass]:
             filterClasses[filterClass][filter] = ' and '.join(filterClasses[filterClass][filter])
         viewFilters = [filterClasses[filterClass][x] for x in ["U", "V", "W", "3D"]]
-        filterClasses[filterClass]["union"] = "(" + ") or (".join(viewFilters) + ")"
-        filterClasses[filterClass]["intersection"] = "(" + ") and (".join(viewFilters) + ")"
+        filterClasses[filterClass]["union"] = CombineFilters(viewFilters, "or")
+        filterClasses[filterClass]["intersection"] = CombineFilters(viewFilters, "and")
 
 dataSources["all"] = []
 for dataSource in dataSources.values():

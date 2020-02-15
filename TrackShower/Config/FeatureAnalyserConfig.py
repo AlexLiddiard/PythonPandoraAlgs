@@ -1,5 +1,6 @@
 import numpy as np
 import math as m
+from UpRootFileReader import MicroBooneGeo
 
 ############################################## FEATURE ANALYSER CONFIGURATION ##################################################
 
@@ -63,26 +64,34 @@ features = [
     #{'name': 'BDT3D', 'algorithmName': 'BDTCalculator', 'bins': np.linspace(-10, 15, num = 200), 'cutDirection': 'left'},
     #{'name': 'BDTMulti', 'algorithmName': 'BDTCalculator', 'bins': np.linspace(-10, 15, num = 200), 'cutDirection': 'left'},
     #{'name': 'BDTAll', 'algorithmName': 'BDTCalculator', 'bins': np.linspace(-10, 15, num = 200), 'cutDirection': 'left'},
-    {'name': 'Likelihood', 'algorithmName': 'LikelihoodCalculator', 'bins': np.linspace(0, 1, num = 200), 'cutDirection': 'right'},
-    {'name': 'mcpMomentum', 'algorithmName': 'GeneralInfo', 'bins': np.linspace(0, 2, num = 50), 'cutDirection': 'left', 'plotCutoff': False},
+    #{'name': 'Likelihood', 'algorithmName': 'LikelihoodCalculator', 'bins': np.linspace(0, 1, num = 200), 'cutDirection': 'right'},
+    #{'name': 'mcpMomentum', 'algorithmName': 'GeneralInfo', 'bins': np.linspace(0, 2, num = 50), 'cutDirection': 'left', 'plotCutoff': False},
+    {'name': 'nHitsU', 'algorithmName': 'GeneralInfo', 'bins': np.linspace(0, 2000, num = 50), 'cutDirection': 'right', 'cutFixed': 20, 'cutPlot': "simple"},
+    {'name': 'nHitsV', 'algorithmName': 'GeneralInfo', 'bins': np.linspace(0, 2000, num = 50), 'cutDirection': 'right', 'cutFixed': 20, 'cutPlot': "simple"},
+    {'name': 'nHitsW', 'algorithmName': 'GeneralInfo', 'bins': np.linspace(0, 3000, num = 50), 'cutDirection': 'right', 'cutFixed': 20, 'cutPlot': "simple"},
+    {'name': 'nHits3D', 'algorithmName': 'GeneralInfo', 'bins': np.linspace(0, 4000, num = 50), 'cutDirection': 'right', 'cutFixed': 20, 'cutPlot': "simple"},
+    {'name': 'minCoordX', 'algorithmName': 'GeneralInfo', 'bins': np.linspace(MicroBooneGeo.RangeX[0], MicroBooneGeo.RangeX[1], num = 50), 'cutDirection': 'right', 'cutFixed': MicroBooneGeo.RangeX[0] + 10, 'cutPlot': "simple"},
+    {'name': 'maxCoordX', 'algorithmName': 'GeneralInfo', 'bins': np.linspace(MicroBooneGeo.RangeX[0], MicroBooneGeo.RangeX[1], num = 50), 'cutDirection': 'left', 'cutFixed':  MicroBooneGeo.RangeX[1] - 10, 'cutPlot': "simple"},
+    {'name': 'minCoordY', 'algorithmName': 'GeneralInfo', 'bins': np.linspace(MicroBooneGeo.RangeY[0], MicroBooneGeo.RangeY[1], num = 50), 'cutDirection': 'right', 'cutFixed': MicroBooneGeo.RangeY[0] + 20, 'cutPlot': "simple"},
+    {'name': 'maxCoordY', 'algorithmName': 'GeneralInfo', 'bins': np.linspace(MicroBooneGeo.RangeY[0], MicroBooneGeo.RangeY[1], num = 50), 'cutDirection': 'left', 'cutFixed': MicroBooneGeo.RangeY[1] - 20, 'cutPlot': "simple"},
+    {'name': 'minCoordZ', 'algorithmName': 'GeneralInfo', 'bins': np.linspace(MicroBooneGeo.RangeZ[0], MicroBooneGeo.RangeZ[1], num = 50), 'cutDirection': 'right', 'cutFixed': MicroBooneGeo.RangeZ[0] + 10, 'cutPlot': "simple"},
+    {'name': 'maxCoordZ', 'algorithmName': 'GeneralInfo', 'bins': np.linspace(MicroBooneGeo.RangeZ[0], MicroBooneGeo.RangeZ[1], num = 50), 'cutDirection': 'left', 'cutFixed': MicroBooneGeo.RangeZ[1] - 10, 'cutPlot': "simple"},
 ]
 
 featureHistogram = {
     "plot": True,
     "filters": (
-        ("Showers", "isShower==1", "isShower in (0, 1)", True), 
-        ("Tracks", "isShower==0", "isShower in (0, 1)", True),
-        #("Correct tracks", "isShower==0 and Likelihood < 0.998", "isShower in (0, 1)", False ),
-        #("Incorrect tracks", "isShower==0 and Likelihood > 0.998", "isShower in (0, 1)", False ),
-        #("Correct showers", "isShower==1 and Likelihood > 0.998", "isShower in (0, 1)", False ),
-        #("Incorrect showers", "isShower==1 and Likelihood < 0.998", "isShower in (0, 1)", False ),
-        ("Protons", "mcPdgCode==2212", "isShower in (0, 1)", False ),
-        ("Muons", "mcPdgCode==13", "isShower in (0, 1)", False ),
-        ("Electrons + Positrons", "abs(mcPdgCode)==11", "isShower in (0, 1)", False),
-        ("Photons", "abs(mcPdgCode)==22",  "isShower in (0, 1)", False),
-        #("Protons", "abs(mcPdgCode)==2212", "isShower==0", False),
-        #("Muons", "abs(mcPdgCode)==13", "isShower==0", False),
-        #("Charged Pions", "abs(mcPdgCode)==211", "isShower==0", False),
+        ("Showers", "isShower==1", "count", True), 
+        ("Tracks", "isShower==0", "count", True),
+        #("Correct tracks", "isShower==0 and Likelihood < 0.998", "count", False ),
+        #("Incorrect tracks", "isShower==0 and Likelihood > 0.998", "count", False ),
+        #("Correct showers", "isShower==1 and Likelihood > 0.998", "count", False ),
+        #("Incorrect showers", "isShower==1 and Likelihood < 0.998", "count", False ),
+        ("Protons", "mcPdgCode==2212", "count", False ),
+        ("Muons", "mcPdgCode==13", "count", False ),
+        ("Electrons + Positrons", "abs(mcPdgCode)==11", "count", False),
+        ("Photons", "abs(mcPdgCode)==22",  "count", False),
+        ("Charged Pions", "abs(mcPdgCode)==211", "count", False),
     )   
 }
 

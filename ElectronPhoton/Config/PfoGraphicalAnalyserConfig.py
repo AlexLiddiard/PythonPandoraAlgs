@@ -10,7 +10,7 @@ rootFileDirectory = bc.pythonFolderFull + "/ROOT Files/BNBNuOnly"
 useDataSample = True
 dataSample = {
     "dataSource": "performance",
-    "pfoClass": "all",
+    "pfoClass": "electron",
     "filterClass": "performance",
     "filterName": "union"
 }

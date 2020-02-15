@@ -1,4 +1,5 @@
 import BaseConfig as bc
+from UpRootFileReader import MicroBooneGeo
 
 ############################################## DATA SAMPLING CONFIGURATION ##################################################
 
@@ -10,18 +11,18 @@ dataSources = {
         #"BNBNuOnly": (0, 0.5),
         #"BNBNuOnly400-800": (0, 1),
         #"BNBNuOnly0-400": (0, 0),
-        "Pi0_0-1000": (0, 0.5),
-        "NCDelta": (0, 0.5),
-        "eminus_0-4000": (0, 0.5),
+        #"Pi0_0-1000": (0, 0.5),
+        #"NCDelta": (0, 0.5),
+        #"eminus_0-4000": (0, 0.5),
     },
     "performance": {
-        #"BNBNuOnly2000": (0.5, 1),
+        #"BNBNuOnly2000": (0, 1),
         #"BNBNuOnly": (0, 1),
         #"BNBNuOnly400-800": (0, 1),
         #"BNBNuOnly0-400": (0, 1),
-        "Pi0_0-1000": (0.5, 1),
-        "NCDelta": (0.5, 1),
-        "eminus_0-4000": (0.5, 1),
+        "Pi0_0-1000": (0, 1),
+        "NCDelta": (0, 1),
+        "eminus_0-4000": (0, 1),
     }
 }
 
@@ -64,13 +65,15 @@ preFilters = {
 
     "performance": {
         "general": (
+            'abs(mcPdgCode) == 22 or (dataName == "eminus_0-4000" and abs(mcPdgCode) == 11)',
+            #'(dataName == "eminus_0-4000") or (dataName in ("BNBNuOnly", "BNBNuOnly0-400", "BNBNuOnly400-800") and ((abs(mcPdgCode) == 11 and mcHierarchyTier == 1) or abs(mcPdgCode) == 22))',
             'minCoordX >= @MicroBooneGeo.RangeX[0] + 10',
             'maxCoordX <= @MicroBooneGeo.RangeX[1] - 10',
             'minCoordY >= @MicroBooneGeo.RangeY[0] + 20',
             'maxCoordY <= @MicroBooneGeo.RangeY[1] - 20',
             'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
             'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
-            'nHitsU>=20 and nHitsV >= 20 and nHitsW>=20 and nHits3D>=20',
+            #'nHitsU>=20 and nHitsV >= 20 and nHitsW>=20 and nHits3D>=20',
             #'mcHierarchyTier == 1 or (abs(mcPdgCode) == 22 and mcHierarchyTier <= 2)',
             #'mcNuanceCode == 1000', # ????????????????????????
             #'mcNuanceCode == 1001', #CCQE
@@ -85,6 +88,7 @@ preFilters = {
             #'mcNuanceCode not in (1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1091, 1092, 1096, 1097)', #Other
             #"nHitsU + nHitsV + nHitsW >= 100",
             'nHitsU>=0',
+            #'mcpMomentum <= 1.0',
         ),
         "U": (
             #'purityU>=0.8',
@@ -111,13 +115,20 @@ preFilters = {
 }
 
 ############################################## CONFIGURATION PROCESSING ##################################################
+def CombineFilters(filterList, logicalOperator):
+    combinedFilter = ""
+    for filter in filterList:
+        if filter != "":
+            combinedFilter += " %s %s" % (logicalOperator, filter) if combinedFilter != "" else filter
+    return combinedFilter
+
 def ProcessFilters(filterClasses):
     for filterClass in filterClasses:
         for filter in filterClasses[filterClass]:
             filterClasses[filterClass][filter] = ' and '.join(filterClasses[filterClass][filter])
         viewFilters = [filterClasses[filterClass][x] for x in ["U", "V", "W", "3D"]]
-        filterClasses[filterClass]["union"] = "(" + ") or (".join(viewFilters) + ")"
-        filterClasses[filterClass]["intersection"] = "(" + ") and (".join(viewFilters) + ")"
+        filterClasses[filterClass]["union"] = CombineFilters(viewFilters, "or")
+        filterClasses[filterClass]["intersection"] = CombineFilters(viewFilters, "and")
 
 dataSources["all"] = []
 for dataSource in dataSources.values():

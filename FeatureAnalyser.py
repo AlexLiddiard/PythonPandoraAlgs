@@ -62,27 +62,33 @@ def PurityEfficiency(dfClass0Variable, dfClass1Variable, cutOff, class1CutDirect
         class1Efficiency, class1EfficiencyError, class1Purity, class1PurityError, class1PurityEfficiency, class1PurityEfficiencyError
     )
 
-def GraphCutoffLine(ax, classNames, cutoff, arrows=False, class0direction="right"):
-    ax.axvline(cutoff)
+def GraphCutoffLine(ax, classNames, cutoff, arrows=False, class0direction="right", fancy=True):
+    ax.axvline(cutoff, color="black")
     if arrows:
         if class0direction == "right":
-            ax.annotate(
-                classNames[0], xy=(cutoff, 0.93), xycoords=ax.get_xaxis_transform(), ha="right", va="center",
-                xytext=(-18,0), textcoords="offset points", bbox={'boxstyle': "larrow", 'fc': 'C1', 'ec': 'C1', 'alpha': 0.5}, fontsize=20
-            )
-            ax.annotate(
-                classNames[1], xy=(cutoff, 0.93), xycoords=ax.get_xaxis_transform(), ha="left", va="center",
-                xytext=(18,0), textcoords="offset points", bbox={'boxstyle': "rarrow", 'fc': 'C0', 'ec': 'C0', 'alpha': 0.5}, fontsize=20
-            )
+            if fancy:
+                ax.annotate(
+                    classNames[0], xy=(cutoff, 0.93), xycoords=ax.get_xaxis_transform(), ha="right", va="center",
+                    xytext=(-18,0), textcoords="offset points", bbox={'boxstyle': "larrow", 'fc': 'C1', 'ec': 'C1', 'alpha': 0.5}, fontsize=20
+                )
+                ax.annotate(
+                    classNames[1], xy=(cutoff, 0.93), xycoords=ax.get_xaxis_transform(), ha="left", va="center",
+                    xytext=(18,0), textcoords="offset points", bbox={'boxstyle': "rarrow", 'fc': 'C0', 'ec': 'C0', 'alpha': 0.5}, fontsize=20
+                )
+            else:
+                ax.annotate("", xy=(cutoff, 0.93), xycoords=ax.get_xaxis_transform(), xytext=(50, 0), textcoords="offset points", arrowprops={"arrowstyle":"<|-", "connectionstyle":"arc3", "lw":2})
         else:
-            ax.annotate(
-                classNames[0], xy=(cutoff, 0.93), xycoords=ax.get_xaxis_transform(), ha="left", va="center",
-                xytext=(18,0), textcoords="offset points", bbox={'boxstyle': "rarrow", 'fc': 'C1', 'ec': 'C1', 'alpha': 0.5}, fontsize=20
-            )
-            ax.annotate(
-                classNames[1], xy=(cutoff, 0.93), xycoords=ax.get_xaxis_transform(), ha="right", va="center",
-                xytext=(-18,0), textcoords="offset points", bbox={'boxstyle': "larrow", 'fc': 'C0', 'ec': 'C0', 'alpha': 0.5}, fontsize=20
-            )
+            if fancy:
+                ax.annotate(
+                    classNames[0], xy=(cutoff, 0.93), xycoords=ax.get_xaxis_transform(), ha="left", va="center",
+                    xytext=(18,0), textcoords="offset points", bbox={'boxstyle': "rarrow", 'fc': 'C1', 'ec': 'C1', 'alpha': 0.5}, fontsize=20
+                )
+                ax.annotate(
+                    classNames[1], xy=(cutoff, 0.93), xycoords=ax.get_xaxis_transform(), ha="right", va="center",
+                    xytext=(-18,0), textcoords="offset points", bbox={'boxstyle': "larrow", 'fc': 'C0', 'ec': 'C0', 'alpha': 0.5}, fontsize=20
+                )
+            else:
+                ax.annotate("", xy=(cutoff, 0.93), xycoords=ax.get_xaxis_transform(), xytext=(-50, 0), textcoords="offset points", arrowprops={"arrowstyle":"<|-", "connectionstyle":"arc3", "lw":2})
 
 def OptimiseCutoff(dfClass0Data, dfClass1Data, variableName, testCutoffs, class1CutDirection):
     dfClass0Variable = dfClass0Data[variableName]
@@ -146,13 +152,19 @@ def PlotVariableHistogram(dfPfoData, classNames, variable, variableHistogram, be
         variable["bins"] = variableHistogram["bins"]
     fig, ax = plt.subplots(figsize=(10, 7.5))
     CreateHistogramWire(ax, dfPfoData, variable)
-    if bestCutoff is not None:
-        GraphCutoffLine(ax, classNames, bestCutoff, True, variable['cutDirection'])
+    cutPlot = variable.get("cutPlot", "none")
+    if bestCutoff is not None and cutPlot != "none":
+        GraphCutoffLine(ax, classNames, bestCutoff, True, variable['cutDirection'], cutPlot == "fancy")
     plt.savefig(bc.figureFolderFull + '/%s distribution for %s' % (variable['name'], ', '.join((filter[0] for filter in variable['filters'])) + '.svg'), format='svg', dpi=1200)
     plt.show()
 
 def GetBestPurityEfficiency(dfClass0Data, dfClass1Data, variable, nTestCuts, showPurity=True):
-    cutoffValues = np.linspace(variable["bins"][0], variable["bins"][-1], nTestCuts)
+    cutFixed = variable.get("cutFixed", None)
+    if cutFixed is None:
+        cutoffValues = np.linspace(variable["bins"][0], variable["bins"][-1], nTestCuts)
+    else:
+        print("Using fixed cutoff for this variable:", cutFixed)
+        cutoffValues = [cutFixed]
     cutoffResults = OptimiseCutoff(dfClass0Data, dfClass1Data, variable['name'], cutoffValues, variable['cutDirection'])
 
     # Printing results for optimal purity and efficiency

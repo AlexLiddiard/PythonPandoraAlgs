@@ -12,4 +12,8 @@ features = [
     {'name': 'dedxU', 'algorithmName': 'NewInitialDeDx'},
     {'name': 'dedxV', 'algorithmName': 'NewInitialDeDx'},
     {'name': 'dedxW', 'algorithmName': 'NewInitialDeDx'},
+    {'name': 'hierarchyTierU', 'algorithmName': 'GeneralInfo'},
+    {'name': 'hierarchyTierV', 'algorithmName': 'GeneralInfo'},
+    {'name': 'hierarchyTierW', 'algorithmName': 'GeneralInfo'},
+    {'name': 'hierarchyTier3D', 'algorithmName': 'GeneralInfo'},
 ]

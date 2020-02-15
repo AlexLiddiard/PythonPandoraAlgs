@@ -23,18 +23,18 @@ def PcaReduce(coordSets, intercept=None):
     if len(coordSets[0]) == 1:
         return coordSets - intercept
     eigenvectors = Pca(coordSets, intercept)[1]
-    reducedCoordSets = ChangeCoordBasis(np.flip(eigenvectors, 1), coordSets, True, -intercept)
+    reducedCoordSets = ChangeCoordBasis(coordSets, np.flip(eigenvectors, 1), True, -intercept)
     return reducedCoordSets
 
 # basisVectors = [[basis vector x coords], [basis vector y coords], ...]
 # coordSets = [[x coords], [y coords], ...]
 # normed = are the basis vectors normed?
 # translation = [x coord, y coord, ...]
-def ChangeCoordBasis(basisVectors, coordSets, normed=False, translation=None):
-    if translation is not None:
-        coordSets -= np.reshape(translation, (-1, 1))
+def ChangeCoordBasis(coordSets, basisVectors, normed=False, preTranslation=None):
+    if preTranslation is not None:
+        coordSets += np.reshape(preTranslation, (-1, 1))
     if not normed:
-        basisVectors /= np.linalg.norm(basisVectors, axis=0).reshape(-1, 1)
+        basisVectors /= np.linalg.norm(basisVectors, axis=0).reshape(-1, 1)  
     return np.transpose(basisVectors) @ coordSets
 
 def Pca(coordSets, intercept = None, withVectors=True):

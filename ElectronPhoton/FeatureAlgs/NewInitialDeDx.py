@@ -26,14 +26,11 @@ def GetInitialDirection(xCoords, yCoords, zCoords, vertex, sphereRadius = 4):
 # Project the 3D PCA eigenvector into the corresponding 2D view.
 def ProjectEigenvector(eigenvector, view):
     if view == 'U':
-        eigenvector = [eigenvector[0], 0.5 * eigenvector[2] - 0.8660254 * eigenvector[1]]
-        return eigenvector
+        return np.array([eigenvector[0], 0.5 * eigenvector[2] - 0.8660254 * eigenvector[1]])
     if view == 'V':
-        eigenvector = [eigenvector[0], 0.5 * eigenvector[2] + 0.8660254 * eigenvector[1]]
-        return eigenvector
+        return np.array([eigenvector[0], 0.5 * eigenvector[2] + 0.8660254 * eigenvector[1]])
     if view == 'W':
-        eigenvector = [eigenvector[0], eigenvector[2]]
-        return eigenvector
+       return np.array([eigenvector[0], eigenvector[2]])
 
 
 def GetHitsInRadius(coordSets, centre, radius=4):
@@ -53,9 +50,11 @@ def Get2dHitsInRectangle(xCoords, yCoords, rectangleTopLeft=(0, 0.5), rectangleW
 def GetLongitudinalError(driftCoordErrors, wireCoordErrors, longDirection):
     return driftCoordErrors * wireCoordErrors / np.sqrt((np.square(wireCoordErrors * longDirection[0]) + np.square(driftCoordErrors * longDirection[1])))
 
-def GetDeDx(xCoords3D, yCoords3D, zCoords3D, view2D, driftCoords2D, driftCoordErrors2D, wireCoords2D, wireCoordError2D, charges2D, sphereRadius, rectangleWidth, rectangleLength, vertex3D = None, maxTransVar = 0.04):
+def GetDeDx(xCoords3D, yCoords3D, zCoords3D, view2D, driftCoords2D, driftCoordErrors2D, wireCoords2D, wireCoordError2D, charges2D, sphereRadius, rectangleWidth, rectangleLength, vertex3D = None, initialLength = 4, outlierFraction=0.85):
     if vertex3D is None:
-        vertex3D = Calculate3dVertex(xCoords3D, yCoords3D, zCoords3D, maxTransVar)
+        vertex3D = Calculate3dVertex(xCoords3D, yCoords3D, zCoords3D, initialLength, outlierFraction)
+        if vertex3D is None:
+            return m.nan
     vertex2D = ProjectEigenvector(vertex3D, view2D)
 
     showerLongDirection3D = GetInitialDirection(xCoords3D, yCoords3D, zCoords3D, vertex3D, sphereRadius)
@@ -69,19 +68,12 @@ def GetDeDx(xCoords3D, yCoords3D, zCoords3D, view2D, driftCoords2D, driftCoordEr
     basisVectors = np.column_stack((showerLongDirection2Dnormed, [showerLongDirection2Dnormed[1], -showerLongDirection2Dnormed[0]]))
     reducedCoords = pca.ChangeCoordBasis((driftCoords2D, wireCoords2D), basisVectors, normed=True, preTranslation=-vertex2D)
     filt = Get2dHitsInRectangle(reducedCoords[0], reducedCoords[1], (0, rectangleWidth/2), rectangleWidth, rectangleLength * showerLongDirection2Dmag)
-    plt.scatter(driftCoords2D, wireCoords2D)
+    #plt.scatter(driftCoords2D, wireCoords2D)
     #plt.scatter(driftCoords2D[filt], wireCoords2D[filt])
     #plt.plot([vertex2D[0], vertex2D[0] + showerLongDirection2Dnormed[0]], [vertex2D[1], vertex2D[1] + showerLongDirection2Dnormed[1]])
     #plt.scatter(vertex2D[0], vertex2D[1])
     #plt.axes().set_aspect('equal')
     #plt.show()def axisEqual3D(ax):
-    extents = np.array([getattr(ax, 'get_{}lim'.format(dim))() for dim in 'xyz'])
-    sz = extents[:,1] - extents[:,0]
-    centers = np.mean(extents, axis=1)
-    maxsize = max(abs(sz))
-    r = maxsize/2
-    for ctr, dim in zip(centers, 'xyz'):
-        getattr(ax, 'set_{}lim'.format(dim))(ctr - r, ctr + r)
     if filt.sum() == 0:
         return np.nan
     driftCoordErrorsInrectangle = driftCoordErrors2D[filt]
@@ -94,38 +86,81 @@ def GetDeDx(xCoords3D, yCoords3D, zCoords3D, view2D, driftCoords2D, driftCoordEr
     #dedx2 = np.median(dedxs2) * abs(showerLongDirection2D[1])
     return dedx1
 
-def Calculate3dVertex(xCoords3D, yCoords3D, zCoords3D, maxTransVar=0.04):
-    if len(xCoords3D) < 3:
+def Calculate3dVertex(xCoords3D, yCoords3D, zCoords3D, initialLength=4, outlierFraction=0.85):
+    nCoords = len(xCoords3D)
+    if nCoords < 3:
         return
 
-    filter = pca.FindOutliers((xCoords3D, yCoords3D, zCoords3D))
-    reducedCoords = pca.PcaReduce((xCoords3D[filter], yCoords3D[filter], zCoords3D[filter]))
-    order = reducedCoords[0].argsort()
-    reducedCoords = reducedCoords[:,order]
-    nHits1 = len(tdd1.GetInitialStraightSegment(reducedCoords, maxTransVar))
-    nHits2 = len(tdd1.GetInitialStraightSegment(np.flip(reducedCoords, axis=1), maxTransVar))
-    if nHits2 > nHits1:
-        initialCoords = np.flip(reducedCoords[:,-nHits2:], axis=1)
-    else:
-        initialCoords = reducedCoords[:,:nHits1]
+    # Do PCA to find the outliers
+    filter = pca.FindOutliers(coordSets=(xCoords3D, yCoords3D, zCoords3D), fraction=outlierFraction)
+    if filter.sum() < 3:
+        return
+
+    # Debug
+    #fig = plt.figure()
+    #ax = fig.add_subplot(111, projection='3d')
+    #ax.scatter(xCoords3D, yCoords3D, zCoords3D)
+    #ax.scatter(xCoords3D[np.invert(filter)], yCoords3D[np.invert(filter)], zCoords3D[np.invert(filter)])
+
+    # Do PCA for the whole PFO minus the outliers
+    centroid = np.mean((xCoords3D[filter], yCoords3D[filter], zCoords3D[filter]), axis=1)
+    eigenvectors = pca.Pca(coordSets=(xCoords3D[filter], yCoords3D[filter], zCoords3D[filter]), intercept=centroid)[1]
+    reducedCoordSets = pca.ChangeCoordBasis(coordSets=(xCoords3D, yCoords3D, zCoords3D), basisVectors=np.flip(eigenvectors, 1), normed=True, preTranslation=-centroid)
+    
+    # Debug
+    #ax.plot([centroid[0], centroid[0] + eigenvectors[0,2] * 100], [centroid[1], centroid[1] + eigenvectors[1,2] * 100], [centroid[2], centroid[2] + eigenvectors[2,2] * 100])
+
+    # Order hits by the longitudinal axis
+    order = reducedCoordSets[0].argsort()
+    reducedCoordSets = reducedCoordSets[:,order]
+
+    # Use transverse variance to determine the shower direction (keep outliers here)
+    indexHalf = int(nCoords/2)
+    transDintance2 = np.linalg.norm(reducedCoordSets[1:], axis=0)
+    avg1 = np.mean(transDintance2[:indexHalf])
+    avg2 = np.mean(transDintance2[indexHalf:])
+
+    # Ensure that the xyz coords are in the direction of increasing longitudinal coord (remove outliers here)
+    if avg2 < avg1:
+        order = np.flip(order)
+    xCoords3D = xCoords3D[order[filter]]
+    yCoords3D = yCoords3D[order[filter]]
+    zCoords3D = zCoords3D[order[filter]]
+
+    # Debug
+    #indexHalf = int(len(xCoords3D)/2)
+    #ax.scatter(xCoords3D[indexHalf:], yCoords3D[indexHalf:], zCoords3D[indexHalf:])
+    #ax.scatter(xCoords3D[:indexHalf], yCoords3D[:indexHalf], zCoords3D[:indexHalf])
+
+    # Get the initial segment of the shower
+    initialIndex = np.argmax((reducedCoordSets[0] - reducedCoordSets[0,0]) > initialLength)
+    if initialIndex < 3: # Fallback for when we don't have enough hits
+        initialIndex = 3
+    initialCoords = np.array((xCoords3D[:initialIndex], yCoords3D[:initialIndex], zCoords3D[:initialIndex]))
+    
+    # Do PCA to find the initial straight line segment.
+    #initialCoords = tdd1.GetInitialStraightSegment(coordSets=(xCoords3D, yCoords3D, zCoords3D), maxTransVar=maxTransVar)
+    # As a fallback, use all the points in the PFO
+    #if initialCoords is None:
+    #    print("Using fallback for initial straight line!")
+    #    initialCoords = np.array((xCoords3D[:3], yCoords3D[:3], zCoords3D[:3]))
+    
+    # Do PCA on the initial line segment.
     eigenvectors = pca.Pca(initialCoords)[1]
     centroid = np.mean(initialCoords, axis=1)
+
+    # Debug
+    #ax.scatter(initialCoords[0], initialCoords[1], initialCoords[2])
+
+    # Use the initial line segment and some algebra to estimate the vertex
     cp = centroid - initialCoords[:,0]
     a = np.dot(cp, eigenvectors[:,0])
     b = np.dot(cp, eigenvectors[:,1])
     vertex = initialCoords[:,0] + eigenvectors[:,0] * a + eigenvectors[:,1] * b
-    fig = plt.figure()
 
-    filter = pca.FindOutliers((xCoords3D, yCoords3D, zCoords3D))
-    eigenvectors = pca.Pca((xCoords3D[filter], yCoords3D[filter], zCoords3D[filter]))[1]
-    centroid = np.mean((xCoords3D[filter], yCoords3D[filter], zCoords3D[filter]), axis=1)
-    ax = fig.add_subplot(111, projection='3d')
-    ax.scatter(xCoords3D, yCoords3D, zCoords3D)
-    ax.scatter(xCoords3D[filter], yCoords3D[filter], zCoords3D[filter])
-    ax.plot([centroid[0], centroid[0] + eigenvectors[0,2] * 100], [centroid[1], centroid[1] + eigenvectors[1,2] * 100], [centroid[2], centroid[2] + eigenvectors[2,2] * 100])
-    axisEqual3D(ax)
     #ax.scatter(vertex[0], vertex[1], vertex[2])
-    plt.show()
+    #axisEqual3D(ax)
+    #plt.show()
     return vertex
     
 

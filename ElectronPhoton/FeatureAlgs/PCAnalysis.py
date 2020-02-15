@@ -65,8 +65,6 @@ def FindOutliers(coordSets, intercept = None, fraction=0.85):
     sort = tDistance.argsort()
     index = int(len(coordSets[0]) * fraction)
     filter = np.repeat(True, len(coordSets[0]))
-    print(index)
-    print(sort[index:])
     filter[sort[index:]] = False
     return filter
 

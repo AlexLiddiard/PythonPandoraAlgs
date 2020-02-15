@@ -50,6 +50,7 @@ def GetInitialStraightSegment(coordSets, maxTransVar):
     length = len(coordSets[0])
     if length < 3:
         return
+    coordSets = np.array(coordSets)
     dimensions = len(coordSets)
     sums = np.zeros((dimensions, 1), dtype='double')
     sumSquares = np.zeros((dimensions, dimensions), dtype='double')
@@ -61,7 +62,7 @@ def GetInitialStraightSegment(coordSets, maxTransVar):
         sumSquares += point @ point.T
         count += 1
         if count >= 3:
-            transVar = pca.GetEigenValues(sumSquares - sums @ sums.T / (count + 1), False)[:-1].sum() / (count + 1)
+            transVar = pca.GetEigenValues(sumSquares - sums @ sums.T / count, False)[:-1].sum() / count
     if count > 3:
         return coordSets[:,:count - 1]
 

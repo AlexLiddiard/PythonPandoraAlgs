@@ -2,8 +2,8 @@ import BaseConfig as bc
 
 ############################################## GET FEATURE DATA CONFIGURATION ##################################################
 
-rootFileDirectory = bc.myTestArea + "/PythonPandoraAlgs/ROOT Files/Pi0_0-1000"
-outputDataName = "Pi0_0-1000"
+rootFileDirectory = bc.myTestArea + "/PythonPandoraAlgs/ROOT Files/eminus_0-4000"
+outputDataName = "eminus_0-4000"
 
 algorithmNames = [
     "GeneralInfo",

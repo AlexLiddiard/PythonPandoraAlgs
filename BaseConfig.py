@@ -3,10 +3,10 @@ import sys
 
 ############################################## BASE CONFIGURATION ##################################################
 
-myTestArea = "/home/jack/Documents/Pandora/"
+myTestArea = "/home/tomalex/Pandora/"
 pythonFolder = "PythonPandoraAlgs"
-analysisFolder = "ElectronPhoton"
-pyplotBackend = 'TkAgg'
+analysisFolder = "TrackShower"
+pyplotBackend = 'Qt5Agg'
 
 pythonFolderFull = myTestArea + "/" + pythonFolder
 analysisFolderFull = myTestArea + "/" + "/" + analysisFolder
