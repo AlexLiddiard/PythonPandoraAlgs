@@ -1,11 +1,7 @@
 # This module is for track/shower feature #3
 import numpy as np
 import math as m
-import LinearRegression as lr
 import PCAnalysis as pca
-from PythonPandoraAlgs.UpRootFileReader import MicroBooneGeo
-#import matplotlib.pyplot as plt
-#from PfoGraphAnalysis import DisplayPfo
 
 def CalcAngles(coordSetsReduced, hitFraction):
     lCoord = coordSetsReduced[0]

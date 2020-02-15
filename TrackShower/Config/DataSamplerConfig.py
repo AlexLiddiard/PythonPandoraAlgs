@@ -7,32 +7,27 @@ from UpRootFileReader import MicroBooneGeo
 #  where e.g. data start fraction = (data start position) / (# of samples)
 dataSources = {
     "training": {
-        "BNBNuOnly": (0, 1),
-        #"BNBNuOnly400-800": (0, 1),
-        #"BNBNuOnly0-400": (0, 1)
+        "BNBNuOnly": (0, 0.5),
+        "BNBNuOnly400-800": (0, 1),
+        #"BNBNuOnly0-400": (0, 1),
     },
     "performance": {
-        "BNBNuOnly": (0, 1),
+        "BNBNuOnly": (0.5, 1),
         #"BNBNuOnly400-800": (0, 1),
         #"BNBNuOnly0-400": (0, 1)
     }
 }
 
-performanceDataSources = {
-    "BNBNuOnly": (0.5, 1),
-}
-
-trainingFraction = 0.5
 preFilters = {
     "training": {
         "general": (
             'abs(mcPdgCode) != 2112',
-            #'minCoordX >= @MicroBooneGeo.RangeX[0] + 10',
-            #'maxCoordX <= @MicroBooneGeo.RangeX[1] - 10',
-            #'minCoordY >= @MicroBooneGeo.RangeY[0] + 20',
-            #'maxCoordY <= @MicroBooneGeo.RangeY[1] - 20',
-            #'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
-            #'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
+            #'minCoordX3D >= @MicroBooneGeo.RangeX[0] + 10',
+            #'maxCoordX3D <= @MicroBooneGeo.RangeX[1] - 10',
+            #'minCoordY3D >= @MicroBooneGeo.RangeY[0] + 20',
+            #'maxCoordY3D <= @MicroBooneGeo.RangeY[1] - 20',
+            #'minCoordZ3D >= @MicroBooneGeo.RangeY[0] + 10',
+            #'maxCoordZ3D <= @MicroBooneGeo.RangeZ[1] - 10',
         ),
         "U": (
             '(isShower==1 and purityU>=0.8) or (isShower==0 and purityU>=0.8)',
@@ -64,35 +59,35 @@ preFilters = {
     "performance": {
         "general": (
             #'abs(mcPdgCode) != 2112',
-            #'minCoordX >= @MicroBooneGeo.RangeX[0] + 10',
-            #'maxCoordX <= @MicroBooneGeo.RangeX[1] - 10',
-            #'minCoordY >= @MicroBooneGeo.RangeY[0] + 20',
-            #'maxCoordY <= @MicroBooneGeo.RangeY[1] - 20',
-            #'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
-            #'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
-            #'nHitsU>=20 and nHitsV >= 20 and nHitsW>=20 and nHits3D>=20'
+            #'minCoordX3D >= @MicroBooneGeo.RangeX[0] + 10',
+            #'maxCoordX3D <= @MicroBooneGeo.RangeX[1] - 10',
+            #'minCoordY3D >= @MicroBooneGeo.RangeY[0] + 20',
+            #'maxCoordY3D <= @MicroBooneGeo.RangeY[1] - 20',
+            #'minCoordZ3D >= @MicroBooneGeo.RangeY[0] + 10',
+            #'maxCoordZ3D <= @MicroBooneGeo.RangeZ[1] - 10',
+            'nHitsU>=20 and nHitsV >= 20 and nHitsW>=20 and nHits3D>=20',
             #"nHitsU + nHitsV + nHitsW >= 100"
         ),
         "U": (
             #'purityU>=0.8',
             #'completenessU>=0.8',
-            #'nHitsU>=0',
+            'nHitsU>=0',
         ),
         "V": (
             #'purityV>=0.8',
             #'completenessV>=0.8',
-            #'nHitsV>=0',
+            'nHitsV>=0',
         ),
         "W": (
             #'purityW>=0.8',
             #'completenessW>=0.8',
-            #'nHitsW>=0',
+            'nHitsW>=0',
         ),
         "3D":
         (
             #'purityU>=0.8 and purityV>=0.8 and purityW>=0.8',
             #'completenessU>=0.8 and completenessV>=0.8 and completenessW>=0.8',
-            #'nHits3D>=0',
+            'nHits3D>=0',
         )
     }
 }

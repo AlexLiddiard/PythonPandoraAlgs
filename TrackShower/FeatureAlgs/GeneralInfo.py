@@ -8,14 +8,17 @@ def GetFeatures(pfo, calculateViews):
         'mcNuanceCode': pfo.mcNuanceCode,
         'mcPdgCode': pfo.mcPdgCode,
         'mcpMomentum': pfo.mcpMomentum,
-        'mcNeutrinoEnergy': pfo.mcNeutrinoEnergy,
+        'nuMcPdgCode': pfo.nuMcPdgCode,
+        'nuMcpMomentum': pfo.nuMcpMomentum,
+        'mcHierarchyTier': pfo.mcHierarchyTier,
+        'hierarchyTier': pfo.hierarchyTier,
         'isShower': pfo.IsShower(),
-        'minCoordX': min(pfo.xCoord3D),
-        'minCoordY': min(pfo.yCoord3D),
-        'minCoordZ': min(pfo.zCoord3D),
-        'maxCoordX': max(pfo.xCoord3D),
-        'maxCoordY': max(pfo.yCoord3D),
-        'maxCoordZ': max(pfo.zCoord3D)
+        'minCoordX3D': min(pfo.xCoord3D),
+        'minCoordY3D': min(pfo.yCoord3D),
+        'minCoordZ3D': min(pfo.zCoord3D),
+        'maxCoordX3D': max(pfo.xCoord3D),
+        'maxCoordY3D': max(pfo.yCoord3D),
+        'maxCoordZ3D': max(pfo.zCoord3D)
     }
     if calculateViews["U"]:
         pfoDataDict.update({

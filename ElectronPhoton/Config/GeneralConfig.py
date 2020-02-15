@@ -6,7 +6,7 @@ classQueries = (
     "abs(mcPdgCode) == 22"
 )
 random_state = 201746973
-
+additionalImportPaths = ["TrackShower/FeatureAlgs"]
 
 ############################################## CONFIGURATION PROCESSING ##################################################
 classes = {}

@@ -22,4 +22,7 @@ sys.path.append(pythonFolderFull)
 sys.path.append(analysisFolderFull)
 sys.path.append(featureAlgsFolderFull)
 sys.path.append(configFolderFull)
+import GeneralConfig as gc
+for path in gc.additionalImportPaths:
+    sys.path.append(myTestArea + "/" + pythonFolder + "/" + path)
 mpl.use(pyplotBackend)

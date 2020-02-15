@@ -3,19 +3,19 @@ import BaseConfig as bc
 ############################################## GET FEATURE DATA CONFIGURATION ##################################################
 
 rootFileDirectory = bc.myTestArea + "/PythonPandoraAlgs/ROOT Files/BNBNuOnly"
-outputDataName = "BNBNuOnly2000"
+outputDataName = "BNBNuOnly"
 
 algorithmNames = [
     "GeneralInfo",
-    #"LinearRegression",
-    #"HitBinning",
-    #"ChainCreation",
-    #"AngularSpan",
+    "LinearRegression",
+    "HitBinning",
+    "ChainCreation",
+    "AngularSpan",
     "PCAnalysis",
-    #"ChargedHitBinning",
-    #"ChargeStdMeanRatio",
-    #"BraggPeak",
-    #"MoliereRadius"
+    "ChargedHitBinning",
+    "ChargeStdMeanRatio",
+    "BraggPeak",
+    "MoliereRadius"
 ]
 
 calculateViews = {

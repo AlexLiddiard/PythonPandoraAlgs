@@ -29,12 +29,12 @@ dataSources = {
 preFilters = {
     "training": {
         "general": (
-            'minCoordX >= @MicroBooneGeo.RangeX[0] + 10',
-            'maxCoordX <= @MicroBooneGeo.RangeX[1] - 10',
-            'minCoordY >= @MicroBooneGeo.RangeY[0] + 20',
-            'maxCoordY <= @MicroBooneGeo.RangeY[1] - 20',
-            'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
-            'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
+            'minCoordX3D >= @MicroBooneGeo.RangeX[0] + 10',
+            'maxCoordX3D <= @MicroBooneGeo.RangeX[1] - 10',
+            'minCoordY3D >= @MicroBooneGeo.RangeY[0] + 20',
+            'maxCoordY3D <= @MicroBooneGeo.RangeY[1] - 20',
+            'minCoordZ3D >= @MicroBooneGeo.RangeY[0] + 10',
+            'maxCoordZ3D <= @MicroBooneGeo.RangeZ[1] - 10',
         ),
         "U": (
             'purityU>=0.8',
@@ -67,12 +67,12 @@ preFilters = {
         "general": (
             'abs(mcPdgCode) == 22 or (dataName == "eminus_0-4000" and abs(mcPdgCode) == 11)',
             #'(dataName == "eminus_0-4000") or (dataName in ("BNBNuOnly", "BNBNuOnly0-400", "BNBNuOnly400-800") and ((abs(mcPdgCode) == 11 and mcHierarchyTier == 1) or abs(mcPdgCode) == 22))',
-            'minCoordX >= @MicroBooneGeo.RangeX[0] + 10',
-            'maxCoordX <= @MicroBooneGeo.RangeX[1] - 10',
-            'minCoordY >= @MicroBooneGeo.RangeY[0] + 20',
-            'maxCoordY <= @MicroBooneGeo.RangeY[1] - 20',
-            'minCoordZ >= @MicroBooneGeo.RangeY[0] + 10',
-            'maxCoordZ <= @MicroBooneGeo.RangeZ[1] - 10',
+            'minCoordX3D >= @MicroBooneGeo.RangeX[0] + 10',
+            'maxCoordX3D <= @MicroBooneGeo.RangeX[1] - 10',
+            'minCoordY3D >= @MicroBooneGeo.RangeY[0] + 20',
+            'maxCoordY3D <= @MicroBooneGeo.RangeY[1] - 20',
+            'minCoordZ3D >= @MicroBooneGeo.RangeY[0] + 10',
+            'maxCoordZ3D <= @MicroBooneGeo.RangeZ[1] - 10',
             #'nHitsU>=20 and nHitsV >= 20 and nHitsW>=20 and nHits3D>=20',
             #'mcHierarchyTier == 1 or (abs(mcPdgCode) == 22 and mcHierarchyTier <= 2)',
             #'mcNuanceCode == 1000', # ????????????????????????

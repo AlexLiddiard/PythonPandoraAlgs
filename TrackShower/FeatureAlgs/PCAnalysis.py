@@ -58,6 +58,16 @@ def GetEigenValues(covmatrix, withVectors=True):
         eigenvalues.sort()
         return eigenvalues.real
 
+def FindOutliers(coordSets, intercept = None, fraction=0.85):
+    reducedCoordSets = PcaReduce(coordSets, intercept)
+    tCoordSets = reducedCoordSets[1:]
+    tDistance = np.linalg.norm(tCoordSets, axis=0)
+    sort = tDistance.argsort()
+    index = int(len(coordSets[0]) * fraction)
+    filter = np.repeat(True, len(coordSets[0]))
+    filter[sort[index:]] = False
+    return filter
+
 def GetFeatures(pfo, calculateViews):
     PcaReduce((pfo.driftCoordW, pfo.wireCoordW))
     featureDict = {}

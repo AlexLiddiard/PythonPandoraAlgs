@@ -55,7 +55,6 @@ def GetFilteredPfoData(dataSource, pfoClass, filterClass, filterName):
         if cfg.preFilters[filterClass]["general"] != "":
             dfPfoData = dfPfoData.query(cfg.preFilters[filterClass]["general"])
         if cfg.preFilters[filterClass][filterName] != "":
-            print(cfg.preFilters[filterClass][filterName])
             dfPfoData = dfPfoData.query(cfg.preFilters[filterClass][filterName])
     dfPfoData = dfPfoData.reset_index(drop=True)
 

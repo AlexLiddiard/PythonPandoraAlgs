@@ -2,8 +2,8 @@ import numpy as np
 
 ############################################## PREDICTOR ANALYSER CONFIGURATION ##################################################
 
-predictor = {"name": "Likelihood", "algorithmName": "LikelihoodCalculator", "range": (0, 1), 'cutDirection': 'right'}#, 'fixedCutoff': 0.5}
-#predictor = {"name": "BDTMulti", "algorithmName": "BDTCalculator", "range": (-10, 10), 'cutDirection': 'left'}
+predictor = {"name": "Likelihood", "algorithmName": "LikelihoodCalculator", "range": (0, 1), 'cutDirection': 'right', 'plotCut': 'fancy'}
+#predictor = {"name": "BDTMulti", "algorithmName": "BDTCalculator", "range": (-10, 10), 'cutDirection': 'left', 'plotCut': 'fancy'}
 
 predictorHistograms = [
     {

@@ -1,5 +1,6 @@
 import numpy as np
 import math as m
+from UpRootFileReader import MicroBooneGeo
 
 ############################################## LIKELIHOOD CALCULATOR CONFIGURATION ##################################################
 
@@ -57,4 +58,10 @@ features = [
     {'name': 'BraggPeakW', 'algorithmName': 'BraggPeak','pdfBins': np.linspace(0, 1, num=100)},
     {'name': 'BraggPeak3D', 'algorithmName': 'BraggPeak', 'pdfBins': np.linspace(0, 1, num=100)},
     #{'name': 'Moliere3D', 'algorithmName': 'MoliereRadius', 'pdfBins': np.linspace(0, 0.15, num=100)},
+    #{'name': 'minCoordX3D', 'algorithmName': 'GeneralInfo', 'pdfBins': np.linspace(MicroBooneGeo.RangeX[0], MicroBooneGeo.RangeX[1], num = 50)},
+    #{'name': 'minCoordY3D', 'algorithmName': 'GeneralInfo', 'pdfBins': np.linspace(MicroBooneGeo.RangeY[0], MicroBooneGeo.RangeY[1], num = 50)},
+    #{'name': 'minCoordZ3D', 'algorithmName': 'GeneralInfo', 'pdfBins': np.linspace(MicroBooneGeo.RangeZ[0], MicroBooneGeo.RangeZ[1], num = 50)},
+    #{'name': 'maxCoordX3D', 'algorithmName': 'GeneralInfo', 'pdfBins': np.linspace(MicroBooneGeo.RangeX[0], MicroBooneGeo.RangeX[1], num = 50)},
+    #{'name': 'maxCoordY3D', 'algorithmName': 'GeneralInfo', 'pdfBins': np.linspace(MicroBooneGeo.RangeY[0], MicroBooneGeo.RangeY[1], num = 50)},
+    #{'name': 'maxCoordZ3D', 'algorithmName': 'GeneralInfo', 'pdfBins': np.linspace(MicroBooneGeo.RangeY[0], MicroBooneGeo.RangeZ[1], num = 50)},
 ]
