@@ -19,12 +19,14 @@ dataSample = {
 filters = [
     #### PFO selection ####
     #"isShower==0 and Likelihood>0.001 and abs(mcpEnergy - 1.05) < 0.05",
-    "mcPdgCode==2212 and mcpMomentum < 1",
+    #"mcPdgCode==2212 and mcpMomentum < 1",
     #'AngularSpanW > 2',
     #'Likelihood > 0.89 and nHitsW > 200 and isShower != 1', # shower-like muons/protons/etc. with many hits
     #'likelihood > 0.89 and absPdgCode==2212' # shower-like protons
     #'likelihood < 0.89 and absPdgCode==11' # track-like electrons
     #'BinnedHitStdW==0' # BinnedHitStd anomaly
+    "completenessW==0.5",
+    #"completenessV==0",
 ]
 
 # Info to be displayed beside the PFO

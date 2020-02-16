@@ -145,7 +145,6 @@ if __name__ == "__main__":
         dfPfoData = ds.GetFilteredPfoData(*cfg.dataSample.values())
         SelectivePfoView(filePaths, dfPfoData, cfg.filters)
     else:
-        print(filePaths)
         RandomPfoView(filePaths)
     print('\nFinished!')
 
