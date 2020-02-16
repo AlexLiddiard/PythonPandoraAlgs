@@ -110,7 +110,7 @@ def RandomPfoView(filePaths):
     for filePath in filePaths:
         events = rdr.ReadRootFile(filePath)
         rnd.shuffle(events)
-        for eventPfos in events:
+        for eventPfos in events.values():
             for pfo in eventPfos:
                 if pfo.mcPdgCode == 0:
                     continue

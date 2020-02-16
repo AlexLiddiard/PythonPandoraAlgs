@@ -1,5 +1,4 @@
 import BaseConfig as bc
-from UpRootFileReader import MicroBooneGeo
 
 ############################################## DATA SAMPLER CONFIGURATION ##################################################
 
@@ -8,13 +7,13 @@ from UpRootFileReader import MicroBooneGeo
 dataSources = {
     "training": {
         "BNBNuOnly": (0, 0.5),
-        "BNBNuOnly400-800": (0, 1),
-        #"BNBNuOnly0-400": (0, 1),
+        "BNBNuOnly_400-800": (0, 1),
+        #"BNBNuOnly_0-400": (0, 1),
     },
     "performance": {
         "BNBNuOnly": (0.5, 1),
-        #"BNBNuOnly400-800": (0, 1),
-        #"BNBNuOnly0-400": (0, 1)
+        #"BNBNuOnly_400-800": (0, 1),
+        #"BNBNuOnly_0-400": (0, 1)
     }
 }
 
@@ -58,7 +57,6 @@ preFilters = {
 
     "performance": {
         "general": (
-            #'abs(mcPdgCode) != 2112',
             #'minCoordX3D >= @MicroBooneGeo.RangeX[0] + 10',
             #'maxCoordX3D <= @MicroBooneGeo.RangeX[1] - 10',
             #'minCoordY3D >= @MicroBooneGeo.RangeY[0] + 20',

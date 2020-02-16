@@ -54,4 +54,10 @@ features = [
     {'name': 'BraggPeakW', 'algorithmName': 'BraggPeak'},
     {'name': 'BraggPeak3D', 'algorithmName': 'BraggPeak'},
     {'name': 'Moliere3D', 'algorithmName': 'MoliereRadius'},
+    #{'name': 'minCoordX3D', 'algorithmName': 'GeneralInfo'},
+    #{'name': 'minCoordY3D', 'algorithmName': 'GeneralInfo'},
+    #{'name': 'minCoordZ3D', 'algorithmName': 'GeneralInfo'},
+    #{'name': 'maxCoordX3D', 'algorithmName': 'GeneralInfo'},
+    #{'name': 'maxCoordY3D', 'algorithmName': 'GeneralInfo'},
+    #{'name': 'maxCoordZ3D', 'algorithmName': 'GeneralInfo'},
 ]

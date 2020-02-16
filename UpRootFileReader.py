@@ -194,23 +194,18 @@ def AddPfoToEvent(eventPfos, pfo):
 def ReadRootFile(filepath):
     file = up.open(filepath)
     tree = file["PFOs"].pandas.df(flatten=False)
-    events = []        # Array containing arrays of Pfos from the same event.
-    currentEventId = -1    # Allows function writing to the events and eventPfos arrays to work (see below).
+    events = {}        # Dictionary containing arrays of Pfos from the same event.
 
     for index, pfo in tree.iterrows():
-        PfoBeingRead = PfoClass(pfo, os.path.basename(filepath))  # Inputing the variables read from the ROOT file into the class to create the PfoObject.
-        if currentEventId == pfo.eventId:
-            AddPfoToEvent(eventPfos, PfoBeingRead)
+        pfoBeingRead = PfoClass(pfo, os.path.basename(filepath))  # Inputing the variables read from the ROOT file into the class to create the PfoObject.
+        if pfoBeingRead.eventId in events:
+            events[pfoBeingRead.eventId].append(pfoBeingRead)
         else:
-            if currentEventId != -1:
-                SetAssociatedData(eventPfos)
-                events.append(eventPfos)
-            eventPfos = [PfoBeingRead]
-            currentEventId = pfo.eventId
-
-    # The for loop does not append the last event to the array
-    SetAssociatedData(eventPfos)
-    events.append(eventPfos)
+            events[pfoBeingRead.eventId] = [pfoBeingRead]
+    
+    for event in events.values():
+        event.sort(key=lambda pfo: pfo.pfoId)
+        SetAssociatedData(event)
     return events
 
 # Set any data that is based on hierarchy associations

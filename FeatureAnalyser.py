@@ -187,12 +187,12 @@ def PlotPurityEfficiencyVsCutoff(featureName, classNames, cutoffValues, cutoffRe
         GraphCutoffLine(bx2, classNames, cutoffResults[4])
 
         bx1.set_ylim([0, 1])
-        bx1.set_title("Purity/Efficiency vs %s Cutoff — %s" %(featureName, classNames[0]))
+        #bx1.set_title("Purity/Efficiency vs %s Cutoff — %s" %(featureName, classNames[0]))
         bx1.set_xlabel(featureName + " Cutoff")
         bx1.set_ylabel("Fraction")
 
         bx2.set_ylim([0, 1])
-        bx2.set_title("Purity/Efficiency vs %s Cutoff — %s" % (featureName, classNames[1]))
+        #bx2.set_title("Purity/Efficiency vs %s Cutoff — %s" % (featureName, classNames[1]))
         bx2.set_xlabel(featureName + " Cutoff")
         bx2.set_ylabel("Fraction")
 
@@ -215,7 +215,7 @@ if __name__ == "__main__":
     ds.LoadPfoData(cfg.features)
 
     for feature in cfg.features:
-        dfPfoData = ds.GetFilteredPfoData("all", "all", "performance", ds.GetFeatureView(feature["name"]))
+        dfPfoData = ds.GetFilteredPfoData("performance", "all", "performance", ds.GetFeatureView(feature["name"]))
         dfClass0Data = ds.GetFilteredPfoData("performance", gc.classNames[0], "performance", ds.GetFeatureView(feature["name"]))
         dfClass1Data = ds.GetFilteredPfoData("performance", gc.classNames[1], "performance", ds.GetFeatureView(feature["name"]))
         cutoffValues, cutoffResults = GetBestPurityEfficiency(dfClass0Data, dfClass1Data, feature, cfg.purityEfficiency["nTestCuts"])

@@ -3,6 +3,7 @@ import pandas as pd
 import math as m
 import numpy as np
 import os
+from UpRootFileReader import MicroBooneGeo
 import GeneralConfig as gc
 import DataSamplerConfig as cfg
 
