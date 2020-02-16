@@ -10,17 +10,22 @@ from itertools import count
 import GetFeatureDataConfig as cfg
 algorithms = [importlib.import_module(algorithm) for algorithm in cfg.algorithmNames]
 
-def ProcessFile(filePath):
+def ProcessFile(filePath, algs=None):
+    if algs is None:
+        algs = algorithms
     events = UpRootFileReader.ReadRootFile(filePath)
+    return ProcessEvents(events, algorithms)
+
+def ProcessEvents(events, algs):
     algorithmData = [[] for i in range(len(algorithms))]
-    for eventPfos in events.values():
+    for eventPfos in events:
         for pfo in eventPfos:
             if pfo.mcPdgCode == 0 or pfo.nHitsPfo3D == 0:
                 continue
             for data, algorithm in zip(algorithmData, algorithms):
                 data.append(algorithm.GetFeatures(pfo, cfg.calculateViews))
     return [pd.DataFrame(data) for data in algorithmData]
-
+    
 if __name__ == "__main__":
     filePaths =  glob(cfg.rootFileDirectory + '/**/*.root', recursive=True)
     if filePaths:
