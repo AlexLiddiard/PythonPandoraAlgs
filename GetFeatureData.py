@@ -18,7 +18,7 @@ def ProcessFile(filePath, algs=None):
 
 def ProcessEvents(events, algs):
     algorithmData = [[] for i in range(len(algorithms))]
-    for eventPfos in events:
+    for eventPfos in events.values():
         for pfo in eventPfos:
             if pfo.mcPdgCode == 0 or pfo.nHitsPfo3D == 0:
                 continue
