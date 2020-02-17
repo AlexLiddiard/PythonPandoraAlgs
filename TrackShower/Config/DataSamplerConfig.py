@@ -6,8 +6,8 @@ import BaseConfig as bc
 #  where e.g. data start fraction = (data start position) / (# of samples)
 dataSources = {
     "training": {
-        #"BNBNuOnly": (0, 0.5),
-        #"BNBNuOnly_400-800": (0, 1),
+        "BNBNuOnly": (0, 0.5),
+        "BNBNuOnly_400-800": (0, 1),
         #"BNBNuOnly_0-400": (0, 1),
     },
     "performance": {
@@ -57,14 +57,15 @@ preFilters = {
 
     "performance": {
         "general": (
-            #'maxCoordX3D >= @MicroBooneGeo.RangeX[0] + 10',
+            #'maxCoordX3D >= @MicroBooneGeo.RangeX[0] + 15',
             'minCoordX3D <= @MicroBooneGeo.RangeX[1] - 15',
             #'maxCoordY3D >= @MicroBooneGeo.RangeY[0] + 20',
             'minCoordY3D <= @MicroBooneGeo.RangeY[1] - 20',
             #'maxCoordZ3D >= @MicroBooneGeo.RangeY[0] + 20',
             'minCoordZ3D <= @MicroBooneGeo.RangeZ[1] - 20',
+            #'nHitsU >= 20 and nHitsV>=20 and nHits3D>=20',
             'nHitsU>=20 and nHitsV >= 20 and nHitsW>=20 and nHits3D>=20',
-            #"nHitsU + nHitsV + nHitsW >= 100"
+            #"nHitsU + nHitsV + nHitsW >= 100",
             #'nHitsU>0 and nHitsV>0 and nHitsW>0',
         ),
         "U": (

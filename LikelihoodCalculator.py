@@ -42,7 +42,10 @@ def CalculateLikelihoodValues(features):
     p1 = np.repeat(class1Prior, len(ds.dfInputPfoData))
 
     for view in ds.GetFeatureViews(features):
-        pfoCheck = ds.dfInputPfoData.eval(dsc.preFilters["performance"][view])
+        if dsc.preFilters["performance"][view] != "":
+            pfoCheck = ds.dfInputPfoData.eval(dsc.preFilters["performance"][view])
+        else:
+            pfoCheck = True
         p0 *= (1 + pfoCheck * (probabilities[0][view] - 1))
         p1 *= (1 + pfoCheck * (probabilities[1][view] - 1))
     return p1 / (p1 + p0)

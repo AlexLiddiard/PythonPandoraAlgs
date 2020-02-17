@@ -3,8 +3,8 @@ from UpRootFileReader import MicroBooneGeo
 
 ############################################## PREDICTOR ANALYSER CONFIGURATION ##################################################
 
-#predictor = {"name": "Likelihood", "algorithmName": "LikelihoodCalculator", "range": (0, 1), 'cutDirection': 'right', 'plotCut': 'fancy'}
-predictor = {"name": "BDTMulti", "algorithmName": "BDTCalculator", "range": (-10, 10), 'cutDirection': 'left', 'plotCut': 'fancy'}
+predictor = {"name": "Likelihood", "algorithmName": "LikelihoodCalculator", "range": (0, 1), 'cutDirection': 'right', 'cutPlot': 'simple'}
+#predictor = {"name": "BDTMulti", "algorithmName": "BDTCalculator", "range": (-10, 10), 'cutDirection': 'left', 'plotCut': 'fancy'}
 
 predictorHistograms = [
     {
@@ -41,16 +41,16 @@ predictorHistograms = [
 
 purityEfficiencyVsCutoffGraph = {'nTestCuts': 1001}
 purityEfficiencyBinnedGraphs = [
-    {
-        "dependence": "minCoordX3D",
-        'bins': np.linspace(MicroBooneGeo.RangeX[0], MicroBooneGeo.RangeX[1], num=40),
-        "pfoClass": "both"
-    },
-    {
-        "dependence": "maxCoordX3D",
-        'bins': np.linspace(MicroBooneGeo.RangeX[0], MicroBooneGeo.RangeX[1], num=40),
-        "pfoClass": "both"
-    },
+    #{
+    #    "dependence": "minCoordX3D",
+    #    'bins': np.linspace(MicroBooneGeo.RangeX[0], MicroBooneGeo.RangeX[1], num=40),
+    #    "pfoClass": "both"
+    #},
+    #{
+    #    "dependence": "maxCoordX3D",
+    #    'bins': np.linspace(MicroBooneGeo.RangeX[0], MicroBooneGeo.RangeX[1], num=40),
+    #    "pfoClass": "both"
+    #},
     #{
     #    "dependence": "minCoordY3D",
     #    'bins': np.linspace(MicroBooneGeo.RangeY[0], MicroBooneGeo.RangeY[1], num=40),
@@ -61,11 +61,11 @@ purityEfficiencyBinnedGraphs = [
     #    'bins': np.linspace(MicroBooneGeo.RangeY[0], MicroBooneGeo.RangeY[1], num=40),
     #    "pfoClass": "both"
     #},
-    #{
-    #    "dependence": "minCoordZ3D",
-    #    'bins': np.linspace(MicroBooneGeo.RangeZ[0], MicroBooneGeo.RangeZ[1], num=40),
-    #    "pfoClass": "both"
-    #},
+    {
+        "dependence": "minCoordZ3D",
+        'bins': np.linspace(MicroBooneGeo.RangeZ[0], MicroBooneGeo.RangeZ[1], num=40),
+        "pfoClass": "both"
+    },
     #{
     #    "dependence": "maxCoordZ3D",
     #    'bins': np.linspace(MicroBooneGeo.RangeZ[0], MicroBooneGeo.RangeZ[1], num=40),
@@ -79,6 +79,11 @@ purityEfficiencyBinnedGraphs = [
     {
         "dependence": "mcpMomentum",
         'bins': np.linspace(0, 1.5, num=40),
+        "pfoClass": "both"
+    },
+    {
+        "dependence": "nHitsW", 
+        'bins': np.linspace(0, 400, num=40), 
         "pfoClass": "both"
     },
     {

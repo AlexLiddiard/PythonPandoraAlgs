@@ -12,6 +12,7 @@ from imblearn.combine import SMOTETomek as smtmk
 from imblearn.over_sampling import SMOTE as smt
 from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
+from sklearn.inspection import permutation_importance
 from imblearn.over_sampling import RandomOverSampler as ros
 import GeneralConfig as gc
 import BDTCalculatorConfig as cfg
@@ -29,33 +30,60 @@ def TrainBDT(featureNames, trainingData, classificationArray):
 
 def GetBDTValues(bdts, featureViews, evalData):
     btdValues = {}
-    for btdName in bdts:
+    for btdName, bdt in bdts.items():
         view = ds.GetFeatureView(btdName)
-        btdValues[btdName] = bdts[btdName].decision_function(evalData[featureViews[view]])
+        btdValues[btdName] = bdt.decision_function(evalData[featureViews[view]])
+        results = permutation_importance(bdt, evalData[featureViews[view]], evalData.eval(gc.classQueries[0]))
     return pd.DataFrame(btdValues)
+
+def ShowBDTFeatureImportances(bdts, featureViews, evalData):
+    for btdName, bdt in bdts.items():
+        view = ds.GetFeatureView(btdName)
+        ShowFeatureImportance(bdt, featureViews[view], evalData)
+
+def ShowFeatureImportance(bdt, featureNames, evalData):
+    results = permutation_importance(bdt, evalData[featureNames], evalData.eval(gc.classQueries[0]), n_repeats=25)
+    perm_sorted_idx = results.importances_mean.argsort()
+    fig, ax = plt.subplots(1, 1, figsize=(12, 8))
+    ax.boxplot(results.importances[perm_sorted_idx].T, vert=False, labels=featureNames)
+    fig.tight_layout()
+    plt.show()
 
 if __name__ == "__main__":
     # Load the training PFOs
     ds.LoadPfoData(cfg.features)
-    bdts = {}
+
+    # U/V/W/3D BTDs
+    viewBDTs = {}
     featureViews = ds.GetFeatureViews(cfg.features)
-    for view in featureViews:
-        dfTrainingPfoData = ds.GetFilteredPfoData("training", "all", "training", view)
+    for view, featureNames in featureViews.items():
+        dfPfoData = ds.GetFilteredPfoData("training", "all", "training", view)
         print("\nTraining BDT for " + view + " view")
-        bdts["BDT" + view] = TrainBDT(featureViews[view], dfTrainingPfoData, dfTrainingPfoData.eval(gc.classQueries[0]))
+        viewBDTs["BDT" + view] = TrainBDT(featureNames, dfPfoData, dfPfoData.eval(gc.classQueries[0]))
+        dfPfoData = ds.GetFilteredPfoData("performance", "all", "performance", view)
+        print("Calculating feature importance")
+        ShowFeatureImportance(viewBDTs["BDT" + view], featureNames, dfPfoData)
 
-    dfTrainingPfoData = ds.GetFilteredPfoData("training", "all", "training", "union")
-    dfBdtValues = GetBDTValues(bdts, featureViews, dfTrainingPfoData)
-    trainingPfoData = pd.concat([dfTrainingPfoData, dfBdtValues], axis=1, sort=False)
-
-    print("\nTraining BDTMulti")
     # BDTMulti
-    bdtMulti = TrainBDT(dfBdtValues.columns, trainingPfoData, trainingPfoData.eval(gc.classQueries[0]))
-    dfBdtValues = GetBDTValues(bdts, featureViews, ds.dfInputPfoData)
+    dfPfoData = ds.GetFilteredPfoData("training", "all", "training", "union")
+    dfViewBDTValues = GetBDTValues(viewBDTs, featureViews, dfPfoData)
+    dfPfoData = pd.concat([dfPfoData, dfViewBDTValues], axis=1, sort=False)
+    print("\nTraining BDTMulti")
+    bdtMulti = TrainBDT(dfViewBDTValues.columns, dfPfoData, dfPfoData.eval(gc.classQueries[0]))
+    print("Calculating view importance")
+    dfPfoData = ds.GetFilteredPfoData("performance", "all", "performance", "union")
+    dfViewBDTValues = GetBDTValues(viewBDTs, featureViews, dfPfoData)
+    dfPfoData = pd.concat([dfPfoData, dfViewBDTValues], axis=1, sort=False)
+    ShowFeatureImportance(bdtMulti, dfViewBDTValues.columns, dfPfoData)
+
+    # Calculate BDT values
+    print("\nCalculating BDT values")
+    dfBdtValues = GetBDTValues(viewBDTs, featureViews, ds.dfInputPfoData)
     dfBdtValues["BDTMulti"] = bdtMulti.decision_function(dfBdtValues)
 
     #print("\nTraining BDTAll")
     # BDTAll
+    #dfTrainingPfoData = ds.GetFilteredPfoData("training", "all", "training", "union")
     #featureNames = ds.GetFeatureNames(cfg.features)
     #bdtAll = TrainBDT(featureNames, dfTrainingPfoData, dfTrainingPfoData.eval(gc.classQueries[0]))
     #dfBdtValues["BDTAll"] = bdtAll.decision_function(ds.dfInputPfoData[featureNames])
