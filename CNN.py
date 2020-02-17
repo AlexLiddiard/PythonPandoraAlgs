@@ -46,6 +46,7 @@ def PlotPFOSVG(driftCoords, wireCoords, driftCoordErrors, energies, fileName, dr
 def ProcessFile(filePath):
     events = rdr.ReadRootFile(filePath)
     df = gfd.ProcessEvents(events, [importlib.import_module("GeneralInfo")])[0]
+    df = df.query(cc.filters['general'])
     for className, classQuery in gc.classes.items():
         if className == "all":
             continue
