@@ -16,6 +16,9 @@ from sklearn.inspection import permutation_importance
 from imblearn.over_sampling import RandomOverSampler as ros
 import GeneralConfig as gc
 import BDTCalculatorConfig as cfg
+import HistoSynthesisConfig as hsc
+
+plt.rcParams.update(hsc.plotStyle)
 
 def TrainBDT(featureNames, trainingData, classificationArray):
     clf = ensemble.HistGradientBoostingClassifier()
