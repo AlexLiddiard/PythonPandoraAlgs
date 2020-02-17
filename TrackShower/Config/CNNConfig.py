@@ -2,7 +2,7 @@ import BaseConfig as bc
 import numpy as np
 import DataSamplerConfig as dsc
 
-rootFileDirectory =  bc.pythonFolderFull + "/ROOT Files/OneFile"
+rootFileDirectory =  bc.pythonFolderFull + "/ROOT Files/BNBNuOnly"
 outputFolder = bc.analysisFolderFull + "/SVGData"
 
 # {"View": (driftSpan, wireSpan)}
@@ -12,7 +12,7 @@ imageSpan = {
     "W": (100, 100),
 }
 
-maxEnergy = 5000
+maxEnergy = 2000
 logMaxEnergy = np.log(maxEnergy)
 
 preRequisites = [
