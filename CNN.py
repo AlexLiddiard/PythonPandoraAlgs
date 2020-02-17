@@ -7,6 +7,7 @@ import concurrent.futures as cf
 import importlib
 from tqdm import tqdm
 import numpy as np
+from UpRootFileReader import MicroBooneGeo
 import CNNConfig as cc
 import GeneralConfig as gc
 import GetFeatureData as gfd
@@ -39,14 +40,14 @@ def PlotPFOSVG(driftCoords, wireCoords, driftCoordErrors, energies, fileName, dr
     dwg.add(dwg.rect(insert=(meanDriftCoord - halfDriftSpan, meanWireCoord - halfWireSpan), size=(driftSpan, wireSpan), rx=None, ry=None, fill='rgb(0,0,0)'))
     for driftCoord, wireCoord, driftCoordError, energy in zip(driftCoords, wireCoords, driftCoordErrors, energies):
         ellipse = dwg.ellipse(center=(driftCoord, wireCoord), r=(driftCoordError, 0.3))
-        ellipse.fill('white', opacity = min(np.log1p(energy)/cc.logMaxEnergy, 1))
+        ellipse.fill('white', opacity = min(energy/2000 , 1)) #min(np.log1p(energy)/cc.logMaxEnergy, 1)
         dwg.add(ellipse)
     dwg.save()
 
 def ProcessFile(filePath):
     events = rdr.ReadRootFile(filePath)
     df = gfd.ProcessEvents(events, [importlib.import_module("GeneralInfo")])[0]
-    df = df.query(cc.filters['general'])
+    df = df.query(cc.preRequisites)
     for className, classQuery in gc.classes.items():
         if className == "all":
             continue
