@@ -40,7 +40,7 @@ def PlotPFOSVG(driftCoords, wireCoords, driftCoordErrors, energies, fileName, dr
     dwg.add(dwg.rect(insert=(meanDriftCoord - halfDriftSpan, meanWireCoord - halfWireSpan), size=(driftSpan, wireSpan), rx=None, ry=None, fill='rgb(0,0,0)'))
     for driftCoord, wireCoord, driftCoordError, energy in zip(driftCoords, wireCoords, driftCoordErrors, energies):
         ellipse = dwg.ellipse(center=(driftCoord, wireCoord), r=(driftCoordError, 0.3))
-        ellipse.fill('white', opacity = min(energy/2000 , 1)) #min(np.log1p(energy)/cc.logMaxEnergy, 1)
+        ellipse.fill('white', opacity = min(energy/cc.maxEnergy , 1)) #min(np.log1p(energy)/cc.logMaxEnergy, 1)
         dwg.add(ellipse)
     dwg.save()
 
@@ -65,6 +65,6 @@ for className in gc.classNames:
 filePaths = glob.glob(cc.rootFileDirectory + '/**/*.root', recursive=True)
 if filePaths:
     with cf.ProcessPoolExecutor() as executor:
-        tqdm(executor.map(ProcessFile, filePaths), total=len(filePaths))
+        list(tqdm(executor.map(ProcessFile, filePaths), total=len(filePaths)))
 else:
     print('No ROOT files found!')
