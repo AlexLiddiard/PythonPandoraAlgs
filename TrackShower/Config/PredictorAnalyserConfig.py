@@ -3,14 +3,14 @@ from UpRootFileReader import MicroBooneGeo
 
 ############################################## PREDICTOR ANALYSER CONFIGURATION ##################################################
 
-predictor = {"name": "Likelihood", "algorithmName": "LikelihoodCalculator", "range": (0, 1), 'cutDirection': 'right', 'cutPlot': 'simple'}
-#predictor = {"name": "BDTMulti", "algorithmName": "BDTCalculator", "range": (-10, 10), 'cutDirection': 'left', 'plotCut': 'fancy'}
+#predictor = {"name": "Likelihood", "algorithmName": "LikelihoodCalculator", "range": (0, 1), 'cutDirection': 'right', 'cutPlot': 'simple'}
+predictor = {"name": "BDTMulti", "algorithmName": "BDTCalculator", "range": (-10, 11), 'cutDirection': 'left', 'cutPlot': 'simple'}
 
 predictorHistograms = [
     {
         'filters': (
-            ('Showers', 'isShower==1', 'isShower in (0, 1)', True),
-            ('Tracks', 'isShower==0', 'isShower in (0, 1)', True)
+            ('Showers', 'isShower==1', 'count', True),
+            ('Tracks', 'isShower==0', 'count', True)
         ),
         'bins': np.linspace(*predictor["range"], num=50),
         'yAxis': 'log',
@@ -18,9 +18,9 @@ predictorHistograms = [
     },
     {
         'filters': (
-            ('Showers', 'isShower==1', 'isShower in (0, 1)', True),
-            ('Electrons + Positrons', 'abs(mcPdgCode)==11', 'isShower in (0, 1)', False),
-            ('Photons', 'abs(mcPdgCode)==22', 'isShower in (0, 1)', False)
+            ('Showers', 'isShower==1', 'count', True),
+            ('Electrons + Positrons', 'abs(mcPdgCode)==11', 'count', False),
+            ('Photons', 'abs(mcPdgCode)==22', 'count', False)
         ),
         'bins': np.linspace(*predictor["range"], num=25),
         'yAxis': 'log',
@@ -28,10 +28,10 @@ predictorHistograms = [
     },
     {
         'filters': (
-            ('Tracks', 'isShower in (0, 1)', '', True),
-            ('Protons', 'abs(mcPdgCode)==2212', 'isShower in (0, 1)', False),
-            ('Muons', 'abs(mcPdgCode)==13', 'isShower in (0, 1)', False),
-            ('Charged Pions', 'abs(mcPdgCode)==211', 'isShower in (0, 1)', False)
+            ('Tracks', 'isShower in (0, 1)', 'count', True),
+            ('Protons', 'abs(mcPdgCode)==2212', 'count', False),
+            ('Muons', 'abs(mcPdgCode)==13', 'count', False),
+            ('Charged Pions', 'abs(mcPdgCode)==211', 'count', False)
         ),
         'bins': np.linspace(*predictor["range"], num=25),
         'yAxis': 'log',
