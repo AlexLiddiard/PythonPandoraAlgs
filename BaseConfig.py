@@ -9,7 +9,7 @@ analysisFolder = "TrackShower"
 pyplotBackend = 'Qt5Agg'
 
 pythonFolderFull = myTestArea + "/" + pythonFolder
-analysisFolderFull = myTestArea + "/" + "/" + analysisFolder
+analysisFolderFull = myTestArea + "/" + pythonFolder + "/" + analysisFolder
 featureAlgsFolderFull = myTestArea + "/" + pythonFolder + "/" + analysisFolder + "/FeatureAlgs"
 configFolderFull = myTestArea + "/" + pythonFolder + "/" + analysisFolder + "/Config"
 dataFolderFull = myTestArea + "/" + pythonFolder + "/" + analysisFolder + "/PickleData"
