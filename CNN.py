@@ -12,6 +12,10 @@ import CNNConfig as cc
 import GeneralConfig as gc
 from GetFeatureData import ProcessEvents
 
+def EnsureFilePath(filePath):
+    if not os.path.exists(filePath):
+        os.mkdir(filePath)
+
 def PlotPFOSVG(driftCoords, wireCoords, driftCoordErrors, wireCoordError, energies, fileName, driftSpan = 100, wireSpan = 100):
     
     if len(driftCoords) == 0:
@@ -46,24 +50,34 @@ def PlotPFOSVG(driftCoords, wireCoords, driftCoordErrors, wireCoordError, energi
 def ProcessFile(filePath):
     events = rdr.ReadRootFile(filePath)
     df = ProcessEvents(events, [importlib.import_module("GeneralInfo")])[0]
-    df = df.query(cc.preRequisites["training"])
+    df = df.query(currentFilter)
     for className, classQuery in gc.classes.items():
         if className == "all":
             continue
         dfClass = df.query(classQuery)
         for index, pfoGeneralInfo in dfClass.iterrows():
             pfo = events[pfoGeneralInfo.eventId][pfoGeneralInfo.pfoId]
-            PlotPFOSVG(pfo.driftCoordW, pfo.wireCoordW, pfo.driftCoordErrW, pfo.wireCoordErr, pfo.energyW, "%s/%s/%s_%s_%s_v001.png" %(cc.outputFolder, className, pfo.fileName, pfo.eventId, pfo.pfoId), *cc.imageSpan["W"])
-            PlotPFOSVG(pfo.driftCoordU, pfo.wireCoordU, pfo.driftCoordErrU, pfo.wireCoordErr, pfo.energyU, "%s/%s/%s_%s_%s_v002.png" %(cc.outputFolder, className, pfo.fileName, pfo.eventId, pfo.pfoId), *cc.imageSpan["U"])
-            PlotPFOSVG(pfo.driftCoordV, pfo.wireCoordV, pfo.driftCoordErrV, pfo.wireCoordErr, pfo.energyV, "%s/%s/%s_%s_%s_v003.png" %(cc.outputFolder, className, pfo.fileName, pfo.eventId, pfo.pfoId), *cc.imageSpan["V"])
+            PlotPFOSVG(pfo.driftCoordW, pfo.wireCoordW, pfo.driftCoordErrW, pfo.wireCoordErr, pfo.energyW, "%s/%s_%s_%s_v001.png" %(currentOutputFolder %(className), pfo.fileName, pfo.eventId, pfo.pfoId), *cc.imageSpan["W"])
+            PlotPFOSVG(pfo.driftCoordU, pfo.wireCoordU, pfo.driftCoordErrU, pfo.wireCoordErr, pfo.energyU, "%s/%s_%s_%s_v002.png" %(currentOutputFolder %(className), pfo.fileName, pfo.eventId, pfo.pfoId), *cc.imageSpan["U"])
+            PlotPFOSVG(pfo.driftCoordV, pfo.wireCoordV, pfo.driftCoordErrV, pfo.wireCoordErr, pfo.energyV, "%s/%s_%s_%s_v003.png" %(currentOutputFolder %(className), pfo.fileName, pfo.eventId, pfo.pfoId), *cc.imageSpan["V"])
+
+EnsureFilePath(cc.outputFolder)
 
 for className in gc.classNames:
-    if not os.path.exists(cc.outputFolder + "/" + className):
-        os.mkdir(cc.outputFolder + "/" + className)
+    EnsureFilePath(cc.outputFolder + "/" + className)
+    EnsureFilePath(cc.outputFolder + "/" + className + "/train")
+    EnsureFilePath(cc.outputFolder + "/" + className + "/test")
 
 filePaths = glob.glob(cc.rootFileDirectory + '/**/*.root', recursive=True)
+
 if filePaths:
+    currentOutputFolder = cc.outputFolder + "/%s/train"
+    currentFilter = cc.preRequisites['training']
     with cf.ProcessPoolExecutor() as executor:
-        list(tqdm(executor.map(ProcessFile, filePaths), total=len(filePaths)))
+        list(tqdm(executor.map(ProcessFile, filePaths[:int(len(filePaths)*cc.trainingRatio)]), total=int(len(filePaths)*cc.trainingRatio)))
+    currentOutputFolder = cc.outputFolder + "/%s/test"
+    currentFilter = cc.preRequisites['performance']
+    with cf.ProcessPoolExecutor() as executor:
+        list(tqdm(executor.map(ProcessFile, filePaths[int(len(filePaths)*cc.trainingRatio):]), total=len(filePaths) - int(len(filePaths)*cc.trainingRatio)))
 else:
     print('No ROOT files found!')

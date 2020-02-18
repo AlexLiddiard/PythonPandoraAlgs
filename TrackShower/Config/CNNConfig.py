@@ -39,3 +39,5 @@ preRequisites = {
 
 preRequisites["training"] = dsc.CombineFilters(preRequisites["training"], "and")
 preRequisites["performance"] = dsc.CombineFilters(preRequisites["performance"], "and")
+
+trainingRatio = 0.5
