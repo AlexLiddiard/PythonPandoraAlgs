@@ -53,6 +53,8 @@ class PfoClass(object):
         self.mcPdgCode = pfo.mcPdgCode
         self.mcpMomentum = pfo.mcpMomentum
         self.mcHierarchyTier = pfo.mcHierarchyTier
+        self.mcParentPdgCode = pfo.mcParentPdgCode
+        self.mcDaughterPdgCodes = pfo.mcDaughterPdgCodes
         
         # U view
         self.driftCoordU = np.array(pfo.driftCoordU, dtype = np.double)
