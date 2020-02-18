@@ -27,7 +27,8 @@ def ProcessEvents(events, algs):
     return [pd.DataFrame(data) for data in algorithmData]
     
 if __name__ == "__main__":
-    filePaths =  glob(cfg.rootFileDirectory + '/**/*.root', recursive=True).sort()
+    filePaths =  glob(cfg.rootFileDirectory + '/**/*.root', recursive=True)
+    filePaths.sort() # Avoid system-dependent file order, so that the PFO order is consistent.
     if filePaths:
         with cf.ProcessPoolExecutor() as executor:
             results = list(tqdm(executor.map(ProcessFile, filePaths), total=len(filePaths)))
