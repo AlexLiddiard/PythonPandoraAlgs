@@ -12,6 +12,8 @@ from UpRootFileReader import MicroBooneGeo
 import CNNConfig as cc
 import GeneralConfig as gc
 from GetFeatureData import ProcessEvents
+from PfoGraphicalAnalyser import FileNameToFilePath
+import DataSampler as ds
 
 def EnsureFilePath(filePath):
     if not os.path.exists(filePath):
@@ -40,7 +42,7 @@ def PlotPFOSVG(driftCoords, wireCoords, driftCoordErrors, wireCoordError, energi
 
     #print("%s %s %s %s" %(Centre))
     #dwg = sw.Drawing(filename=fileName, size = (2560, 2560), viewBox = "%s %s %s %s" %(minDriftBoundary, minWireCoord - 0.3, maxDriftBoundary - minDriftBoundary, maxWireCoord + 0.6 - minWireCoord), debug=True)
-    dwg = sw.Drawing(filename=fileName, size = (256, 256), viewBox = "%s %s %s %s" %(meanDriftCoord - halfDriftSpan, meanWireCoord - halfWireSpan, driftSpan, wireSpan), debug=True)
+    dwg = sw.Drawing(filename=fileName, size = cc.imageSizePixels, viewBox = "%s %s %s %s" %(meanDriftCoord - halfDriftSpan, meanWireCoord - halfWireSpan, driftSpan, wireSpan), debug=True)
     dwg.add(dwg.rect(insert=(meanDriftCoord - halfDriftSpan, meanWireCoord - halfWireSpan), size=(driftSpan, wireSpan), rx=None, ry=None, fill='rgb(0,0,0)'))
     for driftCoord, wireCoord, driftCoordError, energy in zip(driftCoords, wireCoords, driftCoordErrors, energies):
         ellipse = dwg.ellipse(center=(driftCoord, wireCoord), r=(driftCoordError, wireCoordError))
@@ -48,10 +50,9 @@ def PlotPFOSVG(driftCoords, wireCoords, driftCoordErrors, wireCoordError, energi
         dwg.add(ellipse)
     svg2png(bytestring=dwg.tostring(), write_to=fileName)
 
-def ProcessFile(filePath):
-    events = rdr.ReadRootFile(filePath)
-    df = ProcessEvents(events, [importlib.import_module("GeneralInfo")])[0]
-    df = df.query(currentFilter)
+def ProcessFile(fileName):
+    events = rdr.ReadRootFile(nameToPathDict[fileName])
+    df = dfPfoData.query("fileName == @fileName")
     for className, classQuery in gc.classes.items():
         if className == "all":
             continue
@@ -62,6 +63,16 @@ def ProcessFile(filePath):
             PlotPFOSVG(pfo.driftCoordU, pfo.wireCoordU, pfo.driftCoordErrU, pfo.wireCoordErr, pfo.energyU, "%s/%s_%s_%s_v002.png" %(currentOutputFolder %(className), pfo.fileName, pfo.eventId, pfo.pfoId), *cc.imageSpan["U"])
             PlotPFOSVG(pfo.driftCoordV, pfo.wireCoordV, pfo.driftCoordErrV, pfo.wireCoordErr, pfo.energyV, "%s/%s_%s_%s_v003.png" %(currentOutputFolder %(className), pfo.fileName, pfo.eventId, pfo.pfoId), *cc.imageSpan["V"])
 
+def ProcessSample(dfPfoData, nameToPathDict, sampleName):
+    fileNames = list(nameToPathDict.keys() & set(dfPfoData["fileName"]))
+    global currentOutputFolder
+    currentOutputFolder = cc.outputFolder + "/%s/" + sampleName
+    if fileNames:
+        with cf.ProcessPoolExecutor() as executor:
+            list(tqdm(executor.map(ProcessFile, fileNames), total=len(fileNames)))
+    else:
+        print('No ROOT files found for ' + sampleName + ' sample!')
+
 EnsureFilePath(cc.outputFolder)
 
 for className in gc.classNames:
@@ -70,15 +81,13 @@ for className in gc.classNames:
     EnsureFilePath(cc.outputFolder + "/" + className + "/test")
 
 filePaths = glob.glob(cc.rootFileDirectory + '/**/*.root', recursive=True)
+nameToPathDict = FileNameToFilePath(filePaths)
+ds.LoadPfoData([]) # Load just the data in GeneralInfo
 
-if filePaths:
-    currentOutputFolder = cc.outputFolder + "/%s/train"
-    currentFilter = cc.preRequisites['training']
-    with cf.ProcessPoolExecutor() as executor:
-        list(tqdm(executor.map(ProcessFile, filePaths[:int(len(filePaths)*cc.trainingRatio)]), total=int(len(filePaths)*cc.trainingRatio)))
-    currentOutputFolder = cc.outputFolder + "/%s/test"
-    currentFilter = cc.preRequisites['performance']
-    with cf.ProcessPoolExecutor() as executor:
-        list(tqdm(executor.map(ProcessFile, filePaths[int(len(filePaths)*cc.trainingRatio):]), total=len(filePaths) - int(len(filePaths)*cc.trainingRatio)))
-else:
-    print('No ROOT files found!')
+# Training set
+dfPfoData = ds.GetFilteredPfoData("training", "all", "training", "union")
+ProcessSample(dfPfoData, nameToPathDict, "train")
+
+# Testing set
+dfPfoData = ds.GetFilteredPfoData("performance", "all", "performance", "union")
+ProcessSample(dfPfoData, nameToPathDict, "test")

@@ -3,7 +3,7 @@ import BaseConfig as bc
 ############################################## PFO GRAPHICAL ANALYSER CONFIGURATION ##################################################
 
 # The folder to read ROOT files from
-rootFileDirectory = bc.pythonFolderFull + "/ROOT Files/BNBNuOnly"
+rootFileDirectory = bc.pythonFolderFull + "/ROOT Files"
 
 # The data sample to select PFOs from
 # If unused, PFOs will be opened directly from ROOT files without any pre-fitering applied
