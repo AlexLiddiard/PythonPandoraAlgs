@@ -2,7 +2,7 @@ import BaseConfig as bc
 import numpy as np
 import DataSamplerConfig as dsc
 
-rootFileDirectory =  bc.pythonFolderFull + "/ROOT Files/BNBNuOnly"
+rootFileDirectory =  bc.pythonFolderFull + "/ROOT Files/OneFile"
 outputFolder = bc.analysisFolderFull + "/SVGData"
 
 # {"View": (driftSpan, wireSpan)}
@@ -12,17 +12,30 @@ imageSpan = {
     "W": (100, 100),
 }
 
-maxEnergy = 2000
-logMaxEnergy = np.log(maxEnergy)
+maxEnergyDensity = 1500 / (0.3 * 0.3)
 
-preRequisites = [
-    'abs(mcPdgCode) != 2112',
-    #'maxCoordX3D >= @MicroBooneGeo.RangeX[0] + 10',
-    'minCoordX3D <= @MicroBooneGeo.RangeX[1] - 15',
-    #'maxCoordY3D >= @MicroBooneGeo.RangeY[0] + 20',
-    'minCoordY3D <= @MicroBooneGeo.RangeY[1] - 20',
-    #'maxCoordZ3D >= @MicroBooneGeo.RangeY[0] + 20',
-    'minCoordZ3D <= @MicroBooneGeo.RangeZ[1] - 20',
-]
+preRequisites = {
+    "training":[
+        'abs(mcPdgCode) != 2112',
+        'minCoordX3D <= @MicroBooneGeo.RangeX[1] - 15',
+        'minCoordY3D <= @MicroBooneGeo.RangeY[1] - 20',
+        'minCoordZ3D <= @MicroBooneGeo.RangeZ[1] - 20',
+        'nHitsU>=20',
+        'nHitsV>=20',
+        'nHitsW>=20',
+        'purityU>=0.8',
+        'completenessU>=0.5',
+    ],
+    "performance":[
+        'minCoordX3D <= @MicroBooneGeo.RangeX[1] - 15',
+        'minCoordY3D <= @MicroBooneGeo.RangeY[1] - 20',
+        'minCoordZ3D <= @MicroBooneGeo.RangeZ[1] - 20',
+        'nHitsU>=20',
+        'nHitsV>=20',
+        'nHitsW>=20',
+    ]
+}
 
-preRequisites = dsc.CombineFilters(preRequisites, "and")
+
+preRequisites["training"] = dsc.CombineFilters(preRequisites["training"], "and")
+preRequisites["performance"] = dsc.CombineFilters(preRequisites["performance"], "and")
