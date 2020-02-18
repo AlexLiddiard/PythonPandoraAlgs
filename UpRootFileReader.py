@@ -43,12 +43,15 @@ class PfoClass(object):
         self.daughterPfoIds = np.array(pfo.daughterPfoIds)
         self.hierarchyTier = pfo.hierarchyTier
 
+        # PFO references
+        self.daughterPfos = None # Associated data, to be set later
+        self.parentPfo = None # Associated data, to be set later
+        self.incidentPfo = None # Associated data, to be set later
+
         # Simulation info
         self.mcNuanceCode = pfo.mcNuanceCode
         self.mcPdgCode = pfo.mcPdgCode
         self.mcpMomentum = pfo.mcpMomentum
-        self.nuMcPdgCode = 0 # Associated data, to be set later
-        self.nuMcpMomentum = 0 # Associated data, to be set later
         self.mcHierarchyTier = pfo.mcHierarchyTier
         
         # U view
@@ -210,10 +213,16 @@ def ReadRootFile(filepath):
 
 # Set any data that is based on hierarchy associations
 def SetAssociatedData(eventPfos):
-    nuMcpMomentum = eventPfos[0].mcpMomentum
-    nuMcPdgCode = eventPfos[0].mcPdgCode
     for pfo in eventPfos[1:]:
+        # PFO references
         parentPfo = eventPfos[pfo.parentPfoId]
+        pfo.incidentPfo = eventPfos[0]
+        pfo.parentPfo = eventPfos[pfo.parentPfoId]
+        pfo.daughterPfos = []
+        for pfoId in pfo.daughterPfoIds:
+            pfo.daughterPfos.append(eventPfos[pfoId])
+
+        # Vertexing
         if pfo.hierarchyTier == 1:
             pfo.interactionVertexU = parentPfo.vertexU
             pfo.interactionVertexV = parentPfo.vertexV
@@ -224,8 +233,6 @@ def SetAssociatedData(eventPfos):
             pfo.interactionVertexV = pvf.InteractionVertex2D(pfo.vertexV, pfo.driftCoordV, pfo.wireCoordV, parentPfo.vertexV, parentPfo.driftCoordV, parentPfo.wireCoordV, pfo.nHitsPfoV, parentPfo.nHitsPfoV)
             pfo.interactionVertexW = pvf.InteractionVertex2D(pfo.vertexW, pfo.driftCoordW, pfo.wireCoordW, parentPfo.vertexW, parentPfo.driftCoordW, parentPfo.wireCoordW, pfo.nHitsPfoW, parentPfo.nHitsPfoW)
             pfo.interactionVertex3D = pvf.InteractionVertex3D(pfo.vertex3D, pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, parentPfo.vertex3D, parentPfo.xCoord3D, parentPfo.yCoord3D, parentPfo.zCoord3D, pfo.nHitsPfo3D, parentPfo.nHitsPfo3D)
-        pfo.nuMcPdgCode = nuMcPdgCode
-        pfo.nuMcpMomentum = nuMcpMomentum
 
 def ReadPfoFromRootFile(filepath, eventId, pfoId):
     file = up.open(filepath)
