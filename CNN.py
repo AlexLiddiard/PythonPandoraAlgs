@@ -5,6 +5,7 @@ import os
 import random as rnd
 import concurrent.futures as cf
 import importlib
+from cairosvg import svg2png
 from tqdm import tqdm
 import numpy as np
 from UpRootFileReader import MicroBooneGeo
@@ -45,7 +46,7 @@ def PlotPFOSVG(driftCoords, wireCoords, driftCoordErrors, wireCoordError, energi
         ellipse = dwg.ellipse(center=(driftCoord, wireCoord), r=(driftCoordError, wireCoordError))
         ellipse.fill('white', opacity = min(energy/(wireCoordError * driftCoordError * cc.maxEnergyDensity) , 1)) #min(np.log1p(energy)/cc.logMaxEnergy, 1)
         dwg.add(ellipse)
-    dwg.save()
+    svg2png(bytestring=dwg.tostring(), write_to=fileName)
 
 def ProcessFile(filePath):
     events = rdr.ReadRootFile(filePath)
