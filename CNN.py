@@ -1,3 +1,4 @@
+import BaseConfig as bc
 import svgwrite as sw
 import UpRootFileReader as rdr
 import glob
@@ -8,7 +9,7 @@ import importlib
 from cairosvg import svg2png
 from tqdm import tqdm
 import numpy as np
-from UpRootFileReader import MicroBooneGeo
+from UpRootFileReader import MicroBooneGeo, ProjectVector
 import CNNConfig as cc
 import GeneralConfig as gc
 from GetFeatureData import ProcessEvents
@@ -19,7 +20,7 @@ def EnsureFilePath(filePath):
     if not os.path.exists(filePath):
         os.mkdir(filePath)
 
-def PlotPFOSVG(driftCoords, wireCoords, driftCoordErrors, wireCoordError, energies, fileName, driftSpan = 100, wireSpan = 100):
+def PlotPFOSVG(driftCoords, wireCoords, driftCoordErrors, wireCoordError, energies, fileName, centre, driftSpan = 100, wireSpan = 100):
     
     if len(driftCoords) == 0:
         return
@@ -59,9 +60,10 @@ def ProcessFile(fileName):
         dfClass = df.query(classQuery)
         for index, pfoGeneralInfo in dfClass.iterrows():
             pfo = events[pfoGeneralInfo.eventId][pfoGeneralInfo.pfoId]
-            PlotPFOSVG(pfo.driftCoordW, pfo.wireCoordW, pfo.driftCoordErrW, pfo.wireCoordErr, pfo.energyW, "%s/%s_%s_%s_v001.png" %(currentOutputFolder %(className), pfo.fileName, pfo.eventId, pfo.pfoId), *cc.imageSpan["W"])
-            PlotPFOSVG(pfo.driftCoordU, pfo.wireCoordU, pfo.driftCoordErrU, pfo.wireCoordErr, pfo.energyU, "%s/%s_%s_%s_v002.png" %(currentOutputFolder %(className), pfo.fileName, pfo.eventId, pfo.pfoId), *cc.imageSpan["U"])
-            PlotPFOSVG(pfo.driftCoordV, pfo.wireCoordV, pfo.driftCoordErrV, pfo.wireCoordErr, pfo.energyV, "%s/%s_%s_%s_v003.png" %(currentOutputFolder %(className), pfo.fileName, pfo.eventId, pfo.pfoId), *cc.imageSpan["V"])
+            centre3D = np.mean((pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D), axis=1)
+            PlotPFOSVG(pfo.driftCoordW, pfo.wireCoordW, pfo.driftCoordErrW, pfo.wireCoordErr, pfo.energyW, "%s/%s_%s_%s_v001.png" %(currentOutputFolder %(className), pfo.fileName, pfo.eventId, pfo.pfoId), ProjectVector(centre3D, "W"), *cc.imageSpan["W"])
+            PlotPFOSVG(pfo.driftCoordU, pfo.wireCoordU, pfo.driftCoordErrU, pfo.wireCoordErr, pfo.energyU, "%s/%s_%s_%s_v002.png" %(currentOutputFolder %(className), pfo.fileName, pfo.eventId, pfo.pfoId), ProjectVector(centre3D, "U"), *cc.imageSpan["U"])
+            PlotPFOSVG(pfo.driftCoordV, pfo.wireCoordV, pfo.driftCoordErrV, pfo.wireCoordErr, pfo.energyV, "%s/%s_%s_%s_v003.png" %(currentOutputFolder %(className), pfo.fileName, pfo.eventId, pfo.pfoId), ProjectVector(centre3D, "V"), *cc.imageSpan["V"])
 
 def ProcessSample(dfPfoData, nameToPathDict, sampleName):
     fileNames = list(nameToPathDict.keys() & set(dfPfoData["fileName"]))

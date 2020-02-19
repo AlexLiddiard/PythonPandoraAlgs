@@ -4,6 +4,7 @@ import PCAnalysis as pca
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import TestDeDx1 as tdd1
+from UpRootFileReader import ProjectVector
 
 def axisEqual3D(ax):
     extents = np.array([getattr(ax, 'get_{}lim'.format(dim))() for dim in 'xyz'])
@@ -22,16 +23,6 @@ def GetInitialDirection(xCoords, yCoords, zCoords, vertex, sphereRadius = 4):
     if filt.sum() <= 1:
         return
     return pca.Pca((xCoords[filt], yCoords[filt], zCoords[filt]), intercept=vertex)[1][:,-1]
-
-# Project the 3D PCA eigenvector into the corresponding 2D view.
-def ProjectEigenvector(eigenvector, view):
-    if view == 'U':
-        return np.array([eigenvector[0], 0.5 * eigenvector[2] - 0.8660254 * eigenvector[1]])
-    if view == 'V':
-        return np.array([eigenvector[0], 0.5 * eigenvector[2] + 0.8660254 * eigenvector[1]])
-    if view == 'W':
-       return np.array([eigenvector[0], eigenvector[2]])
-
 
 def GetHitsInRadius(coordSets, centre, radius=4):
     centre = np.reshape(centre, (-1, 1))
@@ -55,12 +46,12 @@ def GetDeDx(xCoords3D, yCoords3D, zCoords3D, view2D, driftCoords2D, driftCoordEr
         vertex3D = Calculate3dVertex(xCoords3D, yCoords3D, zCoords3D, initialLength, outlierFraction)
         if vertex3D is None:
             return m.nan
-    vertex2D = ProjectEigenvector(vertex3D, view2D)
+    vertex2D = ProjectVector(vertex3D, view2D)
 
     showerLongDirection3D = GetInitialDirection(xCoords3D, yCoords3D, zCoords3D, vertex3D, sphereRadius)
     if showerLongDirection3D is None:
         return m.nan
-    showerLongDirection2D = ProjectEigenvector(showerLongDirection3D, view2D)
+    showerLongDirection2D = ProjectVector(showerLongDirection3D, view2D)
     showerLongDirection2Dmag = np.linalg.norm(showerLongDirection2D)
     if showerLongDirection2Dmag == 0:
         return m.nan

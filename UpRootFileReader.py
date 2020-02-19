@@ -56,6 +56,15 @@ class PfoClass(object):
         self.mcParentPdgCode = pfo.mcParentPdgCode
         self.mcDaughterPdgCodes = pfo.mcDaughterPdgCodes
         
+        # 3D view
+        self.xCoord3D = pfo.xCoordThreeD
+        self.yCoord3D = pfo.yCoordThreeD
+        self.zCoord3D = pfo.zCoordThreeD
+        self.energy3D = pfo.energyThreeD
+        self.nHitsPfo3D = len(self.xCoord3D)
+        self.vertex3D = np.array([pfo.get("vertex[0]"), pfo.get("vertex[1]"), pfo.get("vertex[2]")], dtype = np.double)
+        self.interactionVertex3D = None
+
         # U view
         self.driftCoordU = np.array(pfo.driftCoordU, dtype = np.double)
         self.driftCoordErrU = np.array(pfo.driftCoordErrorU, dtype = np.double)
@@ -64,7 +73,7 @@ class PfoClass(object):
         self.nHitsPfoU = pfo.nHitsPfoU
         self.nHitsMcpU = pfo.nHitsMcpU
         self.nHitsMatchU = pfo.nHitsMatchU
-        self.vertexU = np.array([pfo.get("vertex[0]"), 0.5 * pfo.get("vertex[2]") - 0.8660254 * pfo.get("vertex[1]")], dtype = np.double)
+        self.vertexU = ProjectVector(self.vertex3D, "U")
         self.interactionVertexU = None
 
         # V view
@@ -75,7 +84,7 @@ class PfoClass(object):
         self.nHitsPfoV = pfo.nHitsPfoV
         self.nHitsMcpV = pfo.nHitsMcpV
         self.nHitsMatchV = pfo.nHitsMatchV
-        self.vertexV = np.array([pfo.get("vertex[0]"), 0.5 * pfo.get("vertex[2]") + 0.8660254 * pfo.get("vertex[1]")], dtype = np.double)
+        self.vertexV = ProjectVector(self.vertex3D, "V")
         self.interactionVertexV = None
 
         # W view
@@ -86,17 +95,8 @@ class PfoClass(object):
         self.nHitsPfoW = pfo.nHitsPfoW
         self.nHitsMcpW = pfo.nHitsMcpW
         self.nHitsMatchW = pfo.nHitsMatchW
-        self.vertexW = np.array([pfo.get("vertex[0]"), pfo.get("vertex[2]")], dtype = np.double)
+        self.vertexW = ProjectVector(self.vertex3D, "W")
         self.interactionVertexW = None
-
-        # 3D view
-        self.xCoord3D = pfo.xCoordThreeD
-        self.yCoord3D = pfo.yCoordThreeD
-        self.zCoord3D = pfo.zCoordThreeD
-        self.energy3D = pfo.energyThreeD
-        self.nHitsPfo3D = len(self.xCoord3D)
-        self.vertex3D = np.array([pfo.get("vertex[0]"), pfo.get("vertex[1]"), pfo.get("vertex[2]")], dtype = np.double)
-        self.interactionVertex3D = None
 
     # These change how the PFO is printed to the screen
     def __str__(self):
@@ -200,7 +200,6 @@ def ReadRootFile(filepath):
     file = up.open(filepath)
     tree = file["PFOs"].pandas.df(flatten=False)
     events = {}        # Dictionary containing arrays of Pfos from the same event.
-
     for index, pfo in tree.iterrows():
         pfoBeingRead = PfoClass(pfo, os.path.basename(filepath))  # Inputing the variables read from the ROOT file into the class to create the PfoObject.
         if pfoBeingRead.eventId in events:
@@ -245,3 +244,11 @@ def ReadPfoFromRootFile(filepath, eventId, pfoId):
         return PfoClass(tree.iloc[0], os.path.basename(filepath))
     else:
         return None
+
+def ProjectVector(vector, view):
+    if view == 'U':
+        return np.array([vector[0], 0.5 * vector[2] - 0.8660254 * vector[1]], dtype = np.double)
+    if view == 'V':
+        return np.array([vector[0], 0.5 * vector[2] + 0.8660254 * vector[1]], dtype = np.double)
+    if view == 'W':
+       return np.array([vector[0], vector[2]], dtype = np.double)
