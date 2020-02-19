@@ -11,30 +11,33 @@ dataSources = {
         #"BNBNuOnly": (0, 0.5),
         #"BNBNuOnly400-800": (0, 1),
         #"BNBNuOnly0-400": (0, 0),
-        #"Pi0_0-1000": (0, 0.5),
-        #"NCDelta": (0, 0.5),
-        #"eminus_0-4000": (0, 0.5),
+        "Pi0_0-1000": (0, 0.5),
+        "NCDelta": (0, 0.5),
+        "eminus_0-4000": (0, 0.5),
     },
     "performance": {
         #"BNBNuOnly2000": (0, 1),
         #"BNBNuOnly": (0, 1),
         #"BNBNuOnly400-800": (0, 1),
         #"BNBNuOnly0-400": (0, 1),
-        "Pi0_0-1000": (0, 1),
-        "NCDelta": (0, 1),
-        "eminus_0-4000": (0, 1),
+        "Pi0_0-1000": (0.95, 1),
+        "NCDelta": (0.95, 1),
+        "eminus_0-4000": (0.5, 1),
     }
 }
 
 preFilters = {
     "training": {
         "general": (
-            'minCoordX3D >= @MicroBooneGeo.RangeX[0] + 10',
-            'maxCoordX3D <= @MicroBooneGeo.RangeX[1] - 10',
-            'minCoordY3D >= @MicroBooneGeo.RangeY[0] + 20',
-            'maxCoordY3D <= @MicroBooneGeo.RangeY[1] - 20',
-            'minCoordZ3D >= @MicroBooneGeo.RangeY[0] + 10',
-            'maxCoordZ3D <= @MicroBooneGeo.RangeZ[1] - 10',
+            #'maxCoordX3D >= @MicroBooneGeo.RangeX[0] + 15',
+            'minCoordX3D <= @MicroBooneGeo.RangeX[1] - 15',
+            #'maxCoordY3D >= @MicroBooneGeo.RangeY[0] + 20',
+            'minCoordY3D <= @MicroBooneGeo.RangeY[1] - 20',
+            #'maxCoordZ3D >= @MicroBooneGeo.RangeY[0] + 20',
+            'minCoordZ3D <= @MicroBooneGeo.RangeZ[1] - 20',
+            #'nHitsU >= 20 and nHitsV>=20 and nHits3D>=20',
+            'nHitsU>=20 and nHitsV >= 20 and nHitsW>=20 and nHits3D>=20',
+            'mcpMomentum <= 1',
         ),
         "U": (
             'purityU>=0.8',
@@ -65,15 +68,16 @@ preFilters = {
 
     "performance": {
         "general": (
-            'abs(mcPdgCode) == 22 or (dataName == "eminus_0-4000" and abs(mcPdgCode) == 11)',
             #'(dataName == "eminus_0-4000") or (dataName in ("BNBNuOnly", "BNBNuOnly0-400", "BNBNuOnly400-800") and ((abs(mcPdgCode) == 11 and mcHierarchyTier == 1) or abs(mcPdgCode) == 22))',
-            'minCoordX3D >= @MicroBooneGeo.RangeX[0] + 10',
-            'maxCoordX3D <= @MicroBooneGeo.RangeX[1] - 10',
-            'minCoordY3D >= @MicroBooneGeo.RangeY[0] + 20',
-            'maxCoordY3D <= @MicroBooneGeo.RangeY[1] - 20',
-            'minCoordZ3D >= @MicroBooneGeo.RangeY[0] + 10',
-            'maxCoordZ3D <= @MicroBooneGeo.RangeZ[1] - 10',
-            #'nHitsU>=20 and nHitsV >= 20 and nHitsW>=20 and nHits3D>=20',
+            #'maxCoordX3D >= @MicroBooneGeo.RangeX[0] + 15',
+            'minCoordX3D <= @MicroBooneGeo.RangeX[1] - 15',
+            #'maxCoordY3D >= @MicroBooneGeo.RangeY[0] + 20',
+            'minCoordY3D <= @MicroBooneGeo.RangeY[1] - 20',
+            #'maxCoordZ3D >= @MicroBooneGeo.RangeY[0] + 20',
+            'minCoordZ3D <= @MicroBooneGeo.RangeZ[1] - 20',
+            #'nHitsU >= 20 and nHitsV>=20 and nHits3D>=20',
+            'nHitsU>=20 and nHitsV >= 20 and nHitsW>=20 and nHits3D>=20',
+            'mcpMomentum <= 1',
             #'mcHierarchyTier == 1 or (abs(mcPdgCode) == 22 and mcHierarchyTier <= 2)',
             #'mcNuanceCode == 1000', # ????????????????????????
             #'mcNuanceCode == 1001', #CCQE
@@ -87,29 +91,28 @@ preFilters = {
             #'mcNuanceCode == 1098', #e-Nu_e scatter
             #'mcNuanceCode not in (1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1091, 1092, 1096, 1097)', #Other
             #"nHitsU + nHitsV + nHitsW >= 100",
-            'nHitsU>=0',
             #'mcpMomentum <= 1.0',
         ),
         "U": (
             #'purityU>=0.8',
             #'completenessU>=0.8',
-            'nHitsU>=0',
+            #'nHitsU>=0',
         ),
         "V": (
             #'purityV>=0.8',
             #'completenessV>=0.8',
-            'nHitsV>=0',
+            #'nHitsV>=0',
         ),
         "W": (
             #'purityW>=0.8',
             #'completenessW>=0.8',
-            'nHitsW>=0',
+            #'nHitsW>=0',
         ),
         "3D":
         (
             #'purityU>=0.8 and purityV>=0.8 and purityW>=0.8',
             #'completenessU>=0.8 and completenessV>=0.8 and completenessW>=0.8',
-            'nHits3D>=0',
+            #'nHits3D>=0',
         )
     }
 }

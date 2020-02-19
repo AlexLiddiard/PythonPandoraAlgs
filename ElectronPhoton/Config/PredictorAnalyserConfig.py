@@ -3,13 +3,13 @@ import numpy as np
 ############################################## PREDICTOR ANALYSER CONFIGURATION ##################################################
 
 #predictor = {"name": "Likelihood", "algorithmName": "LikelihoodCalculator", "range": (0, 1), 'cutDirection': 'right'}
-predictor = {"name": "BDTMulti", "algorithmName": "BDTCalculator", "range": (-10, 10), 'cutDirection': 'left'}
+predictor = {"name": "BDTMulti", "algorithmName": "BDTCalculator", "range": (-10, 10), 'cutDirection': 'left', 'cutPlot': 'simple'}
 
 predictorHistograms = [
     {
         'filters': (
-            ('Electrons', 'abs(mcPdgCode)==11', '', True),
-            ('Photons', 'abs(mcPdgCode)==22', '', True)
+            ('Electrons', 'abs(mcPdgCode)==11', 'count', True),
+            ('Photons', 'abs(mcPdgCode)==22', 'count', True)
         ),
         'bins': np.linspace(*predictor["range"], num=25),
         'yAxis': 'log',
