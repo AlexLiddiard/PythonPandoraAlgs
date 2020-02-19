@@ -8,7 +8,7 @@ def GetFeatures(pfo, calculateViews):
         'mcNuanceCode': pfo.mcNuanceCode,
         'mcPdgCode': pfo.mcPdgCode,
         'mcpMomentum': pfo.mcpMomentum,
-        'mcParentPdgCode': pfo.parentPfo.mcParentPdgCode,
+        'mcParentPdgCode': pfo.mcParentPdgCode,
         'mcNuPdgCode': pfo.incidentPfo.mcPdgCode,
         'mcNuMomentum':  pfo.incidentPfo.mcpMomentum,
         'mcHierarchyTier': pfo.mcHierarchyTier,
