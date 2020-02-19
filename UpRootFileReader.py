@@ -219,7 +219,6 @@ def SetAssociatedData(eventPfos):
         pfo.incidentPfo = eventPfos[0]
         if pfo.parentPfoId != -1:
             pfo.parentPfo = eventPfos[pfo.parentPfoId]
-        pfo.parentPfo = eventPfos[pfo.parentPfoId]
         pfo.daughterPfos = []
         for pfoId in pfo.daughterPfoIds:
             pfo.daughterPfos.append(eventPfos[pfoId])
