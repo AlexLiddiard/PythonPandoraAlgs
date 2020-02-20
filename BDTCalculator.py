@@ -48,7 +48,7 @@ def ShowFeatureImportance(bdt, featureNames, evalData):
     results = permutation_importance(bdt, evalData[featureNames], evalData.eval(gc.classQueries[0]), n_repeats=25)
     perm_sorted_idx = results.importances_mean.argsort()
     fig, ax = plt.subplots(1, 1, figsize=(12, 8))
-    ax.boxplot(results.importances[perm_sorted_idx].T, vert=False, labels=featureNames, showfliers=False)
+    ax.boxplot(results.importances[perm_sorted_idx].T, vert=False, labels=[featureNames[i] for i in perm_sorted_idx], showfliers=False)
     fig.tight_layout()
     plt.show()
 
