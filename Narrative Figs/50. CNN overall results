@@ -1,0 +1,8 @@
+Track Shower CNN
+Average class accuracy: 0.9685
+Overall accuracy: 0.9825
+
+Electron Photon CNN
+Average class accuracy: 0.7607
+Overall accuracy: 0.7744
+Val loss: 0.5272
