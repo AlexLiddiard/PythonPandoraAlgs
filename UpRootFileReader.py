@@ -232,7 +232,7 @@ def SetAssociatedData(eventPfos):
         elif pfo.hierarchyTier > 1:
             pfo.interactionVertexU = pvf.InteractionVertex2D(pfo.vertexU, pfo.driftCoordU, pfo.wireCoordU, pfo.parentPfo.vertexU, pfo.parentPfo.driftCoordU, pfo.parentPfo.wireCoordU, pfo.nHitsPfoU, pfo.parentPfo.nHitsPfoU)
             pfo.interactionVertexV = pvf.InteractionVertex2D(pfo.vertexV, pfo.driftCoordV, pfo.wireCoordV, pfo.parentPfo.vertexV, pfo.parentPfo.driftCoordV, pfo.parentPfo.wireCoordV, pfo.nHitsPfoV, pfo.parentPfo.nHitsPfoV)
-            pfo.interactionVertexW = pvf.InteractionVertex2D(pfo.vertexW, pfo.driftCoordW, pfo.wireCoordW, pfo.parentPfo.vertexW, pfo.parentPfo.driftCoordW, parentPfo.wireCoordW, pfo.pfo.nHitsPfoW, pfo.parentPfo.nHitsPfoW)
+            pfo.interactionVertexW = pvf.InteractionVertex2D(pfo.vertexW, pfo.driftCoordW, pfo.wireCoordW, pfo.parentPfo.vertexW, pfo.parentPfo.driftCoordW, pfo.parentPfo.wireCoordW, pfo.nHitsPfoW, pfo.parentPfo.nHitsPfoW)
             pfo.interactionVertex3D = pvf.InteractionVertex3D(pfo.vertex3D, pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, pfo.parentPfo.vertex3D, pfo.parentPfo.xCoord3D, pfo.parentPfo.yCoord3D, pfo.parentPfo.zCoord3D, pfo.nHitsPfo3D, pfo.parentPfo.nHitsPfo3D)
 
 def ReadPfoFromRootFile(filepath, eventId, pfoId):

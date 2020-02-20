@@ -99,8 +99,8 @@ def OptimiseCutoff(dfClass0Data, dfClass1Data, variableName, testCutoffs, class1
     class1Purities = []
     class0PurityEfficiencies = []
     class1PurityEfficiencies = []
-    bestClass1Cutoff = 0
-    bestClass0Cutoff = 0
+    bestClass1Cutoff = testCutoffs[0]
+    bestClass0Cutoff = testCutoffs[0]
     bestClass0PurityEfficiency = 0
     bestClass1PurityEfficiency = 0
     for cutoff in testCutoffs:
@@ -220,6 +220,8 @@ if __name__ == "__main__":
         dfPfoData = ds.GetFilteredPfoData("performance", "all", "performance", ds.GetFeatureView(feature["name"]))
         dfClass0Data = ds.GetFilteredPfoData("performance", gc.classNames[0], "performance", ds.GetFeatureView(feature["name"]))
         dfClass1Data = ds.GetFilteredPfoData("performance", gc.classNames[1], "performance", ds.GetFeatureView(feature["name"]))
+        #print("Number of photon nans: ",  np.isnan(dfClass0Data["dedxW"]).sum())
+        #print("Number of electron nans: ",  np.isnan(dfClass1Data["dedxW"]).sum())
         cutoffValues, cutoffResults = GetBestPurityEfficiency(dfClass0Data, dfClass1Data, feature, cfg.purityEfficiency["nTestCuts"])
         if cfg.featureHistogram["plot"]:
             PlotVariableHistogram(dfPfoData, gc.classNames, feature, cfg.featureHistogram, cutoffResults[4] if feature.get("plotCutoff", True) else None)
