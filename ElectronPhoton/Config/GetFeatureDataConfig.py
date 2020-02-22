@@ -6,13 +6,14 @@ rootFileDirectory = bc.myTestArea + "/PythonPandoraAlgs/ROOT Files/eminus_0-4000
 outputDataName = "eminus_0-4000"
 
 algorithmNames = [
-    "GeneralInfo",
-    "TotalCharge",
-    "AngularSpan",
-    "TestDeDx1",
-    "TestDeDx2",
-    "VertexSeparation",
+    #"GeneralInfo",
+    #"TotalCharge",
+    #"AngularSpan",
+    #"TestDeDx1",
+    #"TestDeDx2",
+    #"VertexSeparation",
     "NewInitialDeDx",
+    #"AnglesFromAxes",
 ]
 
 calculateViews = {
