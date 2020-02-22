@@ -12,6 +12,7 @@ import GeneralConfig as gc
 import PredictorAnalyserConfig as pac
 import importlib
 pcc = importlib.import_module(pac.predictor["algorithmName"] + "Config") # Get config for the predictor calculation, e.g. LikelihoodCalculatorConfig
+from OpenPickledFigure import SaveFigure
 
 def BinnedPurityEfficiency(dfClass0Data, dfClass1Data, classNames, dependenceName, binEdges, predictorName, cutoff, class1CutDirection):
     nBins = len(binEdges) - 1
@@ -102,7 +103,7 @@ def PlotPurityEfficiencyVsVariable(dfClass0, dfClass1, classNames, predictor, gr
                     ("incorrect " + filter.get("name", "") +  " " + classNames[1], predictor["name"] + inequalities[0] + str(graph['cutoff']), "count", False),
                 )
             })
-        fig.savefig(bc.figureFolderFull + "/" + filter.get("name", "") + classNames[0] + "PurityEfficiencyVs" + graph["dependence"] + ".svg", format='svg', dpi=1200)
+        SaveFig(fig, bc.figureFolderFull + "/" + filter.get("name", "") + classNames[0] + "PurityEfficiencyVs" + graph["dependence"] + ".pickle")
         plt.show()
     if graph["pfoClass"] != classNames[0]:
         fig, ax = plt.subplots(nrows=2, ncols=1, sharex=True, figsize=(10, 15))
@@ -127,7 +128,7 @@ def PlotPurityEfficiencyVsVariable(dfClass0, dfClass1, classNames, predictor, gr
                     ("incorrect " + filter.get("name", "") +  " " + classNames[0], predictor["name"] + inequalities[1] + str(graph['cutoff']), "count", False),
                 )
             })
-        fig.savefig(bc.figureFolderFull + "/" + filter.get("name", "") + classNames[1] + "PurityEfficiencyVs" + graph["dependence"] + ".svg", format='svg', dpi=1200)
+        SaveFig(fig, bc.figureFolderFull + "/" + filter.get("name", "") + classNames[1] + "PurityEfficiencyVs" + graph["dependence"] + ".pickle")
         plt.show()
 
 if __name__ == "__main__":

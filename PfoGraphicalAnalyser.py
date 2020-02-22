@@ -9,6 +9,7 @@ import random as rnd
 import pandas as pd
 import DataSampler as ds
 import PfoGraphicalAnalyserConfig as cfg
+from OpenPickledFigure import SaveFigure
 from UpRootFileReader import MicroBooneGeo
 
 # From given axes limits, calculate new limits that give a square region.
@@ -99,10 +100,10 @@ def DisplayPfo(pfo, wireView = "W", additionalInfo = None, showTitle = True):
             pfo.eventId, pfo.pfoId, pfo.hierarchyTier,
             pfo.TrueParticle(), 'Track' if pfo.IsShower()==0 else 'Shower', purity, completeness)
         )
-    plt.xlabel('DriftCoord%s (cm)' % wireView)
-    plt.ylabel('WireCoord%s (cm)' % wireView)
+    ax.xlabel('DriftCoord%s (cm)' % wireView)
+    ax.ylabel('WireCoord%s (cm)' % wireView)
     plt.tight_layout()
-    plt.savefig(bc.figureFolderFull + '/%s, EventId %d, PfoId %d.svg' % (pfo.fileName, pfo.eventId, pfo.pfoId), format='svg', dpi=1200)
+    SaveFigure(fig, bc.figureFolderFull + '/%s, EventId %d, PfoId %d.pickle' % (pfo.fileName, pfo.eventId, pfo.pfoId))
     plt.show()
 
 def RandomPfoView(filePaths):

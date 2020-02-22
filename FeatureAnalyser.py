@@ -10,6 +10,7 @@ import DataSampler as ds
 import GeneralConfig as gc
 import DataSamplerConfig as dsc
 import FeatureAnalyserConfig as cfg
+from OpenPickledFigure import SaveFigure
 
 def GetFeatureView(featureName):
     if featureName.endswith("3D"):
@@ -155,7 +156,8 @@ def PlotVariableHistogram(dfPfoData, classNames, variable, variableHistogram, be
     cutPlot = variable.get("cutPlot", "none")
     if bestCutoff is not None and cutPlot != "none":
         GraphCutoffLine(ax, classNames, bestCutoff, True, variable['cutDirection'], cutPlot == "fancy")
-    plt.savefig(bc.figureFolderFull + '/%s distribution for %s' % (variable['name'], ', '.join((filter[0] for filter in variable['filters'])) + '.svg'), format='svg', dpi=1200)
+    plt.tight_layout()
+    SaveFigure(fig, bc.figureFolderFull + '/%s distribution for %s' % (variable['name'], ', '.join((filter[0] for filter in variable['filters'])) + '.pickle'))
     plt.show()
 
 def GetBestPurityEfficiency(dfClass0Data, dfClass1Data, variable, nTestCuts, showPurity=True):
@@ -197,7 +199,7 @@ def PlotPurityEfficiencyVsCutoff(featureName, classNames, cutoffValues, cutoffRe
         bx2.set_ylabel("Fraction")
 
         plt.tight_layout()
-        plt.savefig(bc.figureFolderFull + "/PurityEfficiencyVs%sCutoff.svg" % featureName, format='svg', dpi=1200)
+        SaveFigure(fig, bc.figureFolderFull + "/PurityEfficiencyVs%sCutoff.pickle" % featureName)
         plt.show()
 
 def CorrelationMatrix(featureNames, viewsUsed, preFilters, pfoData):
@@ -207,10 +209,10 @@ def CorrelationMatrix(featureNames, viewsUsed, preFilters, pfoData):
         pfoData = pfoData.query(filter)
     rMatrix = pfoData[featureNames].corr()
     rSquaredMatrix = rMatrix * rMatrix
-    sn.heatmap(rSquaredMatrix, annot=True, annot_kws={"size": 20}, cmap="Blues")
+    fig = sn.heatmap(rSquaredMatrix, annot=True, annot_kws={"size": 20}, cmap="Blues")
     plt.xticks(rotation=45, ha="right", rotation_mode="anchor")
     plt.tight_layout()
-    plt.savefig(bc.figureFolderFull + "/FeatureRSquaredMatrix.svg", format='svg', dpi=1200)
+    SaveFigure(fig, bc.figureFolderFull + "/FeatureRSquaredMatrix.pickle")
     plt.show()
 
 if __name__ == "__main__":

@@ -17,6 +17,7 @@ from imblearn.over_sampling import RandomOverSampler as ros
 import GeneralConfig as gc
 import BDTCalculatorConfig as cfg
 import HistoSynthesisConfig as hsc
+from OpenPickledFigure import SaveFigure
 
 plt.rcParams.update(hsc.plotStyle)
 
@@ -50,6 +51,7 @@ def ShowFeatureImportance(bdt, featureNames, evalData):
     fig, ax = plt.subplots(1, 1, figsize=(12, 8))
     ax.boxplot(results.importances[perm_sorted_idx].T, vert=False, labels=[featureNames[i] for i in perm_sorted_idx], showfliers=False)
     fig.tight_layout()
+    SaveFigure(fig, bc.figureFolderFull + '/BDT feature importance - %s.pickle' % ", ".join(featureNames), 'wb')) 
     plt.show()
 
 if __name__ == "__main__":

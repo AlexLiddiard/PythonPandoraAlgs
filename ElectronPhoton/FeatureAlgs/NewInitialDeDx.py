@@ -3,7 +3,6 @@ import numpy as np
 import PCAnalysis as pca
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-import TestDeDx1 as tdd1
 from UpRootFileReader import ProjectVector
 
 def axisEqual3D(ax):

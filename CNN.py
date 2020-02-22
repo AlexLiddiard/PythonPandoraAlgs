@@ -21,35 +21,25 @@ def EnsureFilePath(filePath):
         os.mkdir(filePath)
 
 def PlotPFOSVG(driftCoords, wireCoords, driftCoordErrors, wireCoordError, energies, fileName, centre, driftSpan = 100, wireSpan = 100):
-    
     if len(driftCoords) == 0:
         return
-
-    #driftMinus = driftCoords - driftCoordErrors
-    #minDriftBoundary = min(driftMinus)
-
-    #driftPlus = driftCoords + driftCoordErrors
-    #maxDriftBoundary = max(driftPlus)
-
-    #minWireCoord = min(wireCoords)
-    #maxWireCoord = max(wireCoords)
-
     halfDriftSpan = driftSpan/2
     halfWireSpan = wireSpan/2
-    meanDriftCoord = np.mean(driftCoords)
-    meanWireCoord = np.mean(wireCoords)
-
-    #Centre = pga.GetSquareRegionAxesLimits(minDriftBoundary, maxDriftBoundary, minWireCoord - 0.3, maxWireCoord + 0.3)
-
-    #print("%s %s %s %s" %(Centre))
-    #dwg = sw.Drawing(filename=fileName, size = (2560, 2560), viewBox = "%s %s %s %s" %(minDriftBoundary, minWireCoord - 0.3, maxDriftBoundary - minDriftBoundary, maxWireCoord + 0.6 - minWireCoord), debug=True)
-    dwg = sw.Drawing(filename=fileName, size = cc.imageSizePixels, viewBox = "%s %s %s %s" %(meanDriftCoord - halfDriftSpan, meanWireCoord - halfWireSpan, driftSpan, wireSpan), debug=True)
-    dwg.add(dwg.rect(insert=(meanDriftCoord - halfDriftSpan, meanWireCoord - halfWireSpan), size=(driftSpan, wireSpan), rx=None, ry=None, fill='rgb(0,0,0)'))
+    dwg = sw.Drawing(filename=fileName, size = cc.imageSizePixels, viewBox = "%s %s %s %s" %(centre[0] - halfDriftSpan, centre[1] - halfWireSpan, driftSpan, wireSpan), debug=True)
+    dwg.add(dwg.rect(insert=(centre[0] - halfDriftSpan, centre[1] - halfWireSpan), size=(driftSpan, wireSpan), rx=None, ry=None, fill='rgb(0,0,0)'))
     for driftCoord, wireCoord, driftCoordError, energy in zip(driftCoords, wireCoords, driftCoordErrors, energies):
         ellipse = dwg.ellipse(center=(driftCoord, wireCoord), r=(driftCoordError, wireCoordError))
         ellipse.fill('white', opacity = min(energy/(wireCoordError * driftCoordError * cc.maxEnergyDensity) , 1)) #min(np.log1p(energy)/cc.logMaxEnergy, 1)
         dwg.add(ellipse)
     svg2png(bytestring=dwg.tostring(), write_to=fileName)
+
+def GetImage3DCentre(xCoord3D, yCoord3D, zCoord3D, vertex3D, maxVertexDisplacement):
+    centroid3D = np.mean((xCoord3D, yCoord3D, zCoord3D), axis=1)
+    if vertex3D is None:
+        return centroid3D
+    direction = centroid3D - vertex3D
+    distance = np.linalg.norm(direction)
+    return vertex3D + direction * min(distance, maxVertexDisplacement) / distance
 
 def ProcessFile(fileName):
     events = rdr.ReadRootFile(nameToPathDict[fileName])
@@ -60,10 +50,13 @@ def ProcessFile(fileName):
         dfClass = df.query(classQuery)
         for index, pfoGeneralInfo in dfClass.iterrows():
             pfo = events[pfoGeneralInfo.eventId][pfoGeneralInfo.pfoId]
-            centre3D = np.mean((pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D), axis=1)
-            PlotPFOSVG(pfo.driftCoordW, pfo.wireCoordW, pfo.driftCoordErrW, pfo.wireCoordErr, pfo.energyW, "%s/%s_%s_%s_v001.png" %(currentOutputFolder %(className), pfo.fileName, pfo.eventId, pfo.pfoId), ProjectVector(centre3D, "W"), *cc.imageSpan["W"])
-            PlotPFOSVG(pfo.driftCoordU, pfo.wireCoordU, pfo.driftCoordErrU, pfo.wireCoordErr, pfo.energyU, "%s/%s_%s_%s_v002.png" %(currentOutputFolder %(className), pfo.fileName, pfo.eventId, pfo.pfoId), ProjectVector(centre3D, "U"), *cc.imageSpan["U"])
-            PlotPFOSVG(pfo.driftCoordV, pfo.wireCoordV, pfo.driftCoordErrV, pfo.wireCoordErr, pfo.energyV, "%s/%s_%s_%s_v003.png" %(currentOutputFolder %(className), pfo.fileName, pfo.eventId, pfo.pfoId), ProjectVector(centre3D, "V"), *cc.imageSpan["V"])
+            maxVertexDisplacement = min((min(cc.imageSpan["U"]), min(cc.imageSpan["V"]), min(cc.imageSpan["W"]))) / 2 # Ensures vertex remains visible in all views
+            centre3D = GetImage3DCentre(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, pfo.vertex3D, maxVertexDisplacement)
+            wireCoordFlip = 1 - np.random.randint(low=0, high=2) * 2 # Mitigation for samples with non-isotropic distribution
+            centre3D[1:] *= wireCoordFlip
+            PlotPFOSVG(pfo.driftCoordW, pfo.wireCoordW * wireCoordFlip, pfo.driftCoordErrW, pfo.wireCoordErr, pfo.energyW, "%s/%s_%s_%s_v001.png" %(currentOutputFolder %(className), pfo.fileName, pfo.eventId, pfo.pfoId), ProjectVector(centre3D, "W"), *cc.imageSpan["W"])
+            PlotPFOSVG(pfo.driftCoordU, pfo.wireCoordU * wireCoordFlip, pfo.driftCoordErrU, pfo.wireCoordErr, pfo.energyU, "%s/%s_%s_%s_v002.png" %(currentOutputFolder %(className), pfo.fileName, pfo.eventId, pfo.pfoId), ProjectVector(centre3D, "U"), *cc.imageSpan["U"])
+            PlotPFOSVG(pfo.driftCoordV, pfo.wireCoordV * wireCoordFlip, pfo.driftCoordErrV, pfo.wireCoordErr, pfo.energyV, "%s/%s_%s_%s_v003.png" %(currentOutputFolder %(className), pfo.fileName, pfo.eventId, pfo.pfoId), ProjectVector(centre3D, "V"), *cc.imageSpan["V"])
 
 def ProcessSample(dfPfoData, nameToPathDict, sampleName):
     fileNames = list(nameToPathDict.keys() & set(dfPfoData["fileName"]))
@@ -75,21 +68,22 @@ def ProcessSample(dfPfoData, nameToPathDict, sampleName):
     else:
         print('No ROOT files found for ' + sampleName + ' sample!')
 
-EnsureFilePath(cc.outputFolder)
+if __name__ == "__main__":
+    EnsureFilePath(cc.outputFolder)
+    for className in gc.classNames:
+        EnsureFilePath(cc.outputFolder + "/" + className)
+        EnsureFilePath(cc.outputFolder + "/" + className + "/train")
+        EnsureFilePath(cc.outputFolder + "/" + className + "/test")
 
-for className in gc.classNames:
-    EnsureFilePath(cc.outputFolder + "/" + className)
-    EnsureFilePath(cc.outputFolder + "/" + className + "/train")
-    EnsureFilePath(cc.outputFolder + "/" + className + "/test")
+    filePaths = glob.glob(cc.rootFileDirectory + '/**/*.root', recursive=True)
+    nameToPathDict = FileNameToFilePath(filePaths)
+    ds.LoadPfoData([]) # Load just the data in GeneralInfo
+    np.random.seed(gc.random_state)
 
-filePaths = glob.glob(cc.rootFileDirectory + '/**/*.root', recursive=True)
-nameToPathDict = FileNameToFilePath(filePaths)
-ds.LoadPfoData([]) # Load just the data in GeneralInfo
+    # Training set
+    dfPfoData = ds.GetFilteredPfoData("training", "all", "training", "union")
+    ProcessSample(dfPfoData, nameToPathDict, "train")
 
-# Training set
-dfPfoData = ds.GetFilteredPfoData("training", "all", "training", "union")
-ProcessSample(dfPfoData, nameToPathDict, "train")
-
-# Testing set
-dfPfoData = ds.GetFilteredPfoData("performance", "all", "performance", "union")
-ProcessSample(dfPfoData, nameToPathDict, "test")
+    # Testing set
+    dfPfoData = ds.GetFilteredPfoData("performance", "all", "performance", "union")
+    ProcessSample(dfPfoData, nameToPathDict, "test")

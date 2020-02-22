@@ -20,8 +20,8 @@ dataSources = {
         #"BNBNuOnly": (0, 1),
         #"BNBNuOnly400-800": (0, 1),
         #"BNBNuOnly0-400": (0, 1),
-        "Pi0_0-1000": (0.95, 1),
-        "NCDelta": (0.95, 1),
+        "Pi0_0-1000": (0.975, 1),
+        "NCDelta": (0.975, 1),
         "eminus_0-4000": (0.5, 1),
     }
 }
@@ -37,7 +37,7 @@ preFilters = {
             'minCoordZ3D <= @MicroBooneGeo.RangeZ[1] - 20',
             #'nHitsU >= 20 and nHitsV>=20 and nHits3D>=20',
             'nHitsU>=20 and nHitsV >= 20 and nHitsW>=20 and nHits3D>=20',
-            'mcpMomentum <= 1',
+            'mcpMomentum <= 0.5',
         ),
         "U": (
             'purityU>=0.8',
@@ -77,7 +77,7 @@ preFilters = {
             'minCoordZ3D <= @MicroBooneGeo.RangeZ[1] - 20',
             #'nHitsU >= 20 and nHitsV>=20 and nHits3D>=20',
             'nHitsU>=20 and nHitsV >= 20 and nHitsW>=20 and nHits3D>=20',
-            'mcpMomentum <= 1',
+            'mcpMomentum <= 0.5',
             #'mcHierarchyTier == 1 or (abs(mcPdgCode) == 22 and mcHierarchyTier <= 2)',
             #'mcNuanceCode == 1000', # ????????????????????????
             #'mcNuanceCode == 1001', #CCQE

@@ -1,10 +1,10 @@
 ############################################## BDT CALCULATOR CONFIGURATION ##################################################
 
 features = [
-    {'name': 'TotalChargeU', 'algorithmName': 'TotalCharge'},
-    {'name': 'TotalChargeV', 'algorithmName': 'TotalCharge'},
-    {'name': 'TotalChargeW', 'algorithmName': 'TotalCharge'},
-    {'name': 'TotalCharge3D', 'algorithmName': 'TotalCharge'},
+    #{'name': 'TotalChargeU', 'algorithmName': 'TotalCharge'},
+    #{'name': 'TotalChargeV', 'algorithmName': 'TotalCharge'},
+    #{'name': 'TotalChargeW', 'algorithmName': 'TotalCharge'},
+    #{'name': 'TotalCharge3D', 'algorithmName': 'TotalCharge'},
 #    {'name': 'VertexSepU', 'algorithmName': 'VertexSeparation'},
 #    {'name': 'VertexSepV', 'algorithmName': 'VertexSeparation'},
 #    {'name': 'VertexSepW', 'algorithmName': 'VertexSeparation'},
