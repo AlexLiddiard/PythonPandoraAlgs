@@ -11,8 +11,8 @@ dataSources = {
         #"BNBNuOnly": (0, 0.5),
         #"BNBNuOnly400-800": (0, 1),
         #"BNBNuOnly0-400": (0, 0),
-        "Pi0_0-1000": (0, 0.5),
-        "NCDelta": (0, 0.5),
+        "Pi0_0-1000": (0, 0.025),
+        "NCDelta": (0, 0.025),
         "eminus_0-4000": (0, 0.5),
     },
     "performance": {

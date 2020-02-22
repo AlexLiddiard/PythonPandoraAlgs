@@ -51,7 +51,7 @@ def ShowFeatureImportance(bdt, featureNames, evalData):
     fig, ax = plt.subplots(1, 1, figsize=(12, 8))
     ax.boxplot(results.importances[perm_sorted_idx].T, vert=False, labels=[featureNames[i] for i in perm_sorted_idx], showfliers=False)
     fig.tight_layout()
-    SaveFigure(fig, bc.figureFolderFull + '/BDT feature importance - %s.pickle' % ", ".join(featureNames), 'wb')) 
+    SaveFigure(fig, bc.figureFolderFull + '/BDT feature importance - %s.pickle' % ", ".join(featureNames))
     plt.show()
 
 if __name__ == "__main__":
@@ -82,16 +82,22 @@ if __name__ == "__main__":
     ShowFeatureImportance(bdtMulti, dfViewBDTValues.columns, dfPfoData)
 
     # Calculate BDT values
-    print("\nCalculating BDT values")
+    print("\nCalculating BDTMulti values")
     dfBdtValues = GetBDTValues(viewBDTs, featureViews, ds.dfInputPfoData)
     dfBdtValues["BDTMulti"] = bdtMulti.decision_function(dfBdtValues)
 
-    #print("\nTraining BDTAll")
-    # BDTAll
-    #dfTrainingPfoData = ds.GetFilteredPfoData("training", "all", "training", "union")
-    #featureNames = ds.GetFeatureNames(cfg.features)
-    #bdtAll = TrainBDT(featureNames, dfTrainingPfoData, dfTrainingPfoData.eval(gc.classQueries[0]))
-    #dfBdtValues["BDTAll"] = bdtAll.decision_function(ds.dfInputPfoData[featureNames])
+    if cfg.calculateBDTAll:
+        print("\nTraining BDTAll")
+        # BDTAll
+        dfTrainingPfoData = ds.GetFilteredPfoData("training", "all", "training", "union")
+        featureNames = ds.GetFeatureNames(cfg.features)
+        bdtAll = TrainBDT(featureNames, dfTrainingPfoData, dfTrainingPfoData.eval(gc.classQueries[0]))
+        print("Calculating view importance")
+        dfPfoData = ds.GetFilteredPfoData("performance", "all", "performance", "union")
+        dfPfoData = pd.concat([dfPfoData, dfViewBDTValues], axis=1, sort=False)
+        ShowFeatureImportance(bdtAll, featureNames, dfPfoData)
+        print("\nCalculating BDTAll values")
+        dfBdtValues["BDTAll"] = bdtAll.decision_function(ds.dfInputPfoData[featureNames])
 
     print("\nSaving results")
     ds.SavePfoData(dfBdtValues, "BDTCalculator")

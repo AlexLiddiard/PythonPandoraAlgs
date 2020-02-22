@@ -54,10 +54,11 @@ def CreateHistogramWire(ax, df, histogram):
 def WireBarPlot(ax, heights, edges, heightErrors=None, colour=None, fill=False, label=None):
     x = np.repeat(edges, 2)
     y = np.concatenate(([0], np.repeat(heights, 2), [0]))
-    ax.plot(x[1:-1], y[1:-1], label=label, color=colour)
+    line = ax.plot(x[1:-1], y[1:-1], label=label, color=colour)
+    lineColour = line[0].get_color()
     if fill:
         ax.fill(x, y, alpha=0.2)
     if heightErrors is not None:
         x = (edges[:-1] + edges[1:]) / 2
-        ax.errorbar(x, heights, yerr=heightErrors, fmt="none", capsize=2, color=colour)
+        ax.errorbar(x, heights, yerr=heightErrors, fmt="none", capsize=2, color=lineColour)
 

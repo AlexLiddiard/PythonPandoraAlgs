@@ -3,8 +3,10 @@ from UpRootFileReader import MicroBooneGeo
 
 ############################################## PREDICTOR ANALYSER CONFIGURATION ##################################################
 
-#predictor = {"name": "Likelihood", "algorithmName": "LikelihoodCalculator", "range": (0, 1), 'cutDirection': 'right', 'cutPlot': 'simple'}
-predictor = {"name": "BDTMulti", "algorithmName": "BDTCalculator", "range": (-10, 11), 'cutDirection': 'left', 'cutPlot': 'simple'}
+predictors = [
+    {"name": "Likelihood", "algorithmName": "LikelihoodCalculator", "bins": np.linspace(0, 1, 50), 'cutDirection': 'right', 'cutPlot': 'simple'},
+    {"name": "BDTMulti", "algorithmName": "BDTCalculator", "bins": np.linspace(-10, 11, 50), 'cutDirection': 'left', 'cutPlot': 'simple'}
+]
 
 predictorHistograms = [
     {
@@ -12,7 +14,6 @@ predictorHistograms = [
             ('Showers', 'isShower==1', 'count', True),
             ('Tracks', 'isShower==0', 'count', True)
         ),
-        'bins': np.linspace(*predictor["range"], num=50),
         'yAxis': 'log',
         'cutoff': 'shower'
     },
@@ -22,18 +23,16 @@ predictorHistograms = [
             ('Electrons + Positrons', 'abs(mcPdgCode)==11', 'count', False),
             ('Photons', 'abs(mcPdgCode)==22', 'count', False)
         ),
-        'bins': np.linspace(*predictor["range"], num=25),
         'yAxis': 'log',
         'cutoff': 'shower'
     },
     {
         'filters': (
-            ('Tracks', 'isShower in (0, 1)', 'count', True),
+            ('Tracks', 'isShower==0', 'count', True),
             ('Protons', 'abs(mcPdgCode)==2212', 'count', False),
             ('Muons', 'abs(mcPdgCode)==13', 'count', False),
-            ('Charged Pions', 'abs(mcPdgCode)==211', 'count', False)
+            ('Charged Pions', 'abs(mcPdgCode)==211', 'count', False),
         ),
-        'bins': np.linspace(*predictor["range"], num=25),
         'yAxis': 'log',
         'cutoff': 'track'
     },
@@ -42,59 +41,74 @@ predictorHistograms = [
 purityEfficiencyVsCutoffGraph = {'nTestCuts': 1001}
 purityEfficiencyBinnedGraphs = [
     #{
-    #    "dependence": "minCoordX3D",
-    #    'bins': np.linspace(MicroBooneGeo.RangeX[0], MicroBooneGeo.RangeX[1], num=40),
-    #    "pfoClass": "both"
+    #    "dependence": "nHitsW", 
+    #    'bins': np.linspace(0, 400, num=40), 
+    #    "pfoClass": "track", 
+    #    "filter": {
+    #        "name": "NCDIS muon",
+    #        "query": "abs(mcNuPdgCode) == 14 and abs(mcParentPdgCode) == 14 and abs(mcPdgCode) == 2212 and mcHierarchyTier == 1 and mcNuanceCode == 1002"
+    #    },
+    #    "showPurity": False
     #},
-    #{
-    #    "dependence": "maxCoordX3D",
-    #    'bins': np.linspace(MicroBooneGeo.RangeX[0], MicroBooneGeo.RangeX[1], num=40),
-    #    "pfoClass": "both"
-    #},
-    #{
-    #    "dependence": "minCoordY3D",
-    #    'bins': np.linspace(MicroBooneGeo.RangeY[0], MicroBooneGeo.RangeY[1], num=40),
-    #    "pfoClass": "both"
-    #},
-    #{
-    #    "dependence": "maxCoordY3D",
-    #    'bins': np.linspace(MicroBooneGeo.RangeY[0], MicroBooneGeo.RangeY[1], num=40),
-    #    "pfoClass": "both"
-    #},
+    {
+        "dependence": "minCoordX3D",
+        'bins': np.linspace(MicroBooneGeo.RangeX[0], MicroBooneGeo.RangeX[1], num=40),
+        "pfoClass": "both"
+    },
+    {
+        "dependence": "maxCoordX3D",
+        'bins': np.linspace(MicroBooneGeo.RangeX[0], MicroBooneGeo.RangeX[1], num=40),
+        "pfoClass": "both"
+    },
+    {
+        "dependence": "minCoordY3D",
+        'bins': np.linspace(MicroBooneGeo.RangeY[0], MicroBooneGeo.RangeY[1], num=40),
+        "pfoClass": "both"
+    },
+    {
+        "dependence": "maxCoordY3D",
+        'bins': np.linspace(MicroBooneGeo.RangeY[0], MicroBooneGeo.RangeY[1], num=40),
+        "pfoClass": "both"
+    },
     {
         "dependence": "minCoordZ3D",
         'bins': np.linspace(MicroBooneGeo.RangeZ[0], MicroBooneGeo.RangeZ[1], num=40),
         "pfoClass": "both"
     },
-    #{
-    #    "dependence": "maxCoordZ3D",
-    #    'bins': np.linspace(MicroBooneGeo.RangeZ[0], MicroBooneGeo.RangeZ[1], num=40),
-    #    "pfoClass": "both"
-    #},
-    #{
-    #    "dependence": "nHitsU+nHitsV+nHitsW",
-    #    'bins': np.linspace(0, 1400, num=40),
-    #    "pfoClass": "both"
-    #},
+    {
+        "dependence": "maxCoordZ3D",
+        'bins': np.linspace(MicroBooneGeo.RangeZ[0], MicroBooneGeo.RangeZ[1], num=40),
+        "pfoClass": "both"
+    },
+    {
+        "dependence": "nHitsU+nHitsV+nHitsW",
+        'bins': np.linspace(0, 1400, num=40),
+        "pfoClass": "both",
+        "showPurity": False
+    },
     {
         "dependence": "mcpMomentum",
         'bins': np.linspace(0, 1.5, num=40),
-        "pfoClass": "both"
+        "pfoClass": "both",
+        "showPurity": False
     },
     {
         "dependence": "nHitsW", 
         'bins': np.linspace(0, 400, num=40), 
-        "pfoClass": "both"
+        "pfoClass": "both",
+        "showPurity": False
     },
     {
         "dependence": "purityW",
         'bins': np.linspace(0, 1, num=40),
-        "pfoClass": "both"
+        "pfoClass": "both",
+        "showPurity": False
     },
     {
         "dependence": "completenessW", 
         'bins': np.linspace(0, 1, num=40), 
-        "pfoClass": "both"
+        "pfoClass": "both",
+        "showPurity": False
     },
     {
         "dependence": "nHitsU+nHitsV+nHitsW", 

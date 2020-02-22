@@ -2,8 +2,12 @@ import numpy as np
 
 ############################################## PREDICTOR ANALYSER CONFIGURATION ##################################################
 
-#predictor = {"name": "Likelihood", "algorithmName": "LikelihoodCalculator", "range": (0, 1), 'cutDirection': 'right'}
-predictor = {"name": "BDTMulti", "algorithmName": "BDTCalculator", "range": (-10, 10), 'cutDirection': 'left', 'cutPlot': 'simple'}
+predictors = [
+    {"name": "Likelihood", "algorithmName": "LikelihoodCalculator", 'bins': np.linspace(0, 1, num=50), 'cutDirection': 'right'},
+    #{"name": "BDTW", "algorithmName": "BDTCalculator", 'bins': np.linspace(-7, 7, num=50), 'cutDirection': 'left', 'cutPlot': 'simple'},
+    #{"name": "BDTMulti", "algorithmName": "BDTCalculator", 'bins': np.linspace(-10, 10, num=50), 'cutDirection': 'left', 'cutPlot': 'simple'},
+    {"name": "BDTAll", "algorithmName": "BDTCalculator", 'bins': np.linspace(-7, 7, num=50), 'cutDirection': 'left', 'cutPlot': 'simple'}
+]
 
 predictorHistograms = [
     {
@@ -11,7 +15,6 @@ predictorHistograms = [
             ('Electrons', 'abs(mcPdgCode)==11', 'count', True),
             ('Photons', 'abs(mcPdgCode)==22', 'count', True)
         ),
-        'bins': np.linspace(*predictor["range"], num=25),
         'yAxis': 'log',
         'cutoff': 'electron'
     },
@@ -21,24 +24,28 @@ purityEfficiencyVsCutoffGraph = {'nTestCuts': 1001}
 purityEfficiencyBinnedGraphs = [
     {
         "dependence":
-        "nHitsU+nHitsV+nHitsW",
-        'bins': np.linspace(60, 1400, num=40),
-        "pfoClass": "both"
+        "nHitsW",
+        'bins': np.linspace(0, 350, num=40),
+        "pfoClass": "both",
+        "showPurity": False
     },
     {
         "dependence": "mcpMomentum",
-        'bins': np.linspace(0, 1.5, num=40),
-        "pfoClass": "both"
+        'bins': np.linspace(0, 1, num=40),
+        "pfoClass": "both",
+        "showPurity": False
     },
     {
         "dependence": "purityW",
         'bins': np.linspace(0, 1, num=40),
-        "pfoClass": "both"
+        "pfoClass": "both",
+        "showPurity": False
     },
     {
         "dependence": "completenessW", 
         'bins': np.linspace(0, 1, num=40), 
-        "pfoClass": "both"
+        "pfoClass": "both",
+        "showPurity": False
     },
     {
         "dependence": "mcpMomentum",

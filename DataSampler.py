@@ -14,15 +14,18 @@ def LoadPfoData(features=None):
     print("Loading data from pickle files")
     if features is not None:
         algorithmNames = GetFeatureAlgorithms(features)
-        algorithmNames.pop("GeneralInfo", None)  
+        algorithmNames["GeneralInfo"] = None  
     else:
         algorithmNames = GetAllDataAlgorithms(bc.dataFolderFull, cfg.dataSources["all"])
     dfInputPfoData = []
     for dataName in cfg.dataSources["all"]:
-        featureDataArray = [pd.read_pickle(bc.dataFolderFull + "/" + dataName + "_GeneralInfo.pickle")]
+        featureDataArray = []
         for algorithmName, featureNames in algorithmNames.items():
             dfAlgorithm = pd.read_pickle(bc.dataFolderFull + "/" + dataName + "_" + algorithmName + ".pickle")
-            featureDataArray.append(dfAlgorithm[featureNames])
+            if featureNames is not None:
+                featureDataArray.append(dfAlgorithm[featureNames])
+            else:
+                featureDataArray.append(dfAlgorithm)
         dfInputPfoData.append(pd.concat(featureDataArray, axis=1, sort=False))
         dfInputPfoData[-1]["dataName"] = dataName
     dfInputPfoData = pd.concat(dfInputPfoData, ignore_index=True)
