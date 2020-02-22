@@ -21,8 +21,6 @@ def EnsureFilePath(filePath):
         os.mkdir(filePath)
 
 def PlotPFOSVG(driftCoords, wireCoords, driftCoordErrors, wireCoordError, energies, fileName, centre, driftSpan = 100, wireSpan = 100):
-    if len(driftCoords) == 0:
-        return
     halfDriftSpan = driftSpan/2
     halfWireSpan = wireSpan/2
     dwg = sw.Drawing(filename=fileName, size = cc.imageSizePixels, viewBox = "%s %s %s %s" %(centre[0] - halfDriftSpan, centre[1] - halfWireSpan, driftSpan, wireSpan), debug=True)
