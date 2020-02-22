@@ -74,6 +74,7 @@ if __name__ == "__main__":
         EnsureFilePath(cc.outputFolder + "/" + className + "/test")
 
     filePaths = glob.glob(cc.rootFileDirectory + '/**/*.root', recursive=True)
+    filePaths.sort()
     nameToPathDict = FileNameToFilePath(filePaths)
     ds.LoadPfoData([]) # Load just the data in GeneralInfo
     np.random.seed(gc.random_state)
