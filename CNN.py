@@ -50,7 +50,7 @@ def ProcessFile(fileName):
             pfo = events[pfoGeneralInfo.eventId][pfoGeneralInfo.pfoId]
             maxVertexDisplacement = min((min(cc.imageSpan["U"]), min(cc.imageSpan["V"]), min(cc.imageSpan["W"]))) / 2 # Ensures vertex remains visible in all views
             centre3D = GetImage3DCentre(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, pfo.vertex3D, maxVertexDisplacement)
-            wireCoordFlip = 1 - np.random.randint(low=0, high=2) * 2 # Mitigation for samples with non-isotropic distribution
+            wireCoordFlip = -1 if pfoGeneralInfo["flip"] else 1# Mitigation for samples with non-isotropic distribution
             centre3D[1:] *= wireCoordFlip
             PlotPFOSVG(pfo.driftCoordW, pfo.wireCoordW * wireCoordFlip, pfo.driftCoordErrW, pfo.wireCoordErr, pfo.energyW, "%s/%s_%s_%s_v001.png" %(currentOutputFolder %(className), pfo.fileName, pfo.eventId, pfo.pfoId), ProjectVector(centre3D, "W"), *cc.imageSpan["W"])
             PlotPFOSVG(pfo.driftCoordU, pfo.wireCoordU * wireCoordFlip, pfo.driftCoordErrU, pfo.wireCoordErr, pfo.energyU, "%s/%s_%s_%s_v002.png" %(currentOutputFolder %(className), pfo.fileName, pfo.eventId, pfo.pfoId), ProjectVector(centre3D, "U"), *cc.imageSpan["U"])
@@ -74,15 +74,17 @@ if __name__ == "__main__":
         EnsureFilePath(cc.outputFolder + "/" + className + "/test")
 
     filePaths = glob.glob(cc.rootFileDirectory + '/**/*.root', recursive=True)
-    filePaths.sort()
     nameToPathDict = FileNameToFilePath(filePaths)
     ds.LoadPfoData([]) # Load just the data in GeneralInfo
-    np.random.seed(gc.random_state)
 
     # Training set
     dfPfoData = ds.GetFilteredPfoData("training", "all", "training", "union")
+    np.random.seed(gc.random_state)
+    dfPfoData["flip"] = np.random.rand(len(dfPfoData)) < 0.5
     ProcessSample(dfPfoData, nameToPathDict, "train")
 
     # Testing set
     dfPfoData = ds.GetFilteredPfoData("performance", "all", "performance", "union")
+    np.random.seed(gc.random_state)
+    dfPfoData["flip"] = np.random.rand(len(dfPfoData)) < 0.5
     ProcessSample(dfPfoData, nameToPathDict, "test")
