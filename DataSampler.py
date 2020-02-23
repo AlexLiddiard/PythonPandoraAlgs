@@ -29,7 +29,6 @@ def LoadPfoData(features=None):
         dfInputPfoData.append(pd.concat(featureDataArray, axis=1, sort=False))
         dfInputPfoData[-1]["dataName"] = dataName
     dfInputPfoData = pd.concat(dfInputPfoData, ignore_index=True)
-    print(dfInputPfoData)
 
 def SavePfoData(dfData, algorithmName):
     position = 0
@@ -91,7 +90,6 @@ def GetAllDataAlgorithms(dataFolder, dataNames):
     algorithmNames = {}
     for fileName in os.listdir(dataFolder):
         name, ext = os.path.splitext(fileName)
-        print(name, ext)
         if ext != ".pickle" or not '_' in fileName:
             continue
         index = fileName.rindex('_')
