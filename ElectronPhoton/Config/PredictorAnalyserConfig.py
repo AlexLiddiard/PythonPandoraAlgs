@@ -7,7 +7,7 @@ predictors = [
     #{"name": "BDTW", "algorithmName": "BDTCalculator", 'bins': np.linspace(-7, 7, num=50), 'cutDirection': 'left', 'cutPlot': 'simple'},
     #{"name": "BDTMulti", "algorithmName": "BDTCalculator", 'bins': np.linspace(-10, 10, num=50), 'cutDirection': 'left', 'cutPlot': 'simple'},
     {"name": "BDTAll", "algorithmName": "BDTCalculator", 'bins': np.linspace(-7, 7, num=50), 'cutDirection': 'left', 'cutPlot': 'simple'},
-    {"name": "CNNPrediction", "algorithmName": "MVCNN", 'bins': np.linspace(0, 1, num = 3), 'cutDirection': 'right', 'cutPlot':'simple', 'cutFixed': 0.5},
+    {"name": "MVCNN", "algorithmName": "CNN", 'bins': np.linspace(0, 1, num = 3), 'cutDirection': 'right', 'cutPlot':'simple', 'cutFixed': 0.5},
 ]
 
 predictorHistograms = [

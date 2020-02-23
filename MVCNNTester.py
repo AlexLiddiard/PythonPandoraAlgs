@@ -26,7 +26,7 @@ val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=cfg.testingBatc
 
 ds.LoadPfoData([]) # Load general info dataframe
 
-dfPredictions = pd.DataFrame({"CNNPrediction": np.repeat(np.nan, len(ds.dfInputPfoData))})
+dfPredictions = pd.DataFrame({"MVCNN": np.repeat(np.nan, len(ds.dfInputPfoData))})
 dfPredictions.set_index(ds.dfInputPfoData['fileName'] + "_" + ds.dfInputPfoData['eventId'].astype(str) + "_" + ds.dfInputPfoData['pfoId'].astype(str), inplace = True)
 
 all_correct_points = 0
@@ -43,6 +43,6 @@ for _, data in enumerate(val_loader, 0):
     pred = torch.max(out_data, 1)[1]
     for i, filepath in zip(range(pred.size()[0]), data[2][0]):
         index = os.path.basename(filepath[:-9])
-        dfPredictions.loc[index, "CNNPrediction"] = int(pred[i].cpu().data.numpy())
+        dfPredictions.loc[index, "MVCNN"] = int(pred[i].cpu().data.numpy())
 
-ds.SavePfoData(dfPredictions, "MVCNN")
+ds.SavePfoData(dfPredictions, "CNN")
