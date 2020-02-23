@@ -29,6 +29,7 @@ def LoadPfoData(features=None):
         dfInputPfoData.append(pd.concat(featureDataArray, axis=1, sort=False))
         dfInputPfoData[-1]["dataName"] = dataName
     dfInputPfoData = pd.concat(dfInputPfoData, ignore_index=True)
+    print(dfInputPfoData)
 
 def SavePfoData(dfData, algorithmName):
     position = 0
@@ -89,10 +90,15 @@ def GetAllDataAlgorithms(dataFolder, dataNames):
         return []
     algorithmNames = {}
     for fileName in os.listdir(dataFolder):
-        for dataName in dataNames:
-            if os.path.isfile(os.path.join(dataFolder, fileName)) and fileName.startswith(dataName):
-                algorithmName = os.path.splitext(fileName[len(dataName) + 1:])[0]
-                algorithmNames[algorithmName] = algorithmNames.get(algorithmName, 0) + 1
+        name, ext = os.path.splitext(fileName)
+        print(name, ext)
+        if ext != ".pickle" or not '_' in fileName:
+            continue
+        index = fileName.rindex('_')
+        newAlgorithmName = name[index+1:]
+        newDataName = name[:index]
+        if newDataName in dataNames:
+            algorithmNames[newAlgorithmName] = algorithmNames.get(newAlgorithmName, 0) + 1
     return dict.fromkeys([algorithmName for algorithmName in algorithmNames if algorithmNames[algorithmName] == len(dataNames)])
 
 

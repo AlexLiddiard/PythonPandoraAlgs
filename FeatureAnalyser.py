@@ -102,8 +102,10 @@ def OptimiseCutoff(dfClass0Data, dfClass1Data, variableName, testCutoffs, class1
     class1PurityEfficiencies = []
     bestClass1Cutoff = testCutoffs[0]
     bestClass0Cutoff = testCutoffs[0]
+    bestAvgClassEfficiencyCutoff = testCutoffs[0]
     bestClass0PurityEfficiency = 0
     bestClass1PurityEfficiency = 0
+    bestAvgClassEfficiency = 0
     for cutoff in testCutoffs:
         (
             class0Efficiency, class0EfficiencyError, class0Purity, class0PurityError, class0PurityEfficiency, class0PurityEfficiencyError, 
@@ -122,9 +124,16 @@ def OptimiseCutoff(dfClass0Data, dfClass1Data, variableName, testCutoffs, class1
             bestClass1PurityEfficiency = class1PurityEfficiency
             bestClass1Cutoff = cutoff
         class1PurityEfficiencies.append(class1PurityEfficiency)
+
+        avgClassEfficiency = (class0Efficiency + class1Efficiency) / 2
+        if avgClassEfficiency > bestAvgClassEfficiency:
+            bestAvgClassEfficiency = avgClassEfficiency
+            bestAvgClassEfficiencyCutoff = cutoff
+
     return (
         bestClass0Cutoff, class0Efficiencies, class0Purities, class0PurityEfficiencies, 
-        bestClass1Cutoff, class1Efficiencies, class1Purities, class1PurityEfficiencies
+        bestClass1Cutoff, class1Efficiencies, class1Purities, class1PurityEfficiencies,
+        bestAvgClassEfficiencyCutoff, bestAvgClassEfficiency
     )
 
 def PrintPurityEfficiency(dfClass0Data, dfClass1Data, classNames, predictorName, cutoff, cutDirection='right', showPurity=True, pfoClass="both"):
@@ -171,10 +180,13 @@ def GetBestPurityEfficiency(dfClass0Data, dfClass1Data, variable, nTestCuts, sho
 
     # Printing results for optimal purity and efficiency
     print("Performance results for %s:" % variable['name'])
-    print("\nOptimal %s cutoff %.3f" % (gc.classNames[0], cutoffResults[0]))
+    print("\nOptimal %s cutoff: %.3f" % (gc.classNames[0], cutoffResults[0]))
     PrintPurityEfficiency(dfClass0Data, dfClass1Data, gc.classNames, variable['name'], cutoffResults[0], variable['cutDirection'], showPurity)
-    print("\nOptimal %s cutoff %.3f" % (gc.classNames[1], cutoffResults[4]))
+    print("\nOptimal %s cutoff: %.3f" % (gc.classNames[1], cutoffResults[4]))
     PrintPurityEfficiency(dfClass0Data, dfClass1Data, gc.classNames, variable['name'], cutoffResults[4], variable['cutDirection'], showPurity)
+    print("\nOptimal average class efficiency cutoff: %.3f" % cutoffResults[8])
+    print("Average class efficiency: %.3f" % cutoffResults[9])
+    PrintPurityEfficiency(dfClass0Data, dfClass1Data, gc.classNames, variable['name'], cutoffResults[8], variable['cutDirection'], showPurity)
     return cutoffValues, cutoffResults
 
 def PlotPurityEfficiencyVsCutoff(featureName, classNames, cutoffValues, cutoffResults):

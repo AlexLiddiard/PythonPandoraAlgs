@@ -3,7 +3,7 @@ import numpy as np
 ############################################## PREDICTOR ANALYSER CONFIGURATION ##################################################
 
 predictors = [
-    {"name": "Likelihood", "algorithmName": "LikelihoodCalculator", 'bins': np.linspace(0, 1, num=50), 'cutDirection': 'right'},
+    {"name": "Likelihood", "algorithmName": "LikelihoodCalculator", 'bins': np.linspace(0, 1, num=50), 'cutDirection': 'right', 'cutPlot': 'simple'},
     #{"name": "BDTW", "algorithmName": "BDTCalculator", 'bins': np.linspace(-7, 7, num=50), 'cutDirection': 'left', 'cutPlot': 'simple'},
     #{"name": "BDTMulti", "algorithmName": "BDTCalculator", 'bins': np.linspace(-10, 10, num=50), 'cutDirection': 'left', 'cutPlot': 'simple'},
     {"name": "BDTAll", "algorithmName": "BDTCalculator", 'bins': np.linspace(-7, 7, num=50), 'cutDirection': 'left', 'cutPlot': 'simple'},
@@ -32,7 +32,7 @@ purityEfficiencyBinnedGraphs = [
     },
     {
         "dependence": "mcpMomentum",
-        'bins': np.linspace(0, 1, num=40),
+        'bins': np.linspace(0, 0.5, num=40),
         "pfoClass": "both",
         "showPurity": False
     },
@@ -50,7 +50,7 @@ purityEfficiencyBinnedGraphs = [
     },
     {
         "dependence": "mcpMomentum",
-        'bins': np.linspace(0, 1, num=80),
+        'bins': np.linspace(0, 0.5, num=80),
         "pfoClass": "both",
         "filter": {
             "name": "CCQE",
@@ -60,7 +60,7 @@ purityEfficiencyBinnedGraphs = [
     },
     {
         "dependence": "mcpMomentum",
-        'bins': np.linspace(0, 1, num=80),
+        'bins': np.linspace(0, 0.5, num=80),
         "pfoClass": "both",
         "filter": {
             "name": "NCQE",
@@ -70,7 +70,7 @@ purityEfficiencyBinnedGraphs = [
     },
     {
         "dependence": "mcpMomentum",
-        'bins': np.linspace(0, 1, num=80),
+        'bins': np.linspace(0, 0.5, num=80),
         "pfoClass": "both",
         "filter": {
             "name": "CCRES",
