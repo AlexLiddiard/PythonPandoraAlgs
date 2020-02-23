@@ -33,10 +33,12 @@ def PlotPFOSVG(driftCoords, wireCoords, driftCoordErrors, wireCoordError, energi
 
 def GetImage3DCentre(xCoord3D, yCoord3D, zCoord3D, vertex3D, maxVertexDisplacement):
     centroid3D = np.mean((xCoord3D, yCoord3D, zCoord3D), axis=1)
-    if vertex3D is None:
+    if vertex3D is None :
         return centroid3D
     direction = centroid3D - vertex3D
     distance = np.linalg.norm(direction)
+    if distance == 0:
+        return centroid3D
     return vertex3D + direction * min(distance, maxVertexDisplacement) / distance
 
 def ProcessFile(fileName):
