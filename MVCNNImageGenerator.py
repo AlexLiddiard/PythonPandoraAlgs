@@ -59,7 +59,7 @@ def ProcessFile(fileName):
 def ProcessSample(dfPfoData, nameToPathDict, sampleName):
     fileNames = list(nameToPathDict.keys() & set(dfPfoData["fileName"]))
     global currentOutputFolder
-    currentOutputFolder = cc.outputFolder + "/%s/" + sampleName
+    currentOutputFolder = cc.imageOutputFolder + "/%s/" + sampleName
     if fileNames:
         with cf.ProcessPoolExecutor() as executor:
             list(tqdm(executor.map(ProcessFile, fileNames), total=len(fileNames)))
@@ -67,11 +67,11 @@ def ProcessSample(dfPfoData, nameToPathDict, sampleName):
         print('No ROOT files found for ' + sampleName + ' sample!')
 
 if __name__ == "__main__":
-    EnsureFilePath(cc.outputFolder)
+    EnsureFilePath(cc.imageOutputFolder)
     for className in gc.classNames:
-        EnsureFilePath(cc.outputFolder + "/" + className)
-        EnsureFilePath(cc.outputFolder + "/" + className + "/train")
-        EnsureFilePath(cc.outputFolder + "/" + className + "/test")
+        EnsureFilePath(cc.imageOutputFolder + "/" + className)
+        EnsureFilePath(cc.imageOutputFolder + "/" + className + "/train")
+        EnsureFilePath(cc.imageOutputFolder + "/" + className + "/test")
 
     filePaths = sorted(glob.glob(cc.rootFileDirectory + '/**/*.root', recursive=True))
     nameToPathDict = FileNameToFilePath(filePaths)
