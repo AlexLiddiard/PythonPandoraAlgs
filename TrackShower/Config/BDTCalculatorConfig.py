@@ -61,3 +61,5 @@ features = [
     #{'name': 'maxCoordY3D', 'algorithmName': 'GeneralInfo'},
     #{'name': 'maxCoordZ3D', 'algorithmName': 'GeneralInfo'},
 ]
+
+calculateBDTAll = False
