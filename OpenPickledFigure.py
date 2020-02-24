@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import pickle
 import sys
+import os
 
 def OpenFigure(filePath):
     fig = pickle.load(open(filePath, 'rb'))
@@ -11,6 +12,14 @@ def OpenFigure(filePath):
     return fig
 
 def SaveFigure(fig, filePath):
+    filename = os.path.basename(filePath)
+    if len(filename) > 255:
+        name, ext = os.path.splitext(filename)
+        name = name[:255 - len(ext)]
+        filename = name+ext
+        folder = os.path.dirname(filePath)
+        filePath = os.path.join(folder, filename)
+    
     pickle.dump(fig, open(filePath, 'wb'))
     print("Saved figure to: " + filePath)
 
