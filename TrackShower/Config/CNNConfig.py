@@ -15,6 +15,8 @@ imageSpan = {
 }
 
 maxEnergyDensity = 1500 / (0.3 * 0.3)
+randomHorizontalFlip = False
+centreMaxDisplacementFromVertex = np.inf # Maximum displacement of the image centre in the direction of the centroid
 
 ############################### MVCNN Trainer Configuration ##################################
 

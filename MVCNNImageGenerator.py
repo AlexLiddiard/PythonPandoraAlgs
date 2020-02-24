@@ -31,7 +31,7 @@ def PlotPFOSVG(driftCoords, wireCoords, driftCoordErrors, wireCoordError, energi
         dwg.add(ellipse)
     svg2png(bytestring=dwg.tostring(), write_to=fileName)
 
-def GetImage3DCentre(xCoord3D, yCoord3D, zCoord3D, vertex3D, maxVertexDisplacement):
+def GetImage3DCentre(xCoord3D, yCoord3D, zCoord3D, vertex3D, maxDisplacementFromVertex):
     centroid3D = np.mean((xCoord3D, yCoord3D, zCoord3D), axis=1)
     if vertex3D is None :
         return centroid3D
@@ -39,7 +39,7 @@ def GetImage3DCentre(xCoord3D, yCoord3D, zCoord3D, vertex3D, maxVertexDisplaceme
     distance = np.linalg.norm(direction)
     if distance == 0:
         return centroid3D
-    return vertex3D + direction * min(distance, maxVertexDisplacement) / distance
+    return vertex3D + direction * min(distance, maxDisplacementFromVertex) / distance
 
 def ProcessFile(fileName):
     events = rdr.ReadRootFile(nameToPathDict[fileName])
@@ -50,8 +50,7 @@ def ProcessFile(fileName):
         dfClass = df.query(classQuery)
         for index, pfoGeneralInfo in dfClass.iterrows():
             pfo = events[pfoGeneralInfo.eventId][pfoGeneralInfo.pfoId]
-            maxVertexDisplacement = min((min(cc.imageSpan["U"]), min(cc.imageSpan["V"]), min(cc.imageSpan["W"]))) / 2 # Ensures vertex remains visible in all views
-            centre3D = GetImage3DCentre(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, pfo.vertex3D, maxVertexDisplacement)
+            centre3D = GetImage3DCentre(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, pfo.vertex3D, cc.centreMaxDisplacementFromVertex)
             wireCoordFlip = -1 if pfoGeneralInfo["flip"] else 1# Mitigation for samples with non-isotropic distribution
             centre3D[1:] *= wireCoordFlip
             PlotPFOSVG(pfo.driftCoordW, pfo.wireCoordW * wireCoordFlip, pfo.driftCoordErrW, pfo.wireCoordErr, pfo.energyW, "%s/%s_%s_%s_v001.png" %(currentOutputFolder %(className), pfo.fileName, pfo.eventId, pfo.pfoId), ProjectVector(centre3D, "W"), *cc.imageSpan["W"])
@@ -68,6 +67,13 @@ def ProcessSample(dfPfoData, nameToPathDict, sampleName):
     else:
         print('No ROOT files found for ' + sampleName + ' sample!')
 
+def AddFlipColumn(dfPfoData):
+    if cc.randomHorizontalFlip:
+        np.random.seed(gc.random_state)
+        dfPfoData["flip"] = np.random.rand(len(dfPfoData)) < 0.5
+    else:
+        dfPfoData["flip"] = 1
+
 if __name__ == "__main__":
     EnsureFilePath(cc.imageOutputFolder)
     for className in gc.classNames:
@@ -81,12 +87,10 @@ if __name__ == "__main__":
 
     # Training set
     dfPfoData = ds.GetFilteredPfoData("training", "all", "training", "union")
-    np.random.seed(gc.random_state)
-    dfPfoData["flip"] = np.random.rand(len(dfPfoData)) < 0.5
+    AddFlipColumn(dfPfoData)
     ProcessSample(dfPfoData, nameToPathDict, "train")
 
     # Testing set
     dfPfoData = ds.GetFilteredPfoData("performance", "all", "performance", "union")
-    np.random.seed(gc.random_state)
-    dfPfoData["flip"] = np.random.rand(len(dfPfoData)) < 0.5
+    AddFlipColumn(dfPfoData)
     ProcessSample(dfPfoData, nameToPathDict, "test")
