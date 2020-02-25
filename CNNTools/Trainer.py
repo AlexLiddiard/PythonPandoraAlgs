@@ -137,12 +137,19 @@ class ModelNetTrainer(object):
         val_overall_acc = acc.cpu().data.numpy()
         loss = all_loss / len(self.val_loader)
 
+        if samples_class[1] - wrong_class[1] + wrong_class[0] != 0.0:
+            val_pe_class1 = ((samples_class[1] - wrong_class[1]) / (samples_class[1] - wrong_class[1] + wrong_class[0])) * ((samples_class[1] - wrong_class[1]) / samples_class[1])
+            print ('val pe class 1: ', val_pe_class1)
+        else:
+            val_pe_class1 = 0
+            print('Invalid val_pe_class1')
+
         print ('val mean class acc. : ', val_mean_class_acc)
         print ('val overall acc. : ', val_overall_acc)
         print ('val loss : ', loss)
 
         self.model.train()
 
-        return loss, val_overall_acc, val_mean_class_acc
+        return loss, val_overall_acc, val_pe_class1
 
 
