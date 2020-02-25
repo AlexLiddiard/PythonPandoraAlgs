@@ -221,7 +221,7 @@ def CorrelationMatrix(featureNames, viewsUsed, preFilters, pfoData):
         pfoData = pfoData.query(filter)
     rMatrix = pfoData[featureNames].corr()
     rSquaredMatrix = rMatrix * rMatrix
-    fig = sn.heatmap(rSquaredMatrix, annot=True, annot_kws={"size": 20}, cmap="Blues")
+    fig = sn.heatmap(rSquaredMatrix.round(2), annot=True, annot_kws={"size": 20}, cmap="Blues")
     plt.xticks(rotation=45, ha="right", rotation_mode="anchor")
     plt.tight_layout()
     SaveFigure(fig, bc.figureFolderFull + "/FeatureRSquaredMatrix.pickle")
