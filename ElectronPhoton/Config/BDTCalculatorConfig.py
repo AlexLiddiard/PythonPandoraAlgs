@@ -1,13 +1,13 @@
 ############################################## BDT CALCULATOR CONFIGURATION ##################################################
 
 features = [
-    {'name': 'TotalChargeU', 'algorithmName': 'TotalCharge'},
-    {'name': 'TotalChargeV', 'algorithmName': 'TotalCharge'},
-    {'name': 'TotalChargeW', 'algorithmName': 'TotalCharge'},
-    {'name': 'TotalCharge3D', 'algorithmName': 'TotalCharge'},
-    {'name': 'AngleFromX_3D', 'algorithmName': 'AnglesFromAxes'},
-    {'name': 'AngleFromY_3D', 'algorithmName': 'AnglesFromAxes'},
-    {'name': 'AngleFromZ_3D', 'algorithmName': 'AnglesFromAxes'},
+    #{'name': 'TotalChargeU', 'algorithmName': 'TotalCharge'},
+    #{'name': 'TotalChargeV', 'algorithmName': 'TotalCharge'},
+    #{'name': 'TotalChargeW', 'algorithmName': 'TotalCharge'},
+    #{'name': 'TotalCharge3D', 'algorithmName': 'TotalCharge'},
+    #{'name': 'AngleFromX_3D', 'algorithmName': 'AnglesFromAxes'},
+    #{'name': 'AngleFromY_3D', 'algorithmName': 'AnglesFromAxes'},
+    #{'name': 'AngleFromZ_3D', 'algorithmName': 'AnglesFromAxes'},
     #{'name': 'VertexSepU', 'algorithmName': 'VertexSeparation'},
     #{'name': 'VertexSepV', 'algorithmName': 'VertexSeparation'},
     #{'name': 'VertexSepW', 'algorithmName': 'VertexSeparation'},
@@ -26,3 +26,4 @@ features = [
 ]
 
 calculateBDTAll = True
+calculateFeatureImportances = False

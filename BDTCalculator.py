@@ -65,9 +65,10 @@ if __name__ == "__main__":
         dfPfoData = ds.GetFilteredPfoData("training", "all", "training", view)
         print("\nTraining BDT for " + view + " view")
         viewBDTs["BDT" + view] = TrainBDT(featureNames, dfPfoData, dfPfoData.eval(gc.classQueries[0]))
-        dfPfoData = ds.GetFilteredPfoData("performance", "all", "performance", view)
-        print("Calculating feature importance")
-        ShowFeatureImportance(viewBDTs["BDT" + view], featureNames, dfPfoData)
+        if cfg.calculateFeatureImportances:
+            print("Calculating feature importance")
+            dfPfoData = ds.GetFilteredPfoData("performance", "all", "performance", view)
+            ShowFeatureImportance(viewBDTs["BDT" + view], featureNames, dfPfoData)
 
     # BDTMulti
     dfPfoData = ds.GetFilteredPfoData("training", "all", "training", "union")
@@ -75,13 +76,13 @@ if __name__ == "__main__":
     dfPfoData = pd.concat([dfPfoData, dfViewBDTValues], axis=1, sort=False)
     print("\nTraining BDTMulti")
     bdtMulti = TrainBDT(dfViewBDTValues.columns, dfPfoData, dfPfoData.eval(gc.classQueries[0]))
-    print("Calculating view importance")
-    dfPfoData = ds.GetFilteredPfoData("performance", "all", "performance", "union")
-    dfViewBDTValues = GetBDTValues(viewBDTs, featureViews, dfPfoData)
-    dfPfoData = pd.concat([dfPfoData, dfViewBDTValues], axis=1, sort=False)
-    ShowFeatureImportance(bdtMulti, dfViewBDTValues.columns, dfPfoData)
-
-    # Calculate BDT values
+    if cfg.calculateFeatureImportances:
+        print("Calculating view importance")
+        dfPfoData = ds.GetFilteredPfoData("performance", "all", "performance", "union")
+        dfViewBDTValues = GetBDTValues(viewBDTs, featureViews, dfPfoData)
+        dfPfoData = pd.concat([dfPfoData, dfViewBDTValues], axis=1, sort=False)
+        ShowFeatureImportance(bdtMulti, dfViewBDTValues.columns, dfPfoData)
+    # Calculate BDTMulti values
     print("\nCalculating BDTMulti values")
     dfBdtValues = GetBDTValues(viewBDTs, featureViews, ds.dfInputPfoData)
     dfBdtValues["BDTMulti"] = bdtMulti.decision_function(dfBdtValues)
@@ -92,10 +93,11 @@ if __name__ == "__main__":
         dfTrainingPfoData = ds.GetFilteredPfoData("training", "all", "training", "union")
         featureNames = ds.GetFeatureNames(cfg.features)
         bdtAll = TrainBDT(featureNames, dfTrainingPfoData, dfTrainingPfoData.eval(gc.classQueries[0]))
-        print("Calculating view importance")
-        dfPfoData = ds.GetFilteredPfoData("performance", "all", "performance", "union")
-        dfPfoData = pd.concat([dfPfoData, dfViewBDTValues], axis=1, sort=False)
-        ShowFeatureImportance(bdtAll, featureNames, dfPfoData)
+        if cfg.calculateFeatureImportances:
+            print("Calculating view importance")
+            dfPfoData = ds.GetFilteredPfoData("performance", "all", "performance", "union")
+            dfPfoData = pd.concat([dfPfoData, dfViewBDTValues], axis=1, sort=False)
+            ShowFeatureImportance(bdtAll, featureNames, dfPfoData)
         print("\nCalculating BDTAll values")
         dfBdtValues["BDTAll"] = bdtAll.decision_function(ds.dfInputPfoData[featureNames])
 
