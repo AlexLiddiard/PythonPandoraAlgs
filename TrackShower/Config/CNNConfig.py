@@ -4,7 +4,7 @@ import DataSamplerConfig as dsc
 import GeneralConfig as gc
 
 ############################### Image Generator Configuration #################################
-rootFileDirectory =  bc.pythonFolderFull + "/ROOT Files"
+rootFileDirectory =  bc.pythonFolderFull + "/ROOT Files/"
 imageOutputFolder = bc.analysisFolderFull + "/SVGData"
 # {"View": (driftSpan, wireSpan)}
 imageSizePixels = (224, 224)
@@ -26,10 +26,10 @@ trainingBatchSize = 48
 numPFOs = 0 # 0 => all PFOs
 learningRate = 5e-5
 weightDecay = 0.001
-pretraining = False
+pretraining = True
 trainingImagePath = imageOutputFolder
-epochsStage1 = 1
-epochsStage2 = 1
+epochsStage1 = 8
+epochsStage2 = 8
 modelOutputFolder = bc.analysisFolder + "/TrainedModels/"
 
 ############################### MVCNN Tester Configuration ##################################
