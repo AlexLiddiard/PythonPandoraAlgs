@@ -5,13 +5,10 @@ import DataSampler as ds
 import torch
 import torch.nn as nn
 import os
-import glob
 from torch.autograd import Variable
-import argparse
 import torchvision.models as models
-import copy
 from CNNTools.ImgDataset import MultiviewImgDataset, SingleImgDataset
-from CNNModels.MVCNN import MVCNN, MVCNN2, SVCNN
+from CNNModels.MVCNN import MVCNN2, SVCNN
 import numpy as np
 import pandas as pd
 

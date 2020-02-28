@@ -25,5 +25,6 @@ features = [
     {'name': 'dedxW', 'algorithmName': 'NewInitialDeDx'},
 ]
 
+balanceClasses = False
 calculateBDTAll = True
 calculateFeatureImportances = False

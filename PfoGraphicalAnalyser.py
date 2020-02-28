@@ -1,4 +1,5 @@
 import BaseConfig as bc
+import PfoGraphicalAnalyserConfig as cfg
 import os
 import glob
 import UpRootFileReader as rdr
@@ -8,9 +9,9 @@ import numpy as np
 import random as rnd
 import pandas as pd
 import DataSampler as ds
-import PfoGraphicalAnalyserConfig as cfg
 from OpenPickledFigure import SaveFigure
 from UpRootFileReader import MicroBooneGeo
+#import ChainCreation as cc
 
 # From given axes limits, calculate new limits that give a square region.
 # The square region encloses the old (rectangular) region and shares the same centre point.
@@ -22,7 +23,7 @@ def GetSquareRegionAxesLimits(xMin, xMax, yMin, yMax):
     yMid = yMin + ySpan
     return xMid - maxSpan, xMid + maxSpan, yMid - maxSpan, yMid + maxSpan
 
-def DisplayPfo(pfo, wireView = "W", additionalInfo = None, showTitle = True):
+def PlotPfo(pfo, wireView = "W", additionalInfo = None, showTitle = True):
     # Setting variables to be plotted.
     if wireView == "U":
         x = pfo.driftCoordU
@@ -95,32 +96,36 @@ def DisplayPfo(pfo, wireView = "W", additionalInfo = None, showTitle = True):
 
     if showTitle:
         plt.title(
-            '%s\nEventId = %d, PfoId = %d, Hierarchy = %d\n%s (%s), Purity = %.2f, Completeness = %.2f' %
-            (pfo.fileName,
-            pfo.eventId, pfo.pfoId, pfo.hierarchyTier,
-            pfo.TrueParticle(), 'Track' if pfo.IsShower()==0 else 'Shower', purity, completeness)
+            '%s\nEventId = %d, PfoId = %d\n%s (%s), Purity = %.2f, Completeness = %.2f' %
+            (pfo.fileName, pfo.eventId, pfo.pfoId, pfo.TrueParticle(), 'Track' if pfo.IsShower()==0 else 'Shower', purity, completeness)
         )
-    ax.xlabel('DriftCoord%s (cm)' % wireView)
-    ax.ylabel('WireCoord%s (cm)' % wireView)
-    plt.tight_layout()
-    SaveFigure(fig, bc.figureFolderFull + '/%s, EventId %d, PfoId %d.pickle' % (pfo.fileName, pfo.eventId, pfo.pfoId))
-    plt.show()
+    ax.set_xlabel('DriftCoord%s (cm)' % wireView)
+    ax.set_ylabel('WireCoord%s (cm)' % wireView)
+    return fig, ax
 
-def RandomPfoView(filePaths):
-    rnd.shuffle(filePaths)
+def SimplePfoView(filePaths):
+    if cfg.randomisePfos:
+        rnd.shuffle(filePaths)
     for filePath in filePaths:
         events = rdr.ReadRootFile(filePath)
-        rnd.shuffle(events)
+        if cfg.randomisePfos:
+            rnd.shuffle(events)
         for eventPfos in events.values():
+            if cfg.randomisePfos:
+                rnd.shuffle(eventPfos)
             for pfo in eventPfos:
-                if pfo.mcPdgCode == 0:
+                if pfo.mcPdgCode == 0 or pfo.nHitsPfo3D == 0:
                     continue
-                DisplayPfo(pfo, cfg.view)
+                fig, ax = PlotPfo(pfo, cfg.view)
+                SaveFigure(fig, bc.figureFolderFull + '/%s, EventId %d, PfoId %d.pickle' % (pfo.fileName, pfo.eventId, pfo.pfoId))
+                plt.tight_layout()
+                plt.show()
+
 
 def SelectivePfoView(filePaths, dfPfoData, pfoFilters):
     nameToPathDict = FileNameToFilePath(filePaths)
     if len(pfoFilters) > 0:
-        dfPfoData = dfPfoData.query(' and '.join(pfoFilters))
+        dfPfoData = dfPfoData.query(ds.CombineFilters(pfoFilters, "and"))
     nPFOs = len(dfPfoData)
     dfPfoData = dfPfoData.query('fileName in @nameToPathDict')
     nPFOsAvailable = len(dfPfoData)
@@ -129,7 +134,13 @@ def SelectivePfoView(filePaths, dfPfoData, pfoFilters):
     for index, pfoData in dfPfoData.iterrows():
         filePath = nameToPathDict[pfoData.fileName]
         pfo = rdr.ReadPfoFromRootFile(filePath, pfoData.eventId, pfoData.pfoId)
-        DisplayPfo(pfo, cfg.view, pfoData[cfg.additionalInfo], cfg.showTitle)
+        fig, ax = PlotPfo(pfo, cfg.view, pfoData[cfg.additionalInfo], cfg.showTitle)
+        SaveFigure(fig, bc.figureFolderFull + '/%s, EventId %d, PfoId %d.pickle' % (pfo.fileName, pfo.eventId, pfo.pfoId))
+        #chainX, chainY, chainLength, chainDisplacement = cc.CreatePointChain2(pfo.driftCoordW.tolist(), pfo.wireCoordW.tolist(), 5, 5)
+        #print(chainLength, chainDisplacement)
+        #ax.plot(chainX, chainY)
+        plt.tight_layout()
+        plt.show()
 
 
 def FileNameToFilePath(filePaths):
@@ -140,13 +151,15 @@ def FileNameToFilePath(filePaths):
 
 if __name__ == "__main__":
     plt.rcParams.update(cfg.plotStyle)
-    filePaths =  glob.glob(cfg.rootFileDirectory + '/**/*.root', recursive=True)
+    filePaths =  sorted(glob.glob(cfg.rootFileDirectory + '/**/*.root', recursive=True))
     if cfg.useDataSample:
         ds.LoadPfoData()
         dfPfoData = ds.GetFilteredPfoData(*cfg.dataSample.values())
+        if cfg.randomisePfos:
+            dfPfoData = dfPfoData.sample(frac=1).reset_index(drop=True)
         SelectivePfoView(filePaths, dfPfoData, cfg.filters)
     else:
-        RandomPfoView(filePaths)
+        SimplePfoView(filePaths)
     print('\nFinished!')
 
 

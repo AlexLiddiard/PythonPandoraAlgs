@@ -1,11 +1,10 @@
 import BaseConfig as bc
+import GeneralConfig as gc
+import LikelihoodCalculatorConfig as cfg
 import numpy as np
 import pandas as pd
 import math as m
 import DataSampler as ds
-import LikelihoodCalculatorConfig as cfg
-import GeneralConfig as gc
-import DataSamplerConfig as dsc
 from UpRootFileReader import MicroBooneGeo
 
 delta = 1e-12
@@ -42,8 +41,8 @@ def CalculateLikelihoodValues(features):
     p1 = np.repeat(class1Prior, len(ds.dfInputPfoData))
 
     for view in ds.GetFeatureViews(features):
-        if dsc.preFilters["performance"][view] != "":
-            pfoCheck = ds.dfInputPfoData.eval(dsc.preFilters["performance"][view])
+        if ds.cfg.preFilters["performance"][view] != "":
+            pfoCheck = ds.dfInputPfoData.eval(ds.cfg.preFilters["performance"][view])
         else:
             pfoCheck = True
         p0 *= (1 + pfoCheck * (probabilities[0][view] - 1))

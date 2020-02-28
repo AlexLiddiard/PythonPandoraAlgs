@@ -30,30 +30,30 @@ features = [
     {'name': 'AngularSpanV', 'algorithmName': 'AngularSpan'},
     {'name': 'AngularSpanW', 'algorithmName': 'AngularSpan'},
     {'name': 'AngularSpan3D', 'algorithmName': 'AngularSpan'},
-    #{'name': 'LongitudinalSpanU', 'algorithmName': 'AngularSpan'},
-    #{'name': 'LongitudinalSpanV', 'algorithmName': 'AngularSpan'},
-    #{'name': 'LongitudinalSpanW', 'algorithmName': 'AngularSpan'},
-    #{'name': 'LongitudinalSpan3D', 'algorithmName': 'AngularSpan'},
-    #{'name': 'PcaVarU', 'algorithmName': 'PCAnalysis'},#
-    #{'name': 'PcaVarV', 'algorithmName': 'PCAnalysis'},#
-    #{'name': 'PcaVarW', 'algorithmName': 'PCAnalysis'},#
-    #{'name': 'PcaVar3D', 'algorithmName': 'PCAnalysis'},#
-    #{'name': 'PcaRatioU', 'algorithmName': 'PCAnalysis'},#
-    #{'name': 'PcaRatioV', 'algorithmName': 'PCAnalysis'},#
-    #{'name': 'PcaRatioW', 'algorithmName': 'PCAnalysis'},#
-    #{'name': 'PcaRatio3D', 'algorithmName': 'PCAnalysis'},#
-    #{'name': 'ChargedBinnedHitStdU', 'algorithmName': 'ChargedHitBinning'},
-    #{'name': 'ChargedBinnedHitStdV', 'algorithmName': 'ChargedHitBinning'},
-    #{'name': 'ChargedBinnedHitStdW', 'algorithmName': 'ChargedHitBinning'},
-    #{'name': 'ChargedStdMeanRatioU', 'algorithmName': 'ChargeStdMeanRatio'},
-    #{'name': 'ChargedStdMeanRatioV', 'algorithmName': 'ChargeStdMeanRatio'},
-    #{'name': 'ChargedStdMeanRatioW', 'algorithmName': 'ChargeStdMeanRatio'},
-    #{'name': 'ChargedStdMeanRatio3D', 'algorithmName': 'ChargeStdMeanRatio'},
-    #{'name': 'BraggPeakU', 'algorithmName': 'BraggPeak'},
-    #{'name': 'BraggPeakV', 'algorithmName': 'BraggPeak'},
-    #{'name': 'BraggPeakW', 'algorithmName': 'BraggPeak'},
-    #{'name': 'BraggPeak3D', 'algorithmName': 'BraggPeak'},
-    #{'name': 'Moliere3D', 'algorithmName': 'MoliereRadius'},#
+    {'name': 'LongitudinalSpanU', 'algorithmName': 'AngularSpan'},
+    {'name': 'LongitudinalSpanV', 'algorithmName': 'AngularSpan'},
+    {'name': 'LongitudinalSpanW', 'algorithmName': 'AngularSpan'},
+    {'name': 'LongitudinalSpan3D', 'algorithmName': 'AngularSpan'},
+    {'name': 'PcaVarU', 'algorithmName': 'PCAnalysis'},#
+    {'name': 'PcaVarV', 'algorithmName': 'PCAnalysis'},#
+    {'name': 'PcaVarW', 'algorithmName': 'PCAnalysis'},#
+    {'name': 'PcaVar3D', 'algorithmName': 'PCAnalysis'},#
+    {'name': 'PcaRatioU', 'algorithmName': 'PCAnalysis'},#
+    {'name': 'PcaRatioV', 'algorithmName': 'PCAnalysis'},#
+    {'name': 'PcaRatioW', 'algorithmName': 'PCAnalysis'},#
+    {'name': 'PcaRatio3D', 'algorithmName': 'PCAnalysis'},#
+    {'name': 'ChargedBinnedHitStdU', 'algorithmName': 'ChargedHitBinning'},
+    {'name': 'ChargedBinnedHitStdV', 'algorithmName': 'ChargedHitBinning'},
+    {'name': 'ChargedBinnedHitStdW', 'algorithmName': 'ChargedHitBinning'},
+    {'name': 'ChargedStdMeanRatioU', 'algorithmName': 'ChargeStdMeanRatio'},
+    {'name': 'ChargedStdMeanRatioV', 'algorithmName': 'ChargeStdMeanRatio'},
+    {'name': 'ChargedStdMeanRatioW', 'algorithmName': 'ChargeStdMeanRatio'},
+    {'name': 'ChargedStdMeanRatio3D', 'algorithmName': 'ChargeStdMeanRatio'},
+    {'name': 'BraggPeakU', 'algorithmName': 'BraggPeak'},
+    {'name': 'BraggPeakV', 'algorithmName': 'BraggPeak'},
+    {'name': 'BraggPeakW', 'algorithmName': 'BraggPeak'},
+    {'name': 'BraggPeak3D', 'algorithmName': 'BraggPeak'},
+    {'name': 'Moliere3D', 'algorithmName': 'MoliereRadius'},#
     #{'name': 'minCoordX3D', 'algorithmName': 'GeneralInfo'},
     #{'name': 'minCoordY3D', 'algorithmName': 'GeneralInfo'},
     #{'name': 'minCoordZ3D', 'algorithmName': 'GeneralInfo'},
@@ -62,5 +62,6 @@ features = [
     #{'name': 'maxCoordZ3D', 'algorithmName': 'GeneralInfo'},
 ]
 
+balanceClasses = False
 calculateBDTAll = False
 calculateFeatureImportances = False

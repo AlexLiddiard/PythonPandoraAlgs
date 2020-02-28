@@ -8,6 +8,7 @@ rootFileDirectory = bc.pythonFolderFull + "/ROOT Files"
 # The data sample to select PFOs from
 # If unused, PFOs will be opened directly from ROOT files without any pre-fitering applied
 useDataSample = True
+randomisePfos = True
 dataSample = {
     "dataSource": "performance",
     "pfoClass": "all",
@@ -25,12 +26,29 @@ filters = [
     #'likelihood > 0.89 and absPdgCode==2212' # shower-like protons
     #'likelihood < 0.89 and absPdgCode==11' # track-like electrons
     #'BinnedHitStdW==0' # BinnedHitStd anomaly
-    "completenessW==0.5",
+    #"completenessW==0.5",
     #"completenessV==0",
+    #'nHitsV <= 59',
+    #'nHitsV >= 51',
+    #'mcPdgCode == 22',
+    #'BDTV > 1.088',
+    #'mcHierarchyTier == 2',
+    #'mcParentPdgCode == 111',
+    'abs(mcPdgCode) == 13',
+    'ChainRSquaredAvgW < 0.25',
+    'ChainRSquaredAvgW > 0.20',
+    'purityW > 0.95',
+    'completenessW > 0.95',
 ]
 
 # Info to be displayed beside the PFO
 additionalInfo = [
+    'mcNuanceCode',
+    'mcHierarchyTier',
+    'mcpMomentum',
+    'mcNuMomentum',
+    'mcParentPdgCode',
+    'mcNuPdgCode',
     #'BinnedHitStdU',
     #'ChainRatioAvgU',
     #'ChainRSquaredStdU',

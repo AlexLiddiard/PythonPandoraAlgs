@@ -1,4 +1,6 @@
 import BaseConfig as bc
+import GeneralConfig as gc
+import FeatureAnalyserConfig as cfg
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -7,9 +9,6 @@ import math as m
 from UpRootFileReader import MicroBooneGeo
 from HistoSynthesis import CreateHistogramWire
 import DataSampler as ds
-import GeneralConfig as gc
-import DataSamplerConfig as dsc
-import FeatureAnalyserConfig as cfg
 from OpenPickledFigure import SaveFigure
 
 def GetFeatureView(featureName):
@@ -216,7 +215,7 @@ def PlotPurityEfficiencyVsCutoff(featureName, classNames, cutoffValues, cutoffRe
 
 def CorrelationMatrix(featureNames, viewsUsed, preFilters, pfoData):
     dataCorrFilters = [preFilters[x] for x in viewsUsed]
-    filter = dsc.CombineFilters(dataCorrFilters, "and")
+    filter = ds.CombineFilters(dataCorrFilters, "and")
     if filter != "":
         pfoData = pfoData.query(filter)
     rMatrix = pfoData[featureNames].corr()
@@ -227,6 +226,8 @@ def CorrelationMatrix(featureNames, viewsUsed, preFilters, pfoData):
     SaveFigure(fig, bc.figureFolderFull + "/FeatureRSquaredMatrix.pickle")
     plt.show()
 
+
+
 if __name__ == "__main__":
     ds.LoadPfoData(cfg.features)
 
@@ -236,11 +237,11 @@ if __name__ == "__main__":
         dfClass1Data = ds.GetFilteredPfoData("performance", gc.classNames[1], "performance", ds.GetFeatureView(feature["name"]))
         #print("Number of photon nans: ",  np.isnan(dfClass0Data["dedxW"]).sum())
         #print("Number of electron nans: ",  np.isnan(dfClass1Data["dedxW"]).sum())
-        cutoffValues, cutoffResults = GetBestPurityEfficiency(dfClass0Data, dfClass1Data, feature, cfg.purityEfficiency["nTestCuts"])
+        cutoffValues, cutoffResults = GetBestPurityEfficiency(dfClass0Data, dfClass1Data, feature, cfg.purityEfficiencyVsCutoff["nTestCuts"])
         if cfg.featureHistogram["plot"]:
             PlotVariableHistogram(dfPfoData, gc.classNames, feature, cfg.featureHistogram, cutoffResults[4] if feature.get("plotCutoff", True) else None)
-        if cfg.purityEfficiency["plot"]:
+        if cfg.purityEfficiencyVsCutoff["plot"]:
             PlotPurityEfficiencyVsCutoff(feature["name"], gc.classNames, cutoffValues, cutoffResults)
 
     dfPfoData = ds.GetFilteredPfoData("all", "all", "performance", "general")
-    CorrelationMatrix([feature['name'] for feature in cfg.features], ds.GetFeatureViews(cfg.features), dsc.preFilters["performance"], dfPfoData)
+    CorrelationMatrix([feature['name'] for feature in cfg.features], ds.GetFeatureViews(cfg.features), ds.cfg.preFilters["performance"], dfPfoData)

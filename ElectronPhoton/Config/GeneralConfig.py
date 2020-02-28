@@ -1,10 +1,10 @@
 ############################################## GENERAL CONFIGURATION ##################################################
 
-classNames = ("Photon", "Electron")
-classQueries = (
+classNames = ["Photon", "Electron"]
+classQueries = [
     "abs(mcPdgCode) == 22", 
     "abs(mcPdgCode) == 11"
-)
+]
 random_state = 201746973
 additionalImportPaths = ["TrackShower/FeatureAlgs"]
 

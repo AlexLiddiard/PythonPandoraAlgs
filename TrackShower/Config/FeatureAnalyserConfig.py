@@ -17,7 +17,7 @@ features = [
     #{'name': 'RadialBinStd3D', 'algorithmName': 'HitBinning', 'bins': np.linspace(0, 12, num=50), 'cutDirection': 'right', 'cutPlot': "simple"},
     #{'name': 'ChainCountU', 'algorithmName': 'ChainCreation', 'bins': np.linspace(1, 50, num=50), 'cutDirection': 'right'},
     #{'name': 'ChainCountV', 'algorithmName': 'ChainCreation', 'bins': np.linspace(1, 50, num=50), 'cutDirection': 'right'},
-    {'name': 'ChainCountW', 'algorithmName': 'ChainCreation', 'bins': np.linspace(1, 50, num=50), 'cutDirection': 'right'},
+    #{'name': 'ChainCountW', 'algorithmName': 'ChainCreation', 'bins': np.linspace(1, 50, num=50), 'cutDirection': 'right'},
     #{'name': 'ChainRatioAvgU', 'algorithmName': 'ChainCreation', 'bins': np.linspace(0, 1, num=50), 'cutDirection': 'left'},
     #{'name': 'ChainRatioAvgV', 'algorithmName': 'ChainCreation', 'bins': np.linspace(0, 1, num=50), 'cutDirection': 'left'},
     {'name': 'ChainRatioAvgW', 'algorithmName': 'ChainCreation', 'bins': np.linspace(0, 1, num=50), 'cutDirection': 'left', 'cutPlot': "simple"},
@@ -81,8 +81,8 @@ features = [
 ]
 
 featureHistogram = {
-    "plot": False,
-    "filters": (
+    "plot": True,
+    "filters": [
         ("Showers", "isShower==1", "count", True), 
         ("Tracks", "isShower==0", "count", True),
         #("Correct tracks", "isShower==0 and Likelihood < 0.998", "count", False ),
@@ -94,10 +94,10 @@ featureHistogram = {
         ("Electrons + Positrons", "abs(mcPdgCode)==11", "count", False),
         ("Photons", "abs(mcPdgCode)==22",  "count", False),
         ("Charged Pions", "abs(mcPdgCode)==211", "count", False),
-    )   
+    ]   
 }
 
-purityEfficiency = {
+purityEfficiencyVsCutoff = {
     "plot": False,
     "nTestCuts": 1000
 }

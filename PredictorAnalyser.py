@@ -1,4 +1,6 @@
 import BaseConfig as bc
+import GeneralConfig as gc
+import PredictorAnalyserConfig as cfg
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -8,8 +10,6 @@ import HistoSynthesis as hs
 from itertools import count
 import DataSampler as ds
 from FeatureAnalyser import GetBestPurityEfficiency, PlotVariableHistogram, PlotPurityEfficiencyVsCutoff, PurityEfficiency, PrintPurityEfficiency
-import GeneralConfig as gc
-import PredictorAnalyserConfig as pac
 import importlib
 from OpenPickledFigure import SaveFigure
 
@@ -146,19 +146,20 @@ if __name__ == "__main__":
     dfPerfDataClass0 = ds.GetFilteredPfoData("performance", gc.classNames[0], "performance", "union")
     dfPerfDataClass1 = ds.GetFilteredPfoData("performance", gc.classNames[1], "performance", "union")
 
-    for predictor in pac.predictors:
+    for predictor in cfg.predictors:
         fixedCutoff = predictor.get("fixedCutoff", None)
-        nTestCuts = pac.purityEfficiencyVsCutoffGraph['nTestCuts']
+        nTestCuts = cfg.purityEfficiencyVsCutoff['nTestCuts']
         if fixedCutoff is not None:
             print("Fixed cutoff specified, overriding purity * efficiency optimisation.")
             predictor["bins"] = [fixedCutoff, fixedCutoff]
             nTestCuts = 1
         cutoffValues, cutoffResults = GetBestPurityEfficiency(dfPerfDataClass0, dfPerfDataClass1, predictor, nTestCuts)
-        for histogram in pac.predictorHistograms:
+        for histogram in cfg.predictorHistograms:
             histogram['name'] = predictor["name"]
             PlotVariableHistogram(dfPerfDataAll, gc.classNames, predictor, histogram, cutoffResults[4])
-        PlotPurityEfficiencyVsCutoff("Likelihood", gc.classNames, cutoffValues, cutoffResults)
+        if cfg.purityEfficiencyVsCutoff["plot"]:
+            PlotPurityEfficiencyVsCutoff("Likelihood", gc.classNames, cutoffValues, cutoffResults)
         predictor["cutoff"] = cutoffResults[4]
     
-    for graph in pac.purityEfficiencyBinnedGraphs:
-        PlotPurityEfficiencyVsVariable(dfPerfDataClass0, dfPerfDataClass1, gc.classNames, pac.predictors, graph)
+    for graph in cfg.purityEfficiencyBinnedGraphs:
+        PlotPurityEfficiencyVsVariable(dfPerfDataClass0, dfPerfDataClass1, gc.classNames, cfg.predictors, graph)

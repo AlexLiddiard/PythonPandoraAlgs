@@ -66,7 +66,7 @@ featureHistogram = {
     )   
 }
 
-purityEfficiency = {
+purityEfficiencyVsCutoff = {
     "plot": True,
     "nTestCuts": 1000
 }

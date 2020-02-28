@@ -1,5 +1,5 @@
+import BaseConfig as bc
 import numpy as np
-import BaseConfig
 import PCAnalysis as pca
 
 def InteractionVertex2D(pfoVertex, pfoXCoords, pfoZCoords, parentPfoVertex, parentPfoXCoords, parentPfoZCoords, pfoHits, parentPfoHits):

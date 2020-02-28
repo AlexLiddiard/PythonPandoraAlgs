@@ -19,7 +19,7 @@ dataSources = {
 
 preFilters = {
     "training": {
-        "general": (
+        "general": [
             'abs(mcPdgCode) != 2112',
             #'maxCoordX3D >= @MicroBooneGeo.RangeX[0] + 10',
             'minCoordX3D <= @MicroBooneGeo.RangeX[1] - 15',
@@ -27,24 +27,24 @@ preFilters = {
             'minCoordY3D <= @MicroBooneGeo.RangeY[1] - 20',
             #'maxCoordZ3D >= @MicroBooneGeo.RangeY[0] + 20',
             'minCoordZ3D <= @MicroBooneGeo.RangeZ[1] - 20',
-        ),
-        "U": (
+        ],
+        "U": [
             '(isShower==1 and purityU>=0.8) or (isShower==0 and purityU>=0.8)',
             '(isShower==1 and completenessU>=0.5) or (isShower==0 and completenessU>=0.8)',
             #'nHitsU>=50',
-        ),
-        "V": (
+        ],
+        "V": [
             '(isShower==1 and purityV>=0.8) or (isShower==0 and purityV>=0.8)',
             '(isShower==1 and completenessV>=0.5) or (isShower==0 and completenessV>=0.8)',
             #'nHitsV>=50',
-        ),
-        "W": (
+        ],
+        "W": [
             '(isShower==1 and purityW>=0.8) or (isShower==0 and purityW>=0.8)',
             '(isShower==1 and completenessW>=0.5) or (isShower==0 and completenessW>=0.8)',
             #'nHitsW>=50',
-        ),
+        ],
         "3D":
-        (
+        [
             '(isShower==1 and purityU>=0.8) or (isShower==0 and purityU>=0.8)',
             '(isShower==1 and purityV>=0.8) or (isShower==0 and purityV>=0.8)',
             '(isShower==1 and purityW>=0.8) or (isShower==0 and purityW>=0.8)',
@@ -52,11 +52,11 @@ preFilters = {
             '(isShower==1 and completenessV>=0.5) or (isShower==0 and completenessV>=0.8)',
             '(isShower==1 and completenessW>=0.5) or (isShower==0 and completenessW>=0.8)',
             #'nHits3D >= 50',
-        )
+        ]
     },
 
     "performance": {
-        "general": (
+        "general": [
             #'maxCoordX3D >= @MicroBooneGeo.RangeX[0] + 15',
             'minCoordX3D <= @MicroBooneGeo.RangeX[1] - 15',
             #'maxCoordY3D >= @MicroBooneGeo.RangeY[0] + 20',
@@ -64,52 +64,40 @@ preFilters = {
             #'maxCoordZ3D >= @MicroBooneGeo.RangeY[0] + 20',
             'minCoordZ3D <= @MicroBooneGeo.RangeZ[1] - 20',
             #'nHitsU >= 20 and nHitsV>=20 and nHits3D>=20',
-            'nHitsU>=20 and nHitsV >= 20 and nHitsW>=20 and nHits3D>=20',
+            #'nHitsU>=20 and nHitsV >= 20 and nHitsW>=20 and nHits3D>=20',
+            'nHitsU>=20',
+            'nHitsV>=20',
+            'nHitsW>=20',
+            #'nHits3D>=20',
             #"nHitsU + nHitsV + nHitsW >= 100",
             #'nHitsU>0 and nHitsV>0 and nHitsW>0',
-        ),
-        "U": (
+            #'completenessU > 0.9',
+            #'purityU > 0.9',
+            #'completenessV > 0.9',
+            #'purityV > 0.9',
+            #'completenessW > 0.9',
+            #'purityW > 0.9',
+        ],
+        "U": [
             #'purityU>=0.8',
             #'completenessU>=0.8',
             #'nHitsU>=20',
-        ),
-        "V": (
+        ],
+        "V": [
             #'purityV>=0.8',
             #'completenessV>=0.8',
             #'nHitsV>=20',
-        ),
-        "W": (
+        ],
+        "W": [
             #'purityW>=0.8',
             #'completenessW>=0.8',
             #'nHitsW>=20',
-        ),
+        ],
         "3D":
-        (
+        [
             #'purityU>=0.8 and purityV>=0.8 and purityW>=0.8',
             #'completenessU>=0.8 and completenessV>=0.8 and completenessW>=0.8',
             #'nHits3D>=20',
-        )
+        ]
     }
 }
-
-############################################## CONFIGURATION PROCESSING ##################################################
-def CombineFilters(filterList, logicalOperator):
-    combinedFilter = ""
-    for filter in filterList:
-        if filter != "":
-            combinedFilter += " %s %s" % (logicalOperator, filter) if combinedFilter != "" else filter
-    return combinedFilter
-
-def ProcessFilters(filterClasses):
-    for filterClass in filterClasses:
-        for filter in filterClasses[filterClass]:
-            filterClasses[filterClass][filter] = ' and '.join(filterClasses[filterClass][filter])
-        viewFilters = [filterClasses[filterClass][x] for x in ["U", "V", "W", "3D"]]
-        filterClasses[filterClass]["union"] = CombineFilters(viewFilters, "or")
-        filterClasses[filterClass]["intersection"] = CombineFilters(viewFilters, "and")
-
-dataSources["all"] = []
-for dataSource in dataSources.values():
-    dataSources["all"] += list(dataSource)
-dataSources["all"] = dict.fromkeys(dataSources["all"])
-ProcessFilters(preFilters)

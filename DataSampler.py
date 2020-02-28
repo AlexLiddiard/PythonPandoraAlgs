@@ -7,7 +7,6 @@ from UpRootFileReader import MicroBooneGeo
 import GeneralConfig as gc
 import DataSamplerConfig as cfg
 
-dfInputPfoData = None
 # Load pickle file
 def LoadPfoData(features=None):
     global dfInputPfoData
@@ -117,3 +116,28 @@ def PrintSampleInput(pfoData):
         print(className + ":")
         for view in pfoData[className]:
             print("\t%s: %s PFOs" % (view, len(pfoData[className][view])))
+
+def CombineFilters(filterList, logicalOperator):
+    combinedFilter = ""
+    for filter in filterList:
+        if filter != "":
+            combinedFilter += " %s %s" % (logicalOperator, filter) if combinedFilter != "" else filter
+    return combinedFilter
+
+def ProcessFilters(filterClasses):
+    for filterClass in filterClasses:
+        for filter in filterClasses[filterClass]:
+            filterClasses[filterClass][filter] = ' and '.join(filterClasses[filterClass][filter])
+        viewFilters = [filterClasses[filterClass][x] for x in ["U", "V", "W", "3D"]]
+        filterClasses[filterClass]["union"] = CombineFilters(viewFilters, "or")
+        filterClasses[filterClass]["intersection"] = CombineFilters(viewFilters, "and")
+
+def ProcessDataSources(dataSources):
+    dataSources["all"] = []
+    for dataSource in dataSources.values():
+        dataSources["all"] += dataSource
+    dataSources["all"] = dict.fromkeys(dataSources["all"])
+
+dfInputPfoData = None
+ProcessDataSources(cfg.dataSources)
+ProcessFilters(cfg.preFilters)

@@ -1,4 +1,6 @@
 import BaseConfig as bc
+import GeneralConfig as gc
+import CNNConfig as cc
 import svgwrite as sw
 import UpRootFileReader as rdr
 import glob
@@ -10,8 +12,6 @@ from cairosvg import svg2png
 from tqdm import tqdm
 import numpy as np
 from UpRootFileReader import MicroBooneGeo, ProjectVector
-import CNNConfig as cc
-import GeneralConfig as gc
 from GetFeatureData import ProcessEvents
 from PfoGraphicalAnalyser import FileNameToFilePath
 import DataSampler as ds

@@ -8,6 +8,7 @@ rootFileDirectory = bc.pythonFolderFull + "/ROOT Files/BNBNuOnly"
 # The data sample to select PFOs from
 # If unused, PFOs will be opened directly from ROOT files without any pre-fitering applied
 useDataSample = True
+randomisePfos = True
 dataSample = {
     "dataSource": "performance",
     "pfoClass": "electron",

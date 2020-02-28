@@ -1,4 +1,7 @@
 import BaseConfig as bc
+import GeneralConfig as gc
+import BDTCalculatorConfig as cfg
+import HistoSynthesisConfig as hsc
 from sklearn import tree
 from sklearn import ensemble
 from sklearn.experimental import enable_hist_gradient_boosting
@@ -14,9 +17,6 @@ from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
 from sklearn.inspection import permutation_importance
 from imblearn.over_sampling import RandomOverSampler as ros
-import GeneralConfig as gc
-import BDTCalculatorConfig as cfg
-import HistoSynthesisConfig as hsc
 from OpenPickledFigure import SaveFigure
 
 plt.rcParams.update(hsc.plotStyle)
@@ -24,11 +24,12 @@ plt.rcParams.update(hsc.plotStyle)
 def TrainBDT(featureNames, trainingData, classificationArray):
     clf = ensemble.HistGradientBoostingClassifier()
     trainingData = trainingData[featureNames] # Remove all irrelevant columns
-    imp = IterativeImputer()
-    imp.fit(trainingData)
-    trainingData = imp.transform(trainingData)
-    sm = smt(sampling_strategy=1)
-    trainingData, classificationArray = sm.fit_sample(trainingData, classificationArray)
+    if cfg.balanceClasses:
+        imp = IterativeImputer()
+        imp.fit(trainingData)
+        trainingData = imp.transform(trainingData)
+        sm = smt(sampling_strategy=1)
+        trainingData, classificationArray = sm.fit_sample(trainingData, classificationArray)
     clfView = clf.fit(trainingData, classificationArray)
     return clfView
 
@@ -62,8 +63,8 @@ if __name__ == "__main__":
     viewBDTs = {}
     featureViews = ds.GetFeatureViews(cfg.features)
     for view, featureNames in featureViews.items():
-        dfPfoData = ds.GetFilteredPfoData("training", "all", "training", view)
         print("\nTraining BDT for " + view + " view")
+        dfPfoData = ds.GetFilteredPfoData("training", "all", "training", view)
         viewBDTs["BDT" + view] = TrainBDT(featureNames, dfPfoData, dfPfoData.eval(gc.classQueries[0]))
         if cfg.calculateFeatureImportances:
             print("Calculating feature importance")
@@ -71,10 +72,10 @@ if __name__ == "__main__":
             ShowFeatureImportance(viewBDTs["BDT" + view], featureNames, dfPfoData)
 
     # BDTMulti
+    print("\nTraining BDTMulti")
     dfPfoData = ds.GetFilteredPfoData("training", "all", "training", "union")
     dfViewBDTValues = GetBDTValues(viewBDTs, featureViews, dfPfoData)
     dfPfoData = pd.concat([dfPfoData, dfViewBDTValues], axis=1, sort=False)
-    print("\nTraining BDTMulti")
     bdtMulti = TrainBDT(dfViewBDTValues.columns, dfPfoData, dfPfoData.eval(gc.classQueries[0]))
     if cfg.calculateFeatureImportances:
         print("Calculating view importance")
@@ -87,9 +88,9 @@ if __name__ == "__main__":
     dfBdtValues = GetBDTValues(viewBDTs, featureViews, ds.dfInputPfoData)
     dfBdtValues["BDTMulti"] = bdtMulti.decision_function(dfBdtValues)
 
+    # BDTAll
     if cfg.calculateBDTAll:
         print("\nTraining BDTAll")
-        # BDTAll
         dfTrainingPfoData = ds.GetFilteredPfoData("training", "all", "training", "union")
         featureNames = ds.GetFeatureNames(cfg.features)
         bdtAll = TrainBDT(featureNames, dfTrainingPfoData, dfTrainingPfoData.eval(gc.classQueries[0]))
