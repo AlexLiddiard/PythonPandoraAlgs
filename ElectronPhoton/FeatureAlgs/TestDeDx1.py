@@ -1,3 +1,4 @@
+import AlgorithmConfig as cfg
 import numpy as np
 import math as m
 import PCAnalysis as pca
@@ -61,20 +62,23 @@ def GetInitialStraightSegment(coordSets, maxTransVar):
     if count > 3:
         return coordSets[:,:count - 1]
 
-def GetFeatures(pfo, calculateViews, maxRms=0.15):
-    vertex3D = Calculate3dVertex(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, initialLength=4, outlierFraction=0.85)
-    if vertex3D is None:
-        vertex3D = pfo.vertex3D
+def GetFeatures(pfo, calculateViews):
+    vertex3D = pfo.vertex3D
+    if cfg.newInitialDeDx["calcVertex"]:
+        calculatedVertex = Calculate3dVertex(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, cfg.vertexCalculation["initialLength"], cfg.vertexCalculation["outlierFraction"])
+        if calculatedVertex is not None:
+            vertex3D = calculatedVertex
     direction3D = GetInitialDirection(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, vertex3D, 4)
     if direction3D is None:
         direction3D = np.array([1, 1, 1]) / m.sqrt(2) # No scaling
+    
     featureDict = {}
     if calculateViews["U"]:
-        featureDict.update({ "TestDeDxU" : GetInitialDeDx(pfo, (pfo.driftCoordU, pfo.wireCoordU), pfo.energyU, maxRms * maxRms, ProjectVector(vertex3D, "U"), np.linalg.norm(ProjectVector(direction3D, "U")))})
+        featureDict.update({ "TestDeDxU" : GetInitialDeDx(pfo, (pfo.driftCoordU, pfo.wireCoordU), pfo.energyU, cfg.testDeDx1["maxRms"]**2, ProjectVector(vertex3D, "U"), np.linalg.norm(ProjectVector(direction3D, "U")))})
     if calculateViews["V"]:
-        featureDict.update({ "TestDeDxV" : GetInitialDeDx(pfo, (pfo.driftCoordV, pfo.wireCoordV), pfo.energyV, maxRms * maxRms, ProjectVector(vertex3D, "V"), np.linalg.norm(ProjectVector(direction3D, "V")))})
+        featureDict.update({ "TestDeDxV" : GetInitialDeDx(pfo, (pfo.driftCoordV, pfo.wireCoordV), pfo.energyV, cfg.testDeDx1["maxRms"]**2, ProjectVector(vertex3D, "V"), np.linalg.norm(ProjectVector(direction3D, "V")))})
     if calculateViews["W"]:
-        featureDict.update({ "TestDeDxW" : GetInitialDeDx(pfo, (pfo.driftCoordW, pfo.wireCoordW), pfo.energyW, maxRms * maxRms, ProjectVector(vertex3D, "W"), np.linalg.norm(ProjectVector(direction3D, "W")))})
+        featureDict.update({ "TestDeDxW" : GetInitialDeDx(pfo, (pfo.driftCoordW, pfo.wireCoordW), pfo.energyW, cfg.testDeDx1["maxRms"]**2, ProjectVector(vertex3D, "W"), np.linalg.norm(ProjectVector(direction3D, "W")))})
     if calculateViews["3D"]:
-        featureDict.update({ "TestDeDx3D" : GetInitialDeDx(pfo, (pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D), pfo.energy3D, maxRms * maxRms, vertex3D)})
+        featureDict.update({ "TestDeDx3D" : GetInitialDeDx(pfo, (pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D), pfo.energy3D, cfg.testDeDx1["maxRms"]**2, vertex3D)})
     return featureDict

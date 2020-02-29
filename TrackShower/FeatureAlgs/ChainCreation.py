@@ -1,4 +1,5 @@
 # This module is for track/shower feature #2
+import AlgorithmConfig as cfg
 import math as m
 import numpy as np
 import LinearRegression as lr
@@ -423,20 +424,21 @@ def Get3DChainInfoSimple(xCoord, yCoord, zCoord, cubeSideLength, localCorrelatio
         avgStdR2 = np.mean(stdR2s)
     return chainCount, avgLengthRatio, avgAvgR2, stdLengthRatio, avgStdR2
 
-def GetFeatures(pfo, calculateViews, rectWidth=10, rectHeight=2.5, rectOffsetX=2.5, rectOffestY=0, squareSideLength=5, cubeSideLength=5, localCorrelationPoints=5):
-    # Advanced chain creation
-    #chainCount, avgLengthRatio, avgChainRSquareds = GetChainInfoAdvanced(pfo.driftCoordW.tolist(), pfo.wireCoordW.tolist(), rectWidth, rectHeight, rectOffsetX, rectOffestY, squareSideLength, localCorrelationPoints)
+def GetFeatures(pfo, calculateViews):
     featureDict = {}
+    if calculateViews["U"]:
+        chainCount, avgLengthRatio, avgAvgR2, stdLengthRatio, avgStdR2 = GetChainInfoSimple(pfo.driftCoordU.tolist(), pfo.wireCoordU.tolist(), cfg.chainCreation["squareSideLength"], cfg.chainCreation["localCorrelationPoints"])
+        featureDict.update({ "ChainCountU": chainCount, "ChainRatioAvgU": avgLengthRatio, "ChainRSquaredAvgU": avgAvgR2, "ChainRatioStdU": stdLengthRatio, "ChainRSquaredStdU": avgStdR2 })
+    if calculateViews["V"]:
+        chainCount, avgLengthRatio, avgAvgR2, stdLengthRatio, avgStdR2 = GetChainInfoSimple(pfo.driftCoordV.tolist(), pfo.wireCoordV.tolist(), cfg.chainCreation["squareSideLength"], cfg.chainCreation["localCorrelationPoints"])
+        featureDict.update({ "ChainCountV": chainCount, "ChainRatioAvgV": avgLengthRatio, "ChainRSquaredAvgV": avgAvgR2, "ChainRatioStdV": stdLengthRatio, "ChainRSquaredStdV": avgStdR2 })
+    if calculateViews["W"]:
+        chainCount, avgLengthRatio, avgAvgR2, stdLengthRatio, avgStdR2 = GetChainInfoSimple(pfo.driftCoordW.tolist(), pfo.wireCoordW.tolist(),  cfg.chainCreation["squareSideLength"], cfg.chainCreation["localCorrelationPoints"])
+        featureDict.update({ "ChainCountW": chainCount, "ChainRatioAvgW": avgLengthRatio, "ChainRSquaredAvgW": avgAvgR2, "ChainRatioStdW": stdLengthRatio, "ChainRSquaredStdW": avgStdR2 })
     #if calculateViews["3D"]:
     #    chainCount, avgLengthRatio, avgAvgR2, stdLengthRatio, avgStdR2 = Get3DChainInfoSimple(pfo.xCoord3D.tolist(), pfo.yCoord3D.tolist(), pfo.zCoord3D.tolist(), cubeSideLength, localCorrelationPoints)
     #    featureDict.update({ "ChainCount3D": chainCount, "ChainRatioAvg3D": avgLengthRatio, "ChainRSquaredAvg3D": avgAvgR2, "ChainRatioStd3D": stdLengthRatio, "ChainRSquaredStd3D": avgStdR2 })
-    if calculateViews["U"]:
-        chainCount, avgLengthRatio, avgAvgR2, stdLengthRatio, avgStdR2 = GetChainInfoSimple(pfo.driftCoordU.tolist(), pfo.wireCoordU.tolist(), squareSideLength, localCorrelationPoints)
-        featureDict.update({ "ChainCountU": chainCount, "ChainRatioAvgU": avgLengthRatio, "ChainRSquaredAvgU": avgAvgR2, "ChainRatioStdU": stdLengthRatio, "ChainRSquaredStdU": avgStdR2 })
-    if calculateViews["V"]:
-        chainCount, avgLengthRatio, avgAvgR2, stdLengthRatio, avgStdR2 = GetChainInfoSimple(pfo.driftCoordV.tolist(), pfo.wireCoordV.tolist(), squareSideLength, localCorrelationPoints)
-        featureDict.update({ "ChainCountV": chainCount, "ChainRatioAvgV": avgLengthRatio, "ChainRSquaredAvgV": avgAvgR2, "ChainRatioStdV": stdLengthRatio, "ChainRSquaredStdV": avgStdR2 })
-    if calculateViews["W"]:
-        chainCount, avgLengthRatio, avgAvgR2, stdLengthRatio, avgStdR2 = GetChainInfoSimple(pfo.driftCoordW.tolist(), pfo.wireCoordW.tolist(), squareSideLength, localCorrelationPoints)
-        featureDict.update({ "ChainCountW": chainCount, "ChainRatioAvgW": avgLengthRatio, "ChainRSquaredAvgW": avgAvgR2, "ChainRatioStdW": stdLengthRatio, "ChainRSquaredStdW": avgStdR2 })
+
+    # Advanced chain creation
+    #chainCount, avgLengthRatio, avgChainRSquareds = GetChainInfoAdvanced(pfo.driftCoordW.tolist(), pfo.wireCoordW.tolist(), rectWidth, rectHeight, rectOffsetX, rectOffestY, squareSideLength, localCorrelationPoints)
     return featureDict

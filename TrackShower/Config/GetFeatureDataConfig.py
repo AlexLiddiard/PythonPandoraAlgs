@@ -6,16 +6,15 @@ rootFileDirectory = bc.myTestArea + "/PythonPandoraAlgs/ROOT Files/BNBNuOnly"
 outputDataName = "BNBNuOnly"
 
 algorithmNames = [
-    "GeneralInfo",
-    "LinearRegression",
-    "HitBinning",
-    "ChainCreation",
-    "AngularSpan",
-    "PCAnalysis",
-    "ChargedHitBinning",
-    "ChargeStdMeanRatio",
+    #"GeneralInfo",
+    #"LinearRegression",
+    #"HitBinning",
+    #"ChainCreation",
+    #"AngularSpan",
+    #"PCAnalysis",
+    #"ChargeStdMeanRatio",
     "BraggPeak",
-    "MoliereRadius"
+    #"MoliereRadius"
 ]
 
 calculateViews = {

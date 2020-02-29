@@ -1,3 +1,4 @@
+import AlgorithmConfig as cfg
 import math as m
 import numpy as np
 import PCAnalysis as pca
@@ -21,12 +22,12 @@ def MoliereRadius(xCoord, yCoord, zCoord, chargeArray, fraction):
         return m.nan
     return moliereRadius / length
 
-def GetFeatures(pfo, calculateViews, fraction = 0.4):
+def GetFeatures(pfo, calculateViews):
     featureDict = {}
     moliere = m.nan
     if  calculateViews["3D"]:
         if pfo.ValidVertex():
-            moliere =  MoliereRadius(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, pfo.energy3D, fraction)
+            moliere =  MoliereRadius(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, pfo.energy3D, cfg.moliereRadius["fraction"])
         featureDict.update({ "Moliere3D" : moliere})
     return featureDict
 

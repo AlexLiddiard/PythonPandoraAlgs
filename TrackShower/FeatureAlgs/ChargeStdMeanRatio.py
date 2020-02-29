@@ -8,7 +8,7 @@ def GetPlaneChargeStdMeanRatio(energyArray):
 
     return np.std(energyArray)/np.mean(energyArray)
 
-def GetFeatures(pfo, calculateViews, binWidth=20, minBins=3):
+def GetFeatures(pfo, calculateViews):
     featureDict = {}
     if calculateViews["U"]:
         featureDict.update({ "ChargedStdMeanRatioU" : GetPlaneChargeStdMeanRatio(pfo.energyU)})

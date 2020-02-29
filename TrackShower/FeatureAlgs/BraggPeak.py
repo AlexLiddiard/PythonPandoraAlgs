@@ -1,3 +1,4 @@
+import AlgorithmConfig as cfg
 import math as m
 import numpy as np
 
@@ -19,7 +20,7 @@ def BraggPeak(xCoords, wireCoords, vertex, chargeArray, startFraction, endFracti
     braggEndArray = orderedChargeArray[-fracEnd:]
     braggStartArray = orderedChargeArray[:fracStart]
     
-    return np.sum(braggEndArray)/np.sum(braggStartArray)
+    return np.sum(braggEndArray)/np.sum(braggStartArray) * startFraction/endFraction
 
 def BraggPeak3D(xCoords, yCoords, zCoords, vertex, chargeArray, startFraction, endFraction):
     if len(xCoords) == 0:
@@ -40,28 +41,28 @@ def BraggPeak3D(xCoords, yCoords, zCoords, vertex, chargeArray, startFraction, e
     braggEndArray = orderedChargeArray[-fracEnd:]
     braggStartArray = orderedChargeArray[:fracStart]
 
-    return np.sum(braggEndArray)/np.sum(braggStartArray)
+    return np.sum(braggEndArray)/np.sum(braggStartArray) * startFraction/endFraction
 
 
 
-def GetFeatures(pfo, calculateViews, startFraction = 0.65, endFraction = 0.15):
+def GetFeatures(pfo, calculateViews):
     featureDict = {}
     braggPeak = m.nan
     if calculateViews["U"]:
         if pfo.ValidVertex():
-            braggPeak =  BraggPeak(pfo.driftCoordU, pfo.wireCoordU, pfo.vertexU, pfo.energyU, startFraction, endFraction)
+            braggPeak =  BraggPeak(pfo.driftCoordU, pfo.wireCoordU, pfo.vertexU, pfo.energyU, cfg.braggPeak["startFraction"], cfg.braggPeak["endFraction"])
         featureDict.update({ "BraggPeakU" : braggPeak})
     if calculateViews["V"]:
         if pfo.ValidVertex():
-            braggPeak =  BraggPeak(pfo.driftCoordV, pfo.wireCoordV, pfo.vertexV, pfo.energyV, startFraction, endFraction)
+            braggPeak =  BraggPeak(pfo.driftCoordV, pfo.wireCoordV, pfo.vertexV, pfo.energyV, cfg.braggPeak["startFraction"], cfg.braggPeak["endFraction"])
         featureDict.update({ "BraggPeakV" : braggPeak})
     if calculateViews["W"]:
         if pfo.ValidVertex():
-            braggPeak =  BraggPeak(pfo.driftCoordW, pfo.wireCoordW, pfo.vertexW, pfo.energyW, startFraction, endFraction)
+            braggPeak =  BraggPeak(pfo.driftCoordW, pfo.wireCoordW, pfo.vertexW, pfo.energyW, cfg.braggPeak["startFraction"], cfg.braggPeak["endFraction"])
         featureDict.update({ "BraggPeakW" : braggPeak})
     if calculateViews["3D"]:
         if pfo.ValidVertex():
-            braggPeak = BraggPeak3D(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, pfo.vertex3D, pfo.energy3D, startFraction, endFraction)
+            braggPeak = BraggPeak3D(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, pfo.vertex3D, pfo.energy3D, cfg.braggPeak["startFraction"], cfg.braggPeak["endFraction"])
         featureDict.update({"BraggPeak3D": braggPeak})
     return featureDict
 

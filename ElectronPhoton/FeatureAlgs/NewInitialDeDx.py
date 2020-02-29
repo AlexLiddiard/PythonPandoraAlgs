@@ -1,3 +1,4 @@
+import AlgorithmConfig as cfg
 import math as m
 import numpy as np
 import PCAnalysis as pca
@@ -40,11 +41,7 @@ def Get2dHitsInRectangle(xCoords, yCoords, rectangleTopLeft=(0, 0.5), rectangleW
 def GetLongitudinalError(driftCoordErrors, wireCoordErrors, longDirection):
     return driftCoordErrors * wireCoordErrors / np.sqrt((np.square(wireCoordErrors * longDirection[0]) + np.square(driftCoordErrors * longDirection[1])))
 
-def GetDeDx(xCoords3D, yCoords3D, zCoords3D, view2D, driftCoords2D, driftCoordErrors2D, wireCoords2D, wireCoordError2D, charges2D, sphereRadius, rectangleWidth, rectangleLength, vertex3D = None, initialLength = 4, outlierFraction=0.85):
-    if vertex3D is None:
-        vertex3D = Calculate3dVertex(xCoords3D, yCoords3D, zCoords3D, initialLength, outlierFraction)
-        if vertex3D is None:
-            return m.nan
+def GetDeDx(xCoords3D, yCoords3D, zCoords3D, view2D, driftCoords2D, driftCoordErrors2D, wireCoords2D, wireCoordError2D, charges2D, sphereRadius, rectangleWidth, rectangleLength, vertex3D):
     vertex2D = ProjectVector(vertex3D, view2D)
 
     showerLongDirection3D = GetInitialDirection(xCoords3D, yCoords3D, zCoords3D, vertex3D, sphereRadius)
@@ -154,19 +151,26 @@ def Calculate3dVertex(xCoords3D, yCoords3D, zCoords3D, initialLength=4, outlierF
     return vertex
     
 
-def GetFeatures(pfo, calculateViews, sphereRadius=4, rectangleWidth=1, rectangleLength=4):
+def GetFeatures(pfo, calculateViews):
     featureDict = {}
     dedx = m.nan
+
+    vertex3D = pfo.vertex3D
+    if cfg.newInitialDeDx["calcVertex"]:
+        calculatedVertex = Calculate3dVertex(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, cfg.vertexCalculation["initialLength"], cfg.vertexCalculation["outlierFraction"])
+        if calculatedVertex is not None:
+            vertex3D = calculatedVertex
+    
     if calculateViews["U"]:
         if pfo.ValidVertex():
-            dedx = GetDeDx(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, "U", pfo.driftCoordU, pfo.driftCoordErrU, pfo.wireCoordU, 0.3, pfo.energyU, sphereRadius, rectangleWidth, rectangleLength)
+            dedx = GetDeDx(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, "U", pfo.driftCoordU, pfo.driftCoordErrU, pfo.wireCoordU, 0.3, pfo.energyU, cfg.newInitialDeDx["sphereRadius"], cfg.newInitialDeDx["rectangleWidth"], cfg.newInitialDeDx["rectangleLength"], vertex3D)
         featureDict.update({ "dedxU": dedx })
     if calculateViews["V"]:
         if pfo.ValidVertex():
-            dedx = GetDeDx(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, "V", pfo.driftCoordV, pfo.driftCoordErrV, pfo.wireCoordV, 0.3, pfo.energyV, sphereRadius, rectangleWidth, rectangleLength)
+            dedx = GetDeDx(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, "V", pfo.driftCoordV, pfo.driftCoordErrV, pfo.wireCoordV, 0.3, pfo.energyV, cfg.newInitialDeDx["sphereRadius"], cfg.newInitialDeDx["rectangleWidth"], cfg.newInitialDeDx["rectangleLength"], vertex3D)
         featureDict.update({ "dedxV": dedx })
     if calculateViews["W"]:
         if pfo.ValidVertex():
-            dedx = GetDeDx(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, "W", pfo.driftCoordW, pfo.driftCoordErrW, pfo.wireCoordW, 0.3, pfo.energyW, sphereRadius, rectangleWidth, rectangleLength)
+            dedx = GetDeDx(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, "W", pfo.driftCoordW, pfo.driftCoordErrW, pfo.wireCoordW, 0.3, pfo.energyW, cfg.newInitialDeDx["sphereRadius"], cfg.newInitialDeDx["rectangleWidth"], cfg.newInitialDeDx["rectangleLength"], vertex3D)
         featureDict.update({ "dedxW": dedx })
     return featureDict
