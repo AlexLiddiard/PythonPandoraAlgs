@@ -30,6 +30,7 @@ preFilters = {
             'nHitsU>=20',
             'nHitsV>=20',
             'nHitsW>=20',
+            'nHits3D>=20',
         ],
         "U": [
             '(isShower==1 and purityU>=0.8) or (isShower==0 and purityU>=0.8)',
@@ -71,7 +72,7 @@ preFilters = {
             'nHitsU>=20',
             'nHitsV>=20',
             'nHitsW>=20',
-            #'nHits3D>=20',
+            'nHits3D>=20',
             #"nHitsU + nHitsV + nHitsW >= 100",
             #'nHitsU>0 and nHitsV>0 and nHitsW>0',
             #'completenessU > 0.9',
