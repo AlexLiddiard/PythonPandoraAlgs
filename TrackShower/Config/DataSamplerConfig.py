@@ -27,6 +27,9 @@ preFilters = {
             'minCoordY3D <= @MicroBooneGeo.RangeY[1] - 20',
             #'maxCoordZ3D >= @MicroBooneGeo.RangeY[0] + 20',
             'minCoordZ3D <= @MicroBooneGeo.RangeZ[1] - 20',
+            'nHitsU>=20',
+            'nHitsV>=20',
+            'nHitsW>=20',
         ],
         "U": [
             '(isShower==1 and purityU>=0.8) or (isShower==0 and purityU>=0.8)',
