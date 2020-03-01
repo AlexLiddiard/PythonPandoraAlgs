@@ -150,6 +150,6 @@ class ModelNetTrainer(object):
 
         self.model.train()
 
-        return loss, val_overall_acc, val_pe_class1
+        return loss, val_pe_class1, val_mean_class_acc
 
 
