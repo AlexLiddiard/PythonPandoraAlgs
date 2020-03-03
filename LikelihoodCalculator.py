@@ -33,8 +33,8 @@ def CalculateLikelihoodValues(features):
             probabilities[1][featureView] *= class1Hist[histIndices]
 
     # Obtain likelihood values, using only probabilities from views that the PFO satisfied the filters.
-    nClass0 = len(ds.GetFilteredPfoData("training", gc.classNames[0], "performance", "union"))
-    nClass1 = len(ds.GetFilteredPfoData("training", gc.classNames[1], "performance", "union"))
+    nClass0 = len(ds.GetFilteredPfoData("training", gc.classNames[0], "training", "union"))
+    nClass1 = len(ds.GetFilteredPfoData("training", gc.classNames[1], "training", "union"))
     class0Prior = nClass0 / (nClass0 + nClass1)
     class1Prior = 1 - class0Prior
     p0 = np.repeat(class0Prior, len(ds.dfInputPfoData))

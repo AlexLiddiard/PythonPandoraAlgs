@@ -4,13 +4,20 @@ features = [
     {'name': 'RSquaredU', 'algorithmName': 'LinearRegression'},#
     {'name': 'RSquaredV', 'algorithmName': 'LinearRegression'},#
     {'name': 'RSquaredW', 'algorithmName': 'LinearRegression'},#
-    {'name': 'BinnedHitStdU', 'algorithmName': 'HitBinning'},#
-    {'name': 'BinnedHitStdV', 'algorithmName': 'HitBinning'},#
-    {'name': 'BinnedHitStdW', 'algorithmName': 'HitBinning'},#
-    {'name': 'RadialBinStdU', 'algorithmName': 'HitBinning'},
-    {'name': 'RadialBinStdV', 'algorithmName': 'HitBinning'},
-    {'name': 'RadialBinStdW', 'algorithmName': 'HitBinning'},
-    {'name': 'RadialBinStd3D', 'algorithmName': 'HitBinning'},
+    {'name': 'BinnedHitStdU', 'algorithmName': 'HitBinning'},
+    {'name': 'BinnedHitStdV', 'algorithmName': 'HitBinning'},
+    {'name': 'BinnedHitStdW', 'algorithmName': 'HitBinning'},
+    {'name': 'RadialBinHitStdU', 'algorithmName': 'HitBinning'},
+    {'name': 'RadialBinHitStdV', 'algorithmName': 'HitBinning'},
+    {'name': 'RadialBinHitStdW', 'algorithmName': 'HitBinning'},
+    {'name': 'RadialBinHitStd3D', 'algorithmName': 'HitBinning'},
+    {'name': 'BinnedChargeStdU', 'algorithmName': 'HitBinning'},
+    {'name': 'BinnedChargeStdV', 'algorithmName': 'HitBinning'},
+    {'name': 'BinnedChargeStdW', 'algorithmName': 'HitBinning'},
+    {'name': 'RadialBinChargeStdU', 'algorithmName': 'HitBinning'},
+    {'name': 'RadialBinChargeStdV', 'algorithmName': 'HitBinning'},
+    {'name': 'RadialBinChargeStdW', 'algorithmName': 'HitBinning'},
+    {'name': 'RadialBinChargeStd3D', 'algorithmName': 'HitBinning'},
     {'name': 'ChainCountU', 'algorithmName': 'ChainCreation'},
     {'name': 'ChainCountV', 'algorithmName': 'ChainCreation'},
     {'name': 'ChainCountW', 'algorithmName': 'ChainCreation'},
@@ -42,9 +49,6 @@ features = [
     {'name': 'PcaRatioV', 'algorithmName': 'PCAnalysis'},#
     {'name': 'PcaRatioW', 'algorithmName': 'PCAnalysis'},#
     {'name': 'PcaRatio3D', 'algorithmName': 'PCAnalysis'},#
-    {'name': 'ChargedBinnedHitStdU', 'algorithmName': 'ChargedHitBinning'},
-    {'name': 'ChargedBinnedHitStdV', 'algorithmName': 'ChargedHitBinning'},
-    {'name': 'ChargedBinnedHitStdW', 'algorithmName': 'ChargedHitBinning'},
     {'name': 'ChargedStdMeanRatioU', 'algorithmName': 'ChargeStdMeanRatio'},
     {'name': 'ChargedStdMeanRatioV', 'algorithmName': 'ChargeStdMeanRatio'},
     {'name': 'ChargedStdMeanRatioW', 'algorithmName': 'ChargeStdMeanRatio'},
@@ -62,6 +66,6 @@ features = [
     #{'name': 'maxCoordZ3D', 'algorithmName': 'GeneralInfo'},
 ]
 
-balanceClasses = False
+balanceClasses = True
 calculateBDTAll = False
 calculateFeatureImportances = False
