@@ -1,3 +1,5 @@
+import math as m
+
 # Angular Span
 angularSpan = {
     "hitFraction": 0.7,
@@ -22,16 +24,11 @@ chainCreation = {
     "cubeSideLength": 5,
 }
 
-# Charge Hit Binning
-chargedHitBinning = {
-    "binWidth": 2,
-    "minBins": 3,
-}
-
 # Hit Binning
 hitBinning = {
     "binWidth": 1,
     "minBins": 3,
+    "maxAngleFromAxis": m.pi,
     "hitFraction": 1,
 }
 

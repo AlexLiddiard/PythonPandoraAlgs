@@ -53,7 +53,7 @@ def TanToSinCos(tan):
     return sin, cos
 
 
-def GetRotatedBinStdevOLS(driftCoord, wireCoord, charges, binWidth, minBins,):
+def GetRotatedBinStdevOLS(driftCoord, wireCoord, charges, binWidth=cfg.hitBinning["binWidth"], minBins=cfg.hitBinning["minBins"]):
     a, b, r = lr.OLS(driftCoord, wireCoord)
 
     # Rotate the coords so that any tracks are roughly parallel to the x axis.
@@ -66,7 +66,7 @@ def GetRotatedBinStdevOLS(driftCoord, wireCoord, charges, binWidth, minBins,):
     # Get stdev of the bin counts
     return np.std(hitCounts), np.std(chargeCounts) / np.mean(charges)
 
-def GetRotatedBinStdevPCA(driftCoord, wireCoord, charges, binWidth, minBins):
+def GetRotatedBinStdevPCA(driftCoord, wireCoord, charges, binWidth=cfg.hitBinning["binWidth"], minBins=cfg.hitBinning["minBins"]):
     driftCoordRotated = pca.PcaReduce((driftCoord, wireCoord))[0]
     hitCounts, chargeCounts = GetBinCounts(driftCoordRotated, charges, binWidth)
 
@@ -76,8 +76,8 @@ def GetRotatedBinStdevPCA(driftCoord, wireCoord, charges, binWidth, minBins):
     # Get stdev of the bin counts
     return np.std(hitCounts), np.std(chargeCounts) / np.mean(charges)
 
-def GetRadialBinStdev(coordSets, charges, vertex, hitFraction, binWidth, minBins):  
-    distances, hitsInside = GetFilteredVertexDistances(coordSets, vertex, hitFraction)
+def GetRadialBinStdev(coordSets, charges, vertex, binWidth=cfg.hitBinning["binWidth"], minBins=cfg.hitBinning["minBins"], maxAngle=cfg.hitBinning["maxAngleFromAxis"], hitFraction=cfg.hitBinning["hitFraction"]):  
+    distances, hitsInside = GetFilteredVertexDistances(coordSets, vertex, maxAngle, hitFraction)
     if len(hitsInside) == 0:
         return m.nan, m.nan
     hitCounts, chargeCounts = GetBinCounts(distances, charges[hitsInside], binWidth)
@@ -88,37 +88,37 @@ def GetRadialBinStdev(coordSets, charges, vertex, hitFraction, binWidth, minBins
     # Get stdev of the bin counts
     return np.std(hitCounts), np.std(chargeCounts) / np.mean(charges)
 
-def GetFilteredVertexDistances(coordSets, vertex, hitFraction):
+def GetFilteredVertexDistances(coordSets, vertex, maxAngle=cfg.hitBinning["maxAngleFromAxis"], hitFraction=cfg.hitBinning["hitFraction"]):
     if len(coordSets[0]) == 0:
         return np.array([]), np.array([])
     coordSetsNew = pca.PcaReduce(coordSets, vertex)
     hitAnglesFromAxis, halfOpeningAngle = asp.CalcAngles(coordSetsNew, hitFraction)
-    hitsInside = (hitAnglesFromAxis >= 0) & (hitAnglesFromAxis <= halfOpeningAngle)
+    hitsInside = hitAnglesFromAxis <= min(halfOpeningAngle, maxAngle)
     distances = np.linalg.norm(coordSetsNew[:,hitsInside], axis=0)
     return distances, hitsInside
 
 def GetFeatures(pfo, calculateViews):
     featureDict = {}
     if calculateViews["U"]:
-        BinnedHitStd, BinnedChargeStd = GetRotatedBinStdevPCA(pfo.driftCoordU, pfo.wireCoordU, pfo.energyU, cfg.hitBinning["binWidth"], cfg.hitBinning["minBins"])
-        RadialBinHitStd, RadialBinChargeStd = GetRadialBinStdev((pfo.driftCoordU, pfo.wireCoordU), pfo.energyU, pfo.vertexU, cfg.hitBinning["hitFraction"], cfg.hitBinning["binWidth"], cfg.hitBinning["minBins"])
+        BinnedHitStd, BinnedChargeStd = GetRotatedBinStdevPCA(pfo.driftCoordU, pfo.wireCoordU, pfo.energyU)
+        RadialBinHitStd, RadialBinChargeStd = GetRadialBinStdev((pfo.driftCoordU, pfo.wireCoordU), pfo.energyU, pfo.vertexU)
         featureDict.update({ 
             "BinnedHitStdU": BinnedHitStd, "BinnedChargeStdU": BinnedChargeStd, "RadialBinHitStdU": RadialBinHitStd, "RadialBinChargeStdU": RadialBinChargeStd
         })
     if calculateViews["V"]:
-        BinnedHitStd, BinnedChargeStd = GetRotatedBinStdevPCA(pfo.driftCoordV, pfo.wireCoordV, pfo.energyV, cfg.hitBinning["binWidth"], cfg.hitBinning["minBins"])
-        RadialBinHitStd, RadialBinChargeStd = GetRadialBinStdev((pfo.driftCoordV, pfo.wireCoordV), pfo.energyV, pfo.vertexV, cfg.hitBinning["hitFraction"], cfg.hitBinning["binWidth"], cfg.hitBinning["minBins"])
+        BinnedHitStd, BinnedChargeStd = GetRotatedBinStdevPCA(pfo.driftCoordV, pfo.wireCoordV, pfo.energyV)
+        RadialBinHitStd, RadialBinChargeStd = GetRadialBinStdev((pfo.driftCoordV, pfo.wireCoordV), pfo.energyV, pfo.vertexV)
         featureDict.update({ 
             "BinnedHitStdV": BinnedHitStd, "BinnedChargeStdV": BinnedChargeStd, "RadialBinHitStdV": RadialBinHitStd, "RadialBinChargeStdV": RadialBinChargeStd
         })
     if calculateViews["W"]:
-        BinnedHitStd, BinnedChargeStd = GetRotatedBinStdevPCA(pfo.driftCoordW, pfo.wireCoordW, pfo.energyW, cfg.hitBinning["binWidth"], cfg.hitBinning["minBins"])
-        RadialBinHitStd, RadialBinChargeStd = GetRadialBinStdev((pfo.driftCoordW, pfo.wireCoordW), pfo.energyW, pfo.vertexW, cfg.hitBinning["hitFraction"], cfg.hitBinning["binWidth"], cfg.hitBinning["minBins"])
+        BinnedHitStd, BinnedChargeStd = GetRotatedBinStdevPCA(pfo.driftCoordW, pfo.wireCoordW, pfo.energyW)
+        RadialBinHitStd, RadialBinChargeStd = GetRadialBinStdev((pfo.driftCoordW, pfo.wireCoordW), pfo.energyW, pfo.vertexW)
         featureDict.update({ 
             "BinnedHitStdW": BinnedHitStd, "BinnedChargeStdW": BinnedChargeStd, "RadialBinHitStdW": RadialBinHitStd, "RadialBinChargeStdW": RadialBinChargeStd
         })
     if calculateViews["3D"]:
-        RadialBinHitStd, RadialBinChargeStd = GetRadialBinStdev((pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D), pfo.energy3D, pfo.vertex3D, cfg.hitBinning["hitFraction"], cfg.hitBinning["binWidth"], cfg.hitBinning["minBins"])
+        RadialBinHitStd, RadialBinChargeStd = GetRadialBinStdev((pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D), pfo.energy3D, pfo.vertex3D)
         featureDict.update({ 
             "RadialBinHitStd3D": RadialBinHitStd, "RadialBinChargeStd3D": RadialBinChargeStd
         })
