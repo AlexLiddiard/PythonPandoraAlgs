@@ -140,18 +140,18 @@ def PrintPurityEfficiency(dfClass0Data, dfClass1Data, classNames, predictorName,
     dfClass1Variable =  dfClass1Data[predictorName]
     results = PurityEfficiency(dfClass0Variable, dfClass1Variable, cutoff, cutDirection)
     if pfoClass != classNames[1]:
-        print(classNames[0] + " Efficiency %.3f+-%.3f" % results[0:2])
+        print(classNames[0] + " Efficiency %.4f+-%.4f" % results[0:2])
         if showPurity:
             print((
-                classNames[0] + " Purity %.3f+-%.3f\n" +
-                classNames[0] + " Purity * Efficiency %.3f+-%.3f"
+                classNames[0] + " Purity %.4f+-%.4f\n" +
+                classNames[0] + " Purity * Efficiency %.4f+-%.4f"
             ) % results[2:6])
     if pfoClass != classNames[0]:
-        print(classNames[1] + " Efficiency %.3f+-%.3f" % results[6:8])
+        print(classNames[1] + " Efficiency %.4f+-%.4f" % results[6:8])
         if showPurity:
             print((
-                classNames[1] + " Purity %.3f+-%.3f\n" +
-                classNames[1] + " Purity * Efficiency %.3f+-%.3f"
+                classNames[1] + " Purity %.4f+-%.4f\n" +
+                classNames[1] + " Purity * Efficiency %.4f+-%.4f"
             ) % results[8:12])
 
 def PlotVariableHistogram(dfPfoData, classNames, variable, variableHistogram, bestCutoff = None):
@@ -195,11 +195,11 @@ def PlotPurityEfficiencyVsCutoff(featureName, classNames, cutoffValues, cutoffRe
         bx1.plot(cutoffValues, cutoffResults[1], 'b', label='Efficiency')
         bx1.plot(cutoffValues, cutoffResults[2], 'r', label='Purity')
         bx1.plot(cutoffValues, cutoffResults[3], 'g', label='Purity * Efficiency')
-        bx1.legend(loc='lower center')
+        bx1.legend(loc='best')
         bx2.plot(cutoffValues, cutoffResults[5], 'b', label='Efficiency')
         bx2.plot(cutoffValues, cutoffResults[6], 'r', label='Purity')
         bx2.plot(cutoffValues, cutoffResults[7], 'g', label='Purity * Efficiency')
-        bx2.legend(loc='lower center')
+        bx2.legend(loc='best')
         GraphCutoffLine(bx1, classNames, cutoffResults[0])
         GraphCutoffLine(bx2, classNames, cutoffResults[4])
 

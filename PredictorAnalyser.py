@@ -58,7 +58,7 @@ def BinnedPurityEfficiencyPlot(ax, results, binEdges, pfoClass, dependenceName, 
     if showPurity:
         hs.WireBarPlot(ax, results[pfoClass]["purity"], binEdges, heightErrors=results[pfoClass]["purityError"], label=predictorName + " Purity")
         hs.WireBarPlot(ax, results[pfoClass]["purityEfficiency"], binEdges, heightErrors=results[pfoClass]["purityEfficiencyError"], label=predictorName + "Purity*Efficiency")
-    ax.legend(loc='lower center', framealpha=0.5)
+    ax.legend(framealpha=0.5, loc="best")
     ax.set_ylim(yLimits)
     #ax.set_title("Purity/Efficiency vs %s\nCutoff=%.3f, %s%s classification" % (dependenceName, cutoff, filterName + " " if filterName is not None else "", pfoClass))
     ax.set_xlabel(dependenceName)
@@ -137,6 +137,7 @@ def PlotPurityEfficiencyVsVariable(dfClass0, dfClass1, classNames, predictors, g
                 "yAxis":"log",
                 "filters": filters0
             })
+        ax[0].set_ylim((0.75, 1)) #####################
         SaveFigure(fig, bc.figureFolderFull + "/" + filter.get("name", "") + classNames[1] + "PurityEfficiencyVs" + graph["dependence"] + ".pickle")
         plt.show()
 

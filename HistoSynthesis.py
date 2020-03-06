@@ -29,6 +29,8 @@ def CreateHistogram(df, histogram):
     plt.show()
 
 def CreateHistogramWire(ax, df, histogram):
+    if 'yAxis' in histogram:
+        ax.set_yscale(histogram['yAxis'])
     yLabel = "Probability"
     for (name, filter, normFilter, fill) in histogram['filters']:
         dfTemp = df
@@ -43,13 +45,11 @@ def CreateHistogramWire(ax, df, histogram):
         else:
             normedBinCounts = binCounts/len(df.query(normFilter))
         WireBarPlot(ax, normedBinCounts, binEdges, fill=fill, label=name)
-        
     ax.set_ylabel(yLabel)
     ax.set_xlabel(histogram['name'])
     ax.set_xlim((histogram['bins'][0], histogram['bins'][-1]))
-    if 'yAxis' in histogram:
-        ax.set_yscale(histogram['yAxis'])
-    ax.legend(framealpha=0.5)
+    ax.legend(framealpha=0.5, loc="best")
+        
 
 def WireBarPlot(ax, heights, edges, heightErrors=None, colour=None, fill=False, label=None):
     x = np.repeat(edges, 2)
