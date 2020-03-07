@@ -121,7 +121,8 @@ def CombineFilters(filterList, logicalOperator):
     combinedFilter = ""
     for filter in filterList:
         if filter != "":
-            combinedFilter += " %s %s" % (logicalOperator, "(" + filter + ")") if combinedFilter != "" else filter
+            filter = "(" + filter + ")"
+            combinedFilter += " %s %s" % (logicalOperator, filter) if combinedFilter != "" else filter
     return combinedFilter
 
 def ProcessFilters(filterClasses):
