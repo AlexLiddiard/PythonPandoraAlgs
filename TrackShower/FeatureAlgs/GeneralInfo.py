@@ -5,13 +5,6 @@ def GetFeatures(pfo, calculateViews):
         'fileName': pfo.fileName,
         'eventId': pfo.eventId,
         'pfoId': pfo.pfoId,
-        'mcNuanceCode': pfo.mcNuanceCode,
-        'mcPdgCode': pfo.mcPdgCode,
-        'mcpMomentum': pfo.mcpMomentum,
-        'mcParentPdgCode': pfo.mcParentPdgCode,
-        'mcNuPdgCode': pfo.incidentPfo.mcPdgCode,
-        'mcNuMomentum':  pfo.incidentPfo.mcpMomentum,
-        'mcHierarchyTier': pfo.mcHierarchyTier,
         'hierarchyTier': pfo.hierarchyTier,
         'isShower': pfo.IsShower(),
         'minCoordX3D': min(pfo.xCoord3D),
@@ -19,7 +12,16 @@ def GetFeatures(pfo, calculateViews):
         'minCoordZ3D': min(pfo.zCoord3D),
         'maxCoordX3D': max(pfo.xCoord3D),
         'maxCoordY3D': max(pfo.yCoord3D),
-        'maxCoordZ3D': max(pfo.zCoord3D)
+        'maxCoordZ3D': max(pfo.zCoord3D),
+        'mcNuanceCode': pfo.mcNuanceCode,
+        'mcPdgCode': pfo.mcPdgCode,
+        'mcpMomentum': pfo.mcpMomentum,
+        'mcParentPdgCode': pfo.mcParentPdgCode,
+        'mcNuPdgCode': pfo.incidentPfo.mcPdgCode,
+        'mcNuMomentum':  pfo.incidentPfo.mcpMomentum,
+        'mcHierarchyTier': pfo.mcHierarchyTier,
+        'purityOverall': pfo.PurityOverall(),
+        'completenessOverall': pfo.CompletenessOverall(),
     }
     if calculateViews["U"]:
         pfoDataDict.update({

@@ -28,7 +28,7 @@ chainCreation = {
 hitBinning = {
     "binWidth": 1,
     "minBins": 3,
-    "maxAngleFromAxis": m.pi,
+    "maxAngleFromAxis": m.pi/2,
     "hitFraction": 1,
 }
 
