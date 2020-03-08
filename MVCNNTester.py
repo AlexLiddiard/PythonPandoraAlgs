@@ -22,7 +22,7 @@ def TestCNN(val_loader, model, dfPredictions, name):
         pred = torch.max(out_data, 1)[1]
         for i, filepath in zip(range(pred.size()[0]), data[2][0]):
             index = os.path.basename(filepath[:-9])
-            dfPredictions.loc[index, model.name] = int(pred[i].cpu().data.numpy())
+            dfPredictions.loc[index, name] = int(pred[i].cpu().data.numpy())
 
 
 ds.LoadPfoData([]) # Load general info dataframe
