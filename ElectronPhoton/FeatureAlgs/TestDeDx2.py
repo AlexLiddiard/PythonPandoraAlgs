@@ -17,7 +17,7 @@ def GetInitialDeDx(coordSets, charge, vertex, radius, rectWidth, rectLength, sca
     if filter.sum() <= 1:
         return np.nan
     newBasis = pca.Pca(coordSets=coordSets[:,filter], intercept=vertex, withVectors=True)[1]
-    reducedCoords = pca.ChangeCoordBasis(coordSets=coordSets, basisVectors=newBasis, normed=True, preTranslation=-vertex)
+    reducedCoords = pca.ChangeCoordBasis(coordSets=coordSets, basisVectors=np.flip(newBasis, 1), normed=True, preTranslation=-vertex)
     if not pca.CorrectDirection(reducedCoords[0]):
         reducedCoords[0] *= -1
 
@@ -29,8 +29,7 @@ def GetInitialDeDx(coordSets, charge, vertex, radius, rectWidth, rectLength, sca
 
     # Make dE/dx estimate
     medianCharge = np.median(charge[filter])
-    dedxUnscaled = medianCharge / rectLength * nHits
-    #print("dedx2", dedxUnscaled, "distance", rectLength, "medianCharge", medianCharge, "n", len(calohits[2]))
+    dedxUnscaled = medianCharge * nHits / rectLength
     return dedxUnscaled * scaleFactor
 
 def GetFeatures(pfo, calculateViews):
