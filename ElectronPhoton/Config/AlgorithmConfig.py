@@ -1,6 +1,6 @@
 # New Initial dE/dx
 newInitialDeDx = {
-    "sphereRadius": 4,
+    "initialDirectionRadius": 4,
     "rectangleWidth": 1,
     "rectangleLength": 4,
     "calcVertex": True,
@@ -14,8 +14,9 @@ testDeDx1 = {
 
 # Test dE/dx 2
 testDeDx2 = {
-    "rectWidth": 1,
-    "rectLength": 4,
+    "initialDirectionRadius": 4,
+    "rectangleWidth": 1,
+    "rectangleLength": 4,
     "calcVertex": True,
 }
 

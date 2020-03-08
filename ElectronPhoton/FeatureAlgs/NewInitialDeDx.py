@@ -17,13 +17,14 @@ def axisEqual3D(ax):
         getattr(ax, 'set_{}lim'.format(dim))(ctr - r, ctr + r)
 
 # Gets all 3D hits within a 4 cm radius of the vertex, and returns the PCA eigenvector which has the largest corresponding eigenvalue.
-def GetInitialDirection(xCoords, yCoords, zCoords, vertex, sphereRadius = 4):
-    if len(xCoords) <= 1:
+def GetInitialDirection(coordSets, vertex, radius = 4):
+    coordSets = np.array(coordSets)
+    if len(coordSets[0]) <= 1:
         return
-    filt = GetHitsInRadius((xCoords, yCoords, zCoords), vertex, sphereRadius)
+    filt = GetHitsInRadius(coordSets=coordSets, centre=vertex, radius=radius)
     if filt.sum() <= 1:
         return
-    return pca.Pca((xCoords[filt], yCoords[filt], zCoords[filt]), intercept=vertex)[1][:,-1]
+    return pca.Pca(coordSets=coordSets[:,filt], intercept=vertex)[1][:,-1]
 
 def GetHitsInRadius(coordSets, centre, radius=4):
     centre = np.reshape(centre, (-1, 1))
@@ -45,7 +46,7 @@ def GetLongitudinalError(driftCoordErrors, wireCoordErrors, longDirection):
 def GetDeDx(xCoords3D, yCoords3D, zCoords3D, view2D, driftCoords2D, driftCoordErrors2D, wireCoords2D, wireCoordError2D, charges2D, sphereRadius, rectangleWidth, rectangleLength, vertex3D):
     vertex2D = ProjectVector(vertex3D, view2D)
 
-    showerLongDirection3D = GetInitialDirection(xCoords3D, yCoords3D, zCoords3D, vertex3D, sphereRadius)
+    showerLongDirection3D = GetInitialDirection((xCoords3D, yCoords3D, zCoords3D), vertex3D, sphereRadius)
     if showerLongDirection3D is None:
         return m.nan
     showerLongDirection2D = ProjectVector(showerLongDirection3D, view2D)
@@ -88,14 +89,14 @@ def GetFeatures(pfo, calculateViews):
     
     if calculateViews["U"]:
         if pfo.ValidVertex():
-            dedx = GetDeDx(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, "U", pfo.driftCoordU, pfo.driftCoordErrU, pfo.wireCoordU, 0.3, pfo.energyU, cfg.newInitialDeDx["sphereRadius"], cfg.newInitialDeDx["rectangleWidth"], cfg.newInitialDeDx["rectangleLength"], vertex3D)
+            dedx = GetDeDx(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, "U", pfo.driftCoordU, pfo.driftCoordErrU, pfo.wireCoordU, 0.3, pfo.energyU, cfg.newInitialDeDx["initialDirectionRadius"], cfg.newInitialDeDx["rectangleWidth"], cfg.newInitialDeDx["rectangleLength"], vertex3D)
         featureDict.update({ "dedxU": dedx })
     if calculateViews["V"]:
         if pfo.ValidVertex():
-            dedx = GetDeDx(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, "V", pfo.driftCoordV, pfo.driftCoordErrV, pfo.wireCoordV, 0.3, pfo.energyV, cfg.newInitialDeDx["sphereRadius"], cfg.newInitialDeDx["rectangleWidth"], cfg.newInitialDeDx["rectangleLength"], vertex3D)
+            dedx = GetDeDx(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, "V", pfo.driftCoordV, pfo.driftCoordErrV, pfo.wireCoordV, 0.3, pfo.energyV, cfg.newInitialDeDx["initialDirectionRadius"], cfg.newInitialDeDx["rectangleWidth"], cfg.newInitialDeDx["rectangleLength"], vertex3D)
         featureDict.update({ "dedxV": dedx })
     if calculateViews["W"]:
         if pfo.ValidVertex():
-            dedx = GetDeDx(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, "W", pfo.driftCoordW, pfo.driftCoordErrW, pfo.wireCoordW, 0.3, pfo.energyW, cfg.newInitialDeDx["sphereRadius"], cfg.newInitialDeDx["rectangleWidth"], cfg.newInitialDeDx["rectangleLength"], vertex3D)
+            dedx = GetDeDx(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, "W", pfo.driftCoordW, pfo.driftCoordErrW, pfo.wireCoordW, 0.3, pfo.energyW, cfg.newInitialDeDx["initialDirectionRadius"], cfg.newInitialDeDx["rectangleWidth"], cfg.newInitialDeDx["rectangleLength"], vertex3D)
         featureDict.update({ "dedxW": dedx })
     return featureDict

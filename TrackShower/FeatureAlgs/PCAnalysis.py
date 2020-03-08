@@ -24,11 +24,13 @@ def PcaReduce(coordSets, intercept=None, lDirectionCheck=False):
         return coordSets - intercept
     eigenvectors = Pca(coordSets, intercept)[1]
     reducedCoordSets = ChangeCoordBasis(coordSets, np.flip(eigenvectors, 1), True, -intercept)
-    if lDirectionCheck: # Check to ensure majority of hits have positive longitudinal coord, useful when intercept=vertex
-        lPositive = reducedCoordSets[0] >= 0
-        if lPositive.sum() < len(reducedCoordSets[0]) / 2:
-            reducedCoordSets[0] *= -1
+    if lDirectionCheck and not CorrectDirection(reducedCoordSets[0]): # useful when intercept=vertex
+        reducedCoordSets[0] *= -1
     return reducedCoordSets
+
+# Check to ensure majority of hits have positive coord
+def CorrectDirection(coords):
+    return (coords >= 0).sum() > len(coords) / 2
 
 # basisVectors = [[basis vector x coords], [basis vector y coords], ...]
 # coordSets = [[x coords], [y coords], ...]
@@ -52,10 +54,10 @@ def Pca(coordSets, intercept = None, withVectors=True):
             covmatrix[i, j] = covmatrix[j, i] = np.sum((coordSets[i] - intercept[i]) * (coordSets[j] - intercept[j])) / (ncoords - 1)
     return GetEigenValues(covmatrix, withVectors)
 
-def GetEigenValues(covmatrix, withVectors=True):
+def GetEigenValues(covmatrix, withEigenvectors=True):
     eigenvalues, eigenvectors = np.linalg.eigh(covmatrix)
     ZeroCorrect(eigenvalues)
-    if withVectors:
+    if withEigenvectors:
         order = eigenvalues.argsort()
         return eigenvalues[order].real, eigenvectors[:,order].real # numpy can sometimes return a complex matrix for no apparent reason!
     else:

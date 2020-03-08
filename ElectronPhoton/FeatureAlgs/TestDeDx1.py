@@ -54,7 +54,7 @@ def GetFeatures(pfo, calculateViews):
         calculatedVertex = CalculateShower3DVertex(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, cfg.vertexCalculation["initialLength"], cfg.vertexCalculation["outlierFraction"])
         if calculatedVertex is not None:
             vertex3D = calculatedVertex
-    direction3D = GetInitialDirection(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, vertex3D, 4)
+    direction3D = GetInitialDirection((pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D), vertex3D, 4)
     if direction3D is None:
         direction3D = np.array([1, 1, 1]) / m.sqrt(2) # No scaling
     
