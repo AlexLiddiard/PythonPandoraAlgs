@@ -3,42 +3,28 @@ import numpy as np
 import math as m
 import PCAnalysis as pca
 import matplotlib.pyplot as plt
-from NewInitialDeDx import Calculate3dVertex, GetInitialDirection
+from PfoVertexing import CalculateShower3DVertex
+from NewInitialDeDx import GetInitialDirection
 from UpRootFileReader import ProjectVector
 
-def GetInitialDeDx(pfo, coordSets, charge, maxTransVar, vertex=None, scaleFactor=1):
+def GetInitialDeDx(pfo, coordSets, charge, maxTransVar, vertex, scaleFactor=1):
     if len(coordSets[0]) < 3:
         return
-    reducedCoords = pca.PcaReduce(coordSets, vertex)
+    reducedCoords = pca.PcaReduce(coordSets=coordSets, intercept=vertex, lDirectionCheck=True)
 
-    if vertex is not None:
-        lCoordLowerBound = reducedCoords[0] >= 0
-        if lCoordLowerBound.sum() < len(reducedCoords[0]) / 2:
-            reducedCoords[0] *= -1
-            lCoordLowerBound = np.invert(lCoordLowerBound)
-        reducedCoords = reducedCoords[:,lCoordLowerBound]
-        charge = charge[lCoordLowerBound]
+    lPositive = reducedCoords[0] >= 0
+    reducedCoords = reducedCoords[:,lPositive]
+    charge = charge[lPositive]
 
     order = reducedCoords[0].argsort()
     reducedCoords = reducedCoords[:,order]
     lineSegmentForwards = GetInitialStraightSegment(reducedCoords, maxTransVar)
-
-    if (vertex is None) and ((lineSegmentForwards is None) or (len(lineSegmentForwards[0]) < len(coordSets[0]))):
-        reducedCoords = np.flip(reducedCoords, axis=1)
-        lineSegmentBackwards = GetInitialStraightSegment(reducedCoords, maxTransVar)
-        if (
-            (lineSegmentForwards is None) or 
-            ((lineSegmentBackwards is not None) and len(lineSegmentBackwards[0]) > len(lineSegmentForwards[0]))
-        ):
-            charge = np.flip(charge)
-            lineSegmentForwards = lineSegmentBackwards
-    
     if lineSegmentForwards is None:
         return
 
     distance = np.linalg.norm(lineSegmentForwards[:,-1] - lineSegmentForwards[:,0])
     medianCharge = np.median(charge[:len(lineSegmentForwards)])
-    dedxUnscaled = medianCharge * len(lineSegmentForwards) / distance
+    dedxUnscaled = medianCharge * len(lineSegmentForwards[0]) / distance
     return dedxUnscaled * scaleFactor
 
 
@@ -65,7 +51,7 @@ def GetInitialStraightSegment(coordSets, maxTransVar):
 def GetFeatures(pfo, calculateViews):
     vertex3D = pfo.vertex3D
     if cfg.newInitialDeDx["calcVertex"]:
-        calculatedVertex = Calculate3dVertex(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, cfg.vertexCalculation["initialLength"], cfg.vertexCalculation["outlierFraction"])
+        calculatedVertex = CalculateShower3DVertex(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, cfg.vertexCalculation["initialLength"], cfg.vertexCalculation["outlierFraction"])
         if calculatedVertex is not None:
             vertex3D = calculatedVertex
     direction3D = GetInitialDirection(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, vertex3D, 4)

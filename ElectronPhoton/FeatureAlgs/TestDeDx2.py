@@ -3,7 +3,8 @@ import numpy as np
 import math as m
 import PCAnalysis as pca
 import matplotlib.pyplot as plt
-from NewInitialDeDx import Calculate3dVertex, GetInitialDirection
+from PfoVertexing import CalculateShower3DVertex
+from NewInitialDeDx import GetInitialDirection
 from UpRootFileReader import ProjectVector
 
 def GetInitialDeDx(pfo, coordSets, vertex, charge, rectWidth, rectLength, scaleFactor = 1):
@@ -16,6 +17,7 @@ def GetInitialDeDx(pfo, coordSets, vertex, charge, rectWidth, rectLength, scaleF
     calohits = calohits[:, lCoordLowerBound & (calohits[0] <= rectLength) & (np.abs(calohits[1]) < rectWidth / 2)]
     medianCharge = np.median(calohits[2])
     dedxUnscaled = medianCharge / rectLength * len(calohits[2])
+    #print("dedx2", dedxUnscaled, "distance", rectLength, "medianCharge", medianCharge, "n", len(calohits[2]))
     return dedxUnscaled * scaleFactor
 
 def GetInitialDeDx3D(pfo, coordSets, vertex, charge, cylinderDiameter, cylinderLength):
@@ -34,7 +36,7 @@ def GetInitialDeDx3D(pfo, coordSets, vertex, charge, cylinderDiameter, cylinderL
 def GetFeatures(pfo, calculateViews):
     vertex3D = pfo.vertex3D
     if cfg.newInitialDeDx["calcVertex"]:
-        calculatedVertex = Calculate3dVertex(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, cfg.vertexCalculation["initialLength"], cfg.vertexCalculation["outlierFraction"])
+        calculatedVertex = CalculateShower3DVertex(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, cfg.vertexCalculation["initialLength"], cfg.vertexCalculation["outlierFraction"])
         if calculatedVertex is not None:
             vertex3D = calculatedVertex
     direction3D = GetInitialDirection(pfo.xCoord3D, pfo.yCoord3D, pfo.zCoord3D, vertex3D, 4)

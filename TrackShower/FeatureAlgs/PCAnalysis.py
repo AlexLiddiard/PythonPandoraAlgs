@@ -14,7 +14,7 @@ def PcaVariance(coordSets, vertex=None):
     axialVariance = eigenvalues[:-1].sum()
     return axialVariance, axialVariance / eigenvalues[-1] / (len(coordSets) - 1)
 
-def PcaReduce(coordSets, intercept=None):
+def PcaReduce(coordSets, intercept=None, lDirectionCheck=False):
     if len(coordSets[0]) == 0:
         return coordSets
     if intercept is None:
@@ -24,6 +24,10 @@ def PcaReduce(coordSets, intercept=None):
         return coordSets - intercept
     eigenvectors = Pca(coordSets, intercept)[1]
     reducedCoordSets = ChangeCoordBasis(coordSets, np.flip(eigenvectors, 1), True, -intercept)
+    if lDirectionCheck: # Check to ensure majority of hits have positive longitudinal coord, useful when intercept=vertex
+        lPositive = reducedCoordSets[0] >= 0
+        if lPositive.sum() < len(reducedCoordSets[0]) / 2:
+            reducedCoordSets[0] *= -1
     return reducedCoordSets
 
 # basisVectors = [[basis vector x coords], [basis vector y coords], ...]
