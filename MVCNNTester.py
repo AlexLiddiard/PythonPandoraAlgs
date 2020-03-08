@@ -51,6 +51,6 @@ val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=cfg.testingBatc
 TestCNN(val_loader, model2, dfPredictions, "MVCNN")
 del model2
 
-print("Saving results"
+print("Saving results")
 ds.SavePfoData(dfPredictions, "CNN")
 print("Finished!")
