@@ -107,9 +107,9 @@ class ModelNetTrainer(object):
         total_print_time = 0.0
         all_target = []
         all_pred = []
-
-        for _, data in enumerate(self.val_loader, 0):
-            print("Validating! (%s)" % (_+1))
+        nBatches = len(self.val_loader)
+        for count, data in enumerate(self.val_loader, 0):
+            print("Validating! %.1f%%" % (count / nBatches * 100))
             if self.model_name == 'mvcnn':
                 N,V,C,H,W = data[1].size()
                 in_data = Variable(data[1]).view(-1,C,H,W).cuda()
