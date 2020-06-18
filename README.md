@@ -1,7 +1,7 @@
 # PythonPandoraAlgs
 All our Python code do to with Pandora algorithms.
 
-## Orientation:
+## Orientation
 
 ### BaseConfig.py
 Base config is where the separation you wish to use e.g. track-shower or electron-photon, is specified (these are the analysis folders to be used). It also allows the test area filepath to be defined.
@@ -39,6 +39,7 @@ Presents the results of Likelihood/BDT/MVCNN calculations as a series of graphs/
 ### OpenPickledFigure.py
 Graphs and histograms are saved as pickle files to Figures folder inside the analysis folder. This program opens these files. Can be modified to make changes to figures.
 
+## Configuration
 Inside each analysis folder is a config folder containing a configuration file for each of the programs above. It also contains:
 
 ### GeneralConfig.py
@@ -47,6 +48,7 @@ Defines the separation classes, and some other shared options.
 ### AlgorithmConfig.py
 Contains any parameters for feature algorithms.
 
+## Libraries
 Also some libraries imported by the programs:
 ### UpRootFileReader.py
 Reads PFOs from ROOT files and converts them to our Python version of PFOs. Also contains particle type and MicroBooNE geometry info.
