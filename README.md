@@ -3,22 +3,57 @@ All our Python code do to with Pandora algorithms.
 
 Orientation:
 
+# BaseConfig.py
 Base config is where the separation you wish to use e.g. track-shower or electron-photon, is specified (these are the analysis folders to be used). It also allows the test area filepath to be defined.
 
-After specifying the analysis folder to be used go to the analysis folder. Inside each analysis folder is a config file. This configures settings to be used by each algorithm in the main /PythonPandoraAlgs area.
+# GetFeatureData.py
+Runs feature algorithms on PFO data, which is in the "ROOT Files" folder. Algorithms are in the FeatureAlgs folder, inside the analysis folder. These are the algorithms we used to distinguish particles. It outputs relevant data to pickle files in the PickleData folder, inside the analysis folder. 
 
-In /PythonPandoraAlgs, running GetFeatureData.py uses information in the config file of the analysis folder to find root files and read them. It then outputs relevant data to pickle files in the analysis folder. This includes the calculation of PFO features.
+# DataSampler.py
+Creates the PFO data samples used for the analysis. It is included in a lot of the programs to select PFOs for training and testing.
 
-Features are calculated using the /FeatureAlgs in the analysis folder. These are where the algorithms we used to distinguish particles are.
+# LikelihoodCalculator.py
+Trains and validates a likelihood predictor, stores results in the PickleData folder.
 
-Running FeatureAnalyser presents the results of individual feature algorithms.
+# BDTCalculator.py
+Trains and validates a Boosted Decision Tree predictor, in the PickleData folder. This uses an XGBoost BDT with some sampling and iterative imputation techniques included. Similarly there is a Likelihood calculator.
 
-Running BDT calculator outputs a pickle file containing specified BDTs from the BDT config in the analysis folder. This used an XGBoost BDT with some sampling and iterative imputation techniques included. Similarly there is a Likelihood calculator.
+# MVCNNImageGenerator.py
+Uses calohit data to creates 2D images of particle tracks/showers. Stores images in the SVGData folder.
 
-There is also an MVCNNImageGenerator, which creates the images used by the MVCNN.
+# MVCNNTrainer.py
+Trains a multi-view convolutional neural network on some training images stored in SVGData. Stores the results in the TrainedModels folder.
 
-Running the MVCNNTrainer trains the MVCNN on some training images. Then MVCNNTester uses the trained MVCNN to identify PFOs.
+# MVCNNTester.py
+Validates a multi-view convolutional network stored in TrainedModels, stores the results in the PickleData folder.
 
-The DataSampler is included in a lot of these programs to select PFOs for training and testing.
+# PfoGraphicalAnalyser.py
+Gives a graphical view of PFOs, and provides other useful information. This aided algorithm development.
 
+# FeatureAnalyser.py
+Presents the results of individual feature algorithms as a series of graphs/histograms. Uses the data stored by GetFeatureData.py.
+
+# PredictorAnalyser.py
+Presents the results of Likelihood/BDT/MVCNN calculations as a series of graphs/histograms. Uses the data stored by LikelihoodCalculator.py, BDTCalculator.py, and MVCNNTester.py.
+
+# OpenPickledFigure.py
+Graphs and histograms are saved as pickle files to Figures folder inside the analysis folder. This program opens these files. Can be modified to make changes to figures.
+
+Inside each analysis folder is a config folder containing a configuration file for each of the programs above. It also contains:
+
+# GeneralConfig.py
+Defines the separation classes, and some other shared options.
+
+# AlgorithmConfig.py
+Contains any parameters for feature algorithms.
+
+Also some libraries imported by the programs:
+# UpRootFileReader.py
+Reads PFOs from ROOT files and converts them to our Python version of PFOs. Also contains particle type and MicroBooNE geometry info.
+
+# HistoSynthesis.py
+Used to create fancy histogram plots.
+
+# PFOVertexing.py
+Our attempt at an algorithm for calculating the vertex of a PFO.
 
