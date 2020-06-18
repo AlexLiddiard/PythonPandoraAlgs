@@ -19,7 +19,7 @@ Trains and validates a likelihood predictor, stores results in the PickleData fo
 Trains and validates a Boosted Decision Tree predictor, stored in the PickleData folder. This uses an XGBoost BDT with some sampling and iterative imputation techniques included.
 
 #### MVCNNImageGenerator.py
-Uses calohit data to creates 2D images of particle tracks/showers. Stores images in the SVGData folder.
+Uses calohit data in ROOT files to create 2D images of particle tracks/showers. Images are savet to the SVGData folder.
 
 #### MVCNNTrainer.py
 Trains a multi-view convolutional neural network on some training images stored in SVGData. Stores the results in the TrainedModels folder.
@@ -28,7 +28,7 @@ Trains a multi-view convolutional neural network on some training images stored 
 Validates a multi-view convolutional network stored in TrainedModels, stores the results in the PickleData folder.
 
 #### PfoGraphicalAnalyser.py
-Gives a graphical view of PFOs, and provides other useful information. This aided algorithm development.
+Uses ROOT file data to present a graphical view of PFOs, and provide other useful information. This aided our algorithm development.
 
 #### FeatureAnalyser.py
 Presents the results of individual feature algorithms as a series of graphs/histograms. Uses the data stored by GetFeatureData.py.
