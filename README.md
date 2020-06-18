@@ -57,4 +57,4 @@ Reads PFOs from ROOT files and converts them to our Python version of PFOs. Also
 Used to create fancy histogram plots.
 
 #### PFOVertexing.py
-Our attempt at an algorithm for calculating the vertex of a PFO.
+Our attempt at an algorithm for calculating the vertex of a PFO. Was required to properly set vertex after PandoraCheat algorithm was used for reconstruction.
