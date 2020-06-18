@@ -16,7 +16,7 @@ Creates the PFO data samples used for the analysis. It is included in a lot of t
 Trains and validates a likelihood predictor, stores results in the PickleData folder.
 
 #### BDTCalculator.py
-Trains and validates a Boosted Decision Tree predictor, in the PickleData folder. This uses an XGBoost BDT with some sampling and iterative imputation techniques included. Similarly there is a Likelihood calculator.
+Trains and validates a Boosted Decision Tree predictor, stored in the PickleData folder. This uses an XGBoost BDT with some sampling and iterative imputation techniques included. Similarly there is a Likelihood calculator.
 
 #### MVCNNImageGenerator.py
 Uses calohit data to creates 2D images of particle tracks/showers. Stores images in the SVGData folder.
